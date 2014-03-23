@@ -18,24 +18,32 @@ except ImportError:
 
 
 COMMUTER_MODES = (
-        ('c', _('Car')),
-        ('w', _('Walk')),
-        ('b', _('Bike')),
-        ('cp', _('Carpool')),
-        ('t', _('Transit (bus, subway, etc.)')),
-        ('o', _('Other (skate, canoe, etc.)')),
-        ('tc', _('Telecommuting')),
-        )
+    ('c', _('Car')),
+    ('w', _('Walk')),
+    ('b', _('Bike')),
+    ('cp', _('Carpool')),
+    ('t', _('Transit (bus, subway, etc.)')),
+    ('o', _('Other (skate, canoe, etc.)')),
+    ('tc', _('Telecommuting')),
+)
 
 LEG_DIRECTIONS = (
     ('tw', _('to work')),
     ('fw', _('from work')),
-    )
+)
 
 LEG_TYPES = (
     ('w', _('Walk/Ride Day')),
     ('n', _('Normal day')),
-    )
+)
+
+LEG_DURATIONS = (
+    (1, _('Less than 15 minutes')),
+    (2, _('15-30 minutes')),
+    (3, _('30-45 minutes')),
+    (4, _('45-60 minutes')),
+    (5, _('More than an hour')),
+)
 
 
 class EmplSizeCategory(models.Model):
@@ -137,10 +145,10 @@ class Leg(models.Model):
     different transportation modes.
     """
 
-    mode = models.CharField(blank=False, null=True, max_length=2, choices=COMMUTER_MODES)
-    direction = models.CharField(blank=False, null=True, max_length=2, choices=LEG_DIRECTIONS)
-    type = models.CharField(blank=False, null=True, max_length=1, choices=LEG_TYPES)
-    longest = models.BooleanField('Longest Leg', help_text='Longest leg in this commute')
+    mode = models.CharField(blank=True, null=True, max_length=2, choices=COMMUTER_MODES)
+    direction = models.CharField(blank=True, null=True, max_length=2, choices=LEG_DIRECTIONS)
+    type = models.CharField(blank=True, null=True, max_length=1, choices=LEG_TYPES)
+    duration = models.IntegerField(blank=True, null=True, choices=LEG_DURATIONS)
 
     class Meta:
         verbose_name = _('Leg')
