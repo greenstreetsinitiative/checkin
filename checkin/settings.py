@@ -1,9 +1,4 @@
-<<<<<<< HEAD:wsgi/checkin/settings.py
 # Django settings for checkin project.
-=======
-"""
-Django settings for django_test project.
->>>>>>> upstream/master:checkin/settings.py
 
 # For more information on this file, see
 # https://docs.djangoproject.com/en/1.6/topics/settings/
@@ -96,16 +91,7 @@ WSGI_APPLICATION = 'checkin.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
-<<<<<<< HEAD:wsgi/checkin/settings.py
-# <<<<<<< HEAD:checkin/settings.py
 
-POSTGIS_VERSION = (2, 0, 3)
-
-# =======
-# >>>>>>> upstream/master:wsgi/checkin/settings.py
-=======
-
->>>>>>> upstream/master:checkin/settings.py
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
