@@ -2,10 +2,10 @@ $(function() {
   // add another leg
   $('.btn.morelegs').on('click', function(event) {
     var targetLegs = $(event.target).data('target'),
-    $targetLegs = $('#' + targetLegs),
-    $lastLeg = $('.leg:last', $targetLegs),
-    $removeLegBtn = $('<button class="btn btn-danger"><span class="button">X</span></button>'),
-    $newLeg;
+        $targetLegs = $('#' + targetLegs),
+        $lastLeg = $('.leg:last', $targetLegs),
+        $removeLegBtn = $('<button class="btn btn-danger"><span class="button">X</span></button>'),
+        $newLeg;
 
     event.preventDefault();
 
