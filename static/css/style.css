@@ -1,12 +1,6 @@
-@font-face {
-  font-family: 'Nevis';
-  src: url("/static/fonts/nevis.ttf");
-}
-
 h1,h2,legend {
-  font-family: 'Nevis',Helvetica, Arial, sans-serif;
   text-transform: uppercase;
-  font-weight: normal;
+  font-weight:bold;
 }
 
 h3,h4,h5,h6 {
@@ -20,19 +14,9 @@ legend {
   border-bottom: 2px solid #5f9aa7;
 }
 
-.alertlegend {
-  background:none;
-border-bottom: none;
-padding:1px;
-}
-
-.helptextdark {
-  color:#464;
-}
-
-.alert-success {
-  background:#aceeb4;
-  color:inherit;
+.greenimpact {
+  background:#cff6cf;
+  border-bottom: 2px solid #5f9a87;
 }
 
 .selectboxit-selected {
@@ -53,8 +37,6 @@ span.button {
 }
 
 .container {max-width: 1000px;}
-
-
 
 a, a:hover {
     color: #64AA4F;

@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load staticfiles %}
 
 {% block title %}Check-in your commute to work!{% endblock %}
 
@@ -11,6 +12,8 @@
 <script src="/static/libs/jquery.json-2.4.min.js" type="text/javascript"></script>
 <script src="/static/libs/jstorage.min.js" type="text/javascript"></script>
 <script src="/static/libs/moment.min.js" type="text/javascript"></script>
+
+<script src="{% static 'js/form.js' %}" type="text/javascript"></script>
 
 <script type="text/javascript">
 function getLastFriday(someDate) {
@@ -140,7 +143,7 @@ $(document).ready(function() {
         $("#id_work_location").val("POINT (" + this.position.lng() + " " +  this.position.lat() + ")");
     });
     
-    map animation
+    // map animation
     var toggleBounce = function () {
         if (markerH.getAnimation() != null) {
             markerH.setAnimation(null);
@@ -149,8 +152,8 @@ $(document).ready(function() {
         }
     }
     
-    impact buttons
-    use Google directions distance as base
+    // impact buttons
+    // use Google directions distance as base
     var directionsService = new google.maps.DirectionsService();
     $("#button_co2").click(function() {
         
@@ -267,7 +270,7 @@ $(document).ready(function() {
         return false;
     });
 
-    receives an array of points and adjusts the map extent accordingly
+    // receives an array of points and adjusts the map extent accordingly
     var setMapBounds = function (points) {  
         var mapbounds = new google.maps.LatLngBounds();
         $.each(points, function(index, point) { 
@@ -277,7 +280,7 @@ $(document).ready(function() {
     }
 
 
-    trigger geocoding given address and move markers on map 
+    // trigger geocoding given address and move markers on map 
     $("#locate_home, #locate_work").on("click", function() {
         var address_type = this.id.split("_")[1]; // home or work
         geocodeAddress(address_type);
@@ -427,7 +430,7 @@ $(document).ready(function() {
           <label class="control-label col-sm-3">Your employer's name:</label>
           <div class="col-sm-9">
             <select class="form-control" id="id_employer" name="employer">
-              <option value="FindEmployer" data-iconurl="img/commercial-12.png"> Find employer</option>
+              <option value="FindEmployer" data-iconurl="../static/img/commercial-24.png"> Find employer</option>
               <option value="Other employer (not registered in Challenge)">Other employer (not registered in Challenge)</option>
               <option value="Self">Self</option>
               {% for employer in employers %}<option value="{{ employer.name|escape }}">{{ employer.name|escape }}</option>{% endfor %}
@@ -486,230 +489,104 @@ $(document).ready(function() {
         <legend>Walk/Ride Day</legend>
 
         <!-- begin picking modes of transport -->
-        <div class="form-group">
-     
-            <div id="legs">
-            
-            <div class="col-sm-3 right">
+        <div id="to-work-legs">
+            <h4>Commuting TO work</h4>
+          <div class=" form-group leg">
+            <div class="col-sm-3">
               <label>How did you commute TO work on Walk/Ride Day?</label>
             </div>
-
-            <div class="col-sm-7">
-              <select id="id_to_work_today" name="to_work_today" class="form-control" >
+            <div class="col-sm-6">
+              <select name="mode" class="form-control" >
               <option value="" selected="selected">Please select mode of transportation</option>
-              <option value="da" data-iconurl="img/car-24.png">Driving alone</option>
-              <option value="dalt" data-iconurl="img/car-24.png">Driving alone, alternative vehicle (taxi, hybrid, or electric vehicle, and car share)</option>
-              <option value="cp" data-iconurl="img/car-24.png">Carpool</option>
-              <option value="t" data-iconurl="img/rail-24.png">Transit (subway, city bus, coach bus, train, ferry, shuttle, etc.)</option>
-              <option value="b" data-iconurl="img/bicycle-24.png">Bike</option>
-              <option value="r" data-iconurl="img/school-24.png">Jog/Run</option>
-              <option value="w" data-iconurl="img/pitch-24.png">Walk</option>               
-              <option value="o" data-iconurl="img/scooter-24.png">Other (roller blade, scooter, kayak, etc.)</option>
-              <option value="tc" data-iconurl="img/warehouse-24.png">Telecommute</option>
+              <option value="da" data-iconurl="../static/img/car-24.png">Driving alone</option>
+              <option value="dalt" data-iconurl="../static/img/car-24.png">Driving alone, alternative vehicle (taxi, hybrid, car share, etc.)</option>
+              <option value="cp" data-iconurl="../static/img/car-24.png">Carpool</option>
+              <option value="t" data-iconurl="../static/img/rail-24.png">Transit (subway, city bus, coach bus, train, ferry, shuttle, etc.)</option>
+              <option value="b" data-iconurl="../static/img/bicycle-24.png">Bike</option>
+              <option value="r" data-iconurl="../static/img/school-24.png">Jog/Run</option>
+              <option value="w" data-iconurl="../static/img/pitch-24.png">Walk</option>               
+              <option value="o" data-iconurl="../static/img/scooter-24.png">Other (roller blade, scooter, kayak, etc.)</option>
+              <option value="tc" data-iconurl="../static/img/warehouse-24.png">Telecommute</option>
               </select>
             </div>
-            <div class="col-sm-2">
-              <div class="radio">
-              <label>
-                <input type="radio" name="ll_tw" id="ll_1"> Longest leg
-              </label>
-              </div>
+            <div class="col-sm-3">
+              <select name="time" class="form-control" >
+                <option value="" selected="selected">Please estimate time</option>
+                <option value="1">Less than 15 minutes</option>
+                <option value="2">15-30 minutes</option>
+                <option value="3">30-45 minutes</option>
+                <option value="4">45-60 minutes</option>
+                <option value="5">More than an hour</option>
+              </select>
             </div>
+            <input type="hidden" value="w" name="type">
+            <input type="hidden" value="tw" name="direction">
           </div>
+
         </div>
+
+        
         <div class="form-group">
           <div class="col-sm-2 col-sm-offset-3">
-          <button class="btn btn-primary morelegs"><span class="button">Add new leg</span></button>
+          <button class="btn btn-primary morelegs" data-target='to-work-legs'><span class="button">Add another leg</span></button>
           </div>
         </div>
-
-<!--
-            <select id="id_to_work_today_time" name="to_work_today_time" class="form-control" >
-            <option value="" selected="selected">Please estimate time</option>
-            <option value="1">Less than 15 minutes</option>
-            <option value="2">15-30 minutes</option>
-            <option value="3">30-45 minutes</option>
-            <option value="4">45-60 minutes</option>
-            <option value="5">More than an hour</option>
-
-            </select>
-
--->
-            
-          
-                <div id="morelegs">
-
-           <div class="col-sm-3 right"><button class="btn btn-primary morelegsagain"><span class="button">Add leg</span></button><button class="btn btn-danger lesslegs"><span class="button">X</span></button></div>
-            <div class="col-sm-9">
-               <select id="id_to_work_today2" name="to_work_today2" class="form-control">
-            <option value="" selected="selected">Please select second mode</option>
-            <option value="da" data-iconurl="img/car-24.png">Driving alone</option>
-            <option value="dalt" data-iconurl="img/car-24.png">Driving alone, alternative vehicle (taxi, hybrid, or electric vehicle, and car share)</option>
-            <option value="cp" data-iconurl="img/car-24.png">Carpool</option>
-            <option value="t" data-iconurl="img/rail-24.png">Transit (subway, city bus, coach bus, train, ferry, shuttle, etc.)</option>
-            <option value="b" data-iconurl="img/bicycle-24.png">Bike</option>
-            <option value="r" data-iconurl="img/school-24.png">Jog/Run</option>
-            <option value="w" data-iconurl="img/pitch-24.png">Walk</option>               
-            <option value="o" data-iconurl="img/scooter-24.png">Other (roller blade, scooter, kayak, etc.)</option>
-            <option value="tc" data-iconurl="img/warehouse-24.png">Telecommute</option>
-            </select>
-            <select id="id_to_work_today_time2" name="to_work_today_time2" class="form-control" >
-            <option value="" selected="selected">Please estimate time</option>
-            <option value="1">Less than 15 minutes</option>
-            <option value="2">15-30 minutes</option>
-            <option value="3">30-45 minutes</option>
-            <option value="4">45-60 minutes</option>
-            <option value="5">More than an hour</option>
-
-            </select>
-        
-             
-                     
-            </div>
-                </div>
-                
-                <div id="morelegsagain">
-
-           <div class="col-sm-3 right"><button class="btn btn-danger lesslegsagain"><span class="button">X</span></button></div>
-            <div class="col-sm-9">
-               <select id="id_to_work_today3" name="to_work_today3" class="form-control">
-            <option value="" selected="selected">Please select third mode</option>
-            <option value="da" data-iconurl="img/car-24.png">Driving alone</option>
-            <option value="dalt" data-iconurl="img/car-24.png">Driving alone, alternative vehicle (taxi, hybrid, or electric vehicle, and car share)</option>
-            <option value="cp" data-iconurl="img/car-24.png">Carpool</option>
-            <option value="t" data-iconurl="img/rail-24.png">Transit (subway, city bus, coach bus, train, ferry, shuttle, etc.)</option>
-            <option value="b" data-iconurl="img/bicycle-24.png">Bike</option>
-            <option value="r" data-iconurl="img/school-24.png">Jog/Run</option>
-            <option value="w" data-iconurl="img/pitch-24.png">Walk</option>               
-            <option value="o" data-iconurl="img/scooter-24.png">Other (roller blade, scooter, kayak, etc.)</option>
-            <option value="tc" data-iconurl="img/warehouse-24.png">Telecommute</option>
-            </select>
-            <select id="id_to_work_today_time3" name="to_work_today_time3" class="form-control" >
-            <option value="" selected="selected">Please estimate time</option>
-            <option value="1">Less than 15 minutes</option>
-            <option value="2">15-30 minutes</option>
-            <option value="3">30-45 minutes</option>
-            <option value="4">45-60 minutes</option>
-            <option value="5">More than an hour</option>
-
-            </select>
-        
-            
-                     
-            </div></div>
         
         <!-- end picking modes of transport -->
+        <hr>
+        <h4>Returning FROM work</h4>
+        
+        <div class="form-group">
+            <div class="col-sm-3">Did you commute the same way away from work on Walk/Ride Day?</div>
+            <div class="col-sm-6"><label class="checkbox"><input type="radio" name="AwayWR" class="AwayWR" value="AwayWRYes"> Yes </label>
+        <label class="checkbox"> <input type="radio" name="AwayWR" class="AwayWR" value="AwayWRNo"> No  </label></div>
+        </div>
+        
+        <div id="AwayWRNo">
 
-        <h4>Did you commute the same way AWAY FROM work on Walk/Ride Day?</h4>
-        
-        <label class="checkbox"><input type="radio" name="AwayWR" class="AwayWR" value="AwayWRYes"> Yes </label>
-            <label class="checkbox"> <input type="radio" name="AwayWR" class="AwayWR" value="AwayWRNo"> No  </label>
-        
-    <div id="AwayWRNo">
-             
-                <h4>How did you commute AWAY FROM work on Walk/Ride Day?</h4>
+            <div id="away-work-legs">
             
-            
-            
-            
-            
+                <div class=" form-group leg">
+                    <div class="col-sm-3">
+                      <label>How did you commute AWAY FROM work on Walk/Ride Day?</label>
+                    </div>
+                    <div class="col-sm-6">
+                      <select name="mode" class="form-control" >
+                      <option value="" selected="selected">Please select mode of transportation</option>
+                      <option value="da" data-iconurl="../static/img/car-24.png">Driving alone</option>
+                      <option value="dalt" data-iconurl="../static/img/car-24.png">Driving alone, alternative vehicle (taxi, hybrid, car share, etc.)</option>
+                      <option value="cp" data-iconurl="../static/img/car-24.png">Carpool</option>
+                      <option value="t" data-iconurl="../static/img/rail-24.png">Transit (subway, city bus, coach bus, train, ferry, shuttle, etc.)</option>
+                      <option value="b" data-iconurl="../static/img/bicycle-24.png">Bike</option>
+                      <option value="r" data-iconurl="../static/img/school-24.png">Jog/Run</option>
+                      <option value="w" data-iconurl="../static/img/pitch-24.png">Walk</option>               
+                      <option value="o" data-iconurl="../static/img/scooter-24.png">Other (roller blade, scooter, kayak, etc.)</option>
+                      <option value="tc" data-iconurl="../static/img/warehouse-24.png">Telecommute</option>
+                      </select>
+                    </div>
+                    <div class="col-sm-3">
+                      <select name="time" class="form-control" >
+                        <option value="" selected="selected">Please estimate time</option>
+                        <option value="1">Less than 15 minutes</option>
+                        <option value="2">15-30 minutes</option>
+                        <option value="3">30-45 minutes</option>
+                        <option value="4">45-60 minutes</option>
+                        <option value="5">More than an hour</option>
+                      </select>
+                    </div>
+                    <input type="hidden" value="w" name="type">
+                    <input type="hidden" value="tw" name="direction">
+                </div> 
+            </div>
+
             
             <div class="form-group">
-     
-            <div id="legs_away">
-            
-            <div class="col-sm-3 right"><button class="btn btn-primary morelegsaway"><span class="button">Add new leg</span></button></div>
-            <div class="col-sm-9">
-            <select id="id_from_work_today" name="from_work_today" class="form-control" >
-            <option value="" selected="selected">Please select mode of transportation</option>
-            <option value="da" data-iconurl="img/car-24.png">Driving alone</option>
-            <option value="dalt" data-iconurl="img/car-24.png">Driving alone, alternative vehicle (taxi, hybrid, or electric vehicle, and car share)</option>
-            <option value="cp" data-iconurl="img/car-24.png">Carpool</option>
-            <option value="t" data-iconurl="img/rail-24.png">Transit (subway, city bus, coach bus, train, ferry, shuttle, etc.)</option>
-            <option value="b" data-iconurl="img/bicycle-24.png">Bike</option>
-            <option value="r" data-iconurl="img/school-24.png">Jog/Run</option>
-            <option value="w" data-iconurl="img/pitch-24.png">Walk</option>               
-            <option value="o" data-iconurl="img/scooter-24.png">Other (roller blade, scooter, kayak, etc.)</option>
-            <option value="tc" data-iconurl="img/warehouse-24.png">Telecommute</option>
-            </select>
-            <select id="id_from_work_today_time" name="from_work_today_time" class="form-control" >
-            <option value="" selected="selected">Please estimate time</option>
-            <option value="1">Less than 15 minutes</option>
-            <option value="2">15-30 minutes</option>
-            <option value="3">30-45 minutes</option>
-            <option value="4">45-60 minutes</option>
-            <option value="5">More than an hour</option>
-
-            </select>
+              <div class="col-sm-2 col-sm-offset-3">
+              <button class="btn btn-primary morelegs" data-target='away-work-legs'><span class="button">Add another leg</span></button>
+              </div>
             </div>
-            </div>
-            
-          
-                <div id="morelegsaway">
 
-           <div class="col-sm-3 right"><button class="btn btn-primary morelegsagainaway"><span class="button">Add leg</span></button><button class="btn btn-danger lesslegsaway"><span class="button">X</span></button></div>
-            <div class="col-sm-9">
-               <select id="id_from_work_today2" name="from_work_today2" class="form-control">
-            <option value="" selected="selected">Please select second mode</option>
-            <option value="da" data-iconurl="img/car-24.png">Driving alone</option>
-            <option value="dalt" data-iconurl="img/car-24.png">Driving alone, alternative vehicle (taxi, hybrid, or electric vehicle, and car share)</option>
-            <option value="cp" data-iconurl="img/car-24.png">Carpool</option>
-            <option value="t" data-iconurl="img/rail-24.png">Transit (subway, city bus, coach bus, train, ferry, shuttle, etc.)</option>
-            <option value="b" data-iconurl="img/bicycle-24.png">Bike</option>
-            <option value="r" data-iconurl="img/school-24.png">Jog/Run</option>
-            <option value="w" data-iconurl="img/pitch-24.png">Walk</option>               
-            <option value="o" data-iconurl="img/scooter-24.png">Other (roller blade, scooter, kayak, etc.)</option>
-            <option value="tc" data-iconurl="img/warehouse-24.png">Telecommute</option>
-            </select>
-            <select id="id_from_work_today_time2" name="from_work_today_time2" class="form-control" >
-            <option value="" selected="selected">Please estimate time</option>
-            <option value="1">Less than 15 minutes</option>
-            <option value="2">15-30 minutes</option>
-            <option value="3">30-45 minutes</option>
-            <option value="4">45-60 minutes</option>
-            <option value="5">More than an hour</option>
-
-            </select>
-        
-             
-                     
-            </div>
-                </div>
-                
-                <div id="morelegsagainaway">
-
-           <div class="col-sm-3 right"><button class="btn btn-danger lesslegsagainaway"><span class="button">X</span></button></div>
-            <div class="col-sm-9">
-               <select id="id_from_work_today3" name="from_work_today3" class="form-control">
-            <option value="" selected="selected">Please select third mode</option>
-            <option value="da" data-iconurl="img/car-24.png">Driving alone</option>
-            <option value="dalt" data-iconurl="img/car-24.png">Driving alone, alternative vehicle (taxi, hybrid, or electric vehicle, and car share)</option>
-            <option value="cp" data-iconurl="img/car-24.png">Carpool</option>
-            <option value="t" data-iconurl="img/rail-24.png">Transit (subway, city bus, coach bus, train, ferry, shuttle, etc.)</option>
-            <option value="b" data-iconurl="img/bicycle-24.png">Bike</option>
-            <option value="r" data-iconurl="img/school-24.png">Jog/Run</option>
-            <option value="w" data-iconurl="img/pitch-24.png">Walk</option>               
-            <option value="o" data-iconurl="img/scooter-24.png">Other (roller blade, scooter, kayak, etc.)</option>
-            <option value="tc" data-iconurl="img/warehouse-24.png">Telecommute</option>
-            </select>
-            <select id="id_from_work_today_time3" name="from_work_today_time3" class="form-control" >
-            <option value="" selected="selected">Please estimate time</option>
-            <option value="1">Less than 15 minutes</option>
-            <option value="2">15-30 minutes</option>
-            <option value="3">30-45 minutes</option>
-            <option value="4">45-60 minutes</option>
-            <option value="5">More than an hour</option>
-
-            </select>
-        
-            
-                     
-            </div></div>
         </div>
-            
-            
-
-            </div>
 
         </fieldset>
         
@@ -719,235 +596,135 @@ $(document).ready(function() {
        <hr> <fieldset id="normal">
         
         <legend>Your normal commute</legend>
+
+        <h4>Going TO work</h4>
         
-      <h4>Do you normally commute TO work the same way you did on Walk/Ride Day?</h4>
-      
-        <label class="checkbox">
-            <input type="radio" name="ToNorm" class="ToNorm" value="ToNormYes"> Yes
-        </label>
-        <label class="checkbox">
-            <input type="radio" name="ToNorm" class="ToNorm" value="ToNormNo"> No
-        </label>
-        
+        <div class="form-group">
+            <div class="col-sm-3">Do you normally commute TO work the same way you did on Walk/Ride Day?</div>
+            <div class="col-sm-6">
+            <label class="checkbox">
+                <input type="radio" name="ToNorm" class="ToNorm" value="ToNormYes"> Yes
+            </label>
+            <label class="checkbox">
+                <input type="radio" name="ToNorm" class="ToNorm" value="ToNormNo"> No
+            </label></div>
+        </div>
+
+
         <div id="ToNormNo">
-        <h4>How do you commute TO work normally?</h4>
 
+            <div id="to-work-norm-legs">
+            
+                <div class=" form-group leg">
+                    <div class="col-sm-3">
+                      <label>How do you normally commute to work?</label>
+                    </div>
+                    <div class="col-sm-6">
+                      <select name="mode" class="form-control" >
+                      <option value="" selected="selected">Please select mode of transportation</option>
+                      <option value="da" data-iconurl="../static/img/car-24.png">Driving alone</option>
+                      <option value="dalt" data-iconurl="../static/img/car-24.png">Driving alone, alternative vehicle (taxi, hybrid, car share, etc.)</option>
+                      <option value="cp" data-iconurl="../static/img/car-24.png">Carpool</option>
+                      <option value="t" data-iconurl="../static/img/rail-24.png">Transit (subway, city bus, coach bus, train, ferry, shuttle, etc.)</option>
+                      <option value="b" data-iconurl="../static/img/bicycle-24.png">Bike</option>
+                      <option value="r" data-iconurl="../static/img/school-24.png">Jog/Run</option>
+                      <option value="w" data-iconurl="../static/img/pitch-24.png">Walk</option>               
+                      <option value="o" data-iconurl="../static/img/scooter-24.png">Other (roller blade, scooter, kayak, etc.)</option>
+                      <option value="tc" data-iconurl="../static/img/warehouse-24.png">Telecommute</option>
+                      </select>
+                    </div>
+                    <div class="col-sm-3">
+                      <select name="time" class="form-control" >
+                        <option value="" selected="selected">Please estimate time</option>
+                        <option value="1">Less than 15 minutes</option>
+                        <option value="2">15-30 minutes</option>
+                        <option value="3">30-45 minutes</option>
+                        <option value="4">45-60 minutes</option>
+                        <option value="5">More than an hour</option>
+                      </select>
+                    </div>
+                    <input type="hidden" value="w" name="type">
+                    <input type="hidden" value="tw" name="direction">
+                </div> 
+            </div>
+
+            
+            <div class="form-group">
+              <div class="col-sm-2 col-sm-offset-3">
+              <button class="btn btn-primary morelegs" data-target='to-work-norm-legs'><span class="button">Add another leg</span></button>
+              </div>
+            </div>
+
+        </div>
+        
+        <hr> 
+        <h4>Commuting FROM work</h4>
+        
         <div class="form-group">
-     
-            <div id="legsN">
-            
-            <div class="col-sm-3 right"><button class="btn btn-primary morelegsN"><span class="button">Add new leg</span></button></div>
-            <div class="col-sm-9">
-            <select id="id_to_work_norm" name="to_work_norm" class="form-control" >
-            <option value="" selected="selected">Please select mode of transportation</option>
-            <option value="da" data-iconurl="img/car-24.png">Driving alone</option>
-            <option value="dalt" data-iconurl="img/car-24.png">Driving alone, alternative vehicle (taxi, hybrid, or electric vehicle, and car share)</option>
-            <option value="cp" data-iconurl="img/car-24.png">Carpool</option>
-            <option value="t" data-iconurl="img/rail-24.png">Transit (subway, city bus, coach bus, train, ferry, shuttle, etc.)</option>
-            <option value="b" data-iconurl="img/bicycle-24.png">Bike</option>
-            <option value="r" data-iconurl="img/school-24.png">Jog/Run</option>
-            <option value="w" data-iconurl="img/pitch-24.png">Walk</option>               
-            <option value="o" data-iconurl="img/scooter-24.png">Other (roller blade, scooter, kayak, etc.)</option>
-            <option value="tc" data-iconurl="img/warehouse-24.png">Telecommute</option>
-            </select>
-            <select id="id_to_work_norm_time" name="to_work_norm_time" class="form-control" >
-            <option value="" selected="selected">Please estimate time</option>
-            <option value="1">Less than 15 minutes</option>
-            <option value="2">15-30 minutes</option>
-            <option value="3">30-45 minutes</option>
-            <option value="4">45-60 minutes</option>
-            <option value="5">More than an hour</option>
-
-            </select>
-            </div>
-            </div>
-            
-          
-                <div id="morelegsN">
-
-           <div class="col-sm-3 right"><button class="btn btn-primary morelegsagainN"><span class="button">Add leg</span></button><button class="btn btn-danger lesslegsN"><span class="button">X</span></button></div>
-            <div class="col-sm-9">
-               <select id="id_to_work_norm2" name="to_work_norm2" class="form-control">
-            <option value="" selected="selected">Please select second mode</option>
-            <option value="da" data-iconurl="img/car-24.png">Driving alone</option>
-            <option value="dalt" data-iconurl="img/car-24.png">Driving alone, alternative vehicle (taxi, hybrid, or electric vehicle, and car share)</option>
-            <option value="cp" data-iconurl="img/car-24.png">Carpool</option>
-            <option value="t" data-iconurl="img/rail-24.png">Transit (subway, city bus, coach bus, train, ferry, shuttle, etc.)</option>
-            <option value="b" data-iconurl="img/bicycle-24.png">Bike</option>
-            <option value="r" data-iconurl="img/school-24.png">Jog/Run</option>
-            <option value="w" data-iconurl="img/pitch-24.png">Walk</option>               
-            <option value="o" data-iconurl="img/scooter-24.png">Other (roller blade, scooter, kayak, etc.)</option>
-            <option value="tc" data-iconurl="img/warehouse-24.png">Telecommute</option>
-            </select>
-            <select id="id_to_work_today_norm2" name="to_work_today_norm2" class="form-control" >
-            <option value="" selected="selected">Please estimate time</option>
-            <option value="1">Less than 15 minutes</option>
-            <option value="2">15-30 minutes</option>
-            <option value="3">30-45 minutes</option>
-            <option value="4">45-60 minutes</option>
-            <option value="5">More than an hour</option>
-
-            </select>
-        
-             
-                     
-            </div>
-                </div>
-                
-                <div id="morelegsagainN">
-
-           <div class="col-sm-3 right"><button class="btn btn-danger lesslegsagainN"><span class="button">X</span></button></div>
-            <div class="col-sm-9">
-               <select id="id_to_work_norm3" name="to_work_norm3" class="form-control">
-            <option value="" selected="selected">Please select third mode</option>
-            <option value="da" data-iconurl="img/car-24.png">Driving alone</option>
-            <option value="dalt" data-iconurl="img/car-24.png">Driving alone, alternative vehicle (taxi, hybrid, or electric vehicle, and car share)</option>
-            <option value="cp" data-iconurl="img/car-24.png">Carpool</option>
-            <option value="t" data-iconurl="img/rail-24.png">Transit (subway, city bus, coach bus, train, ferry, shuttle, etc.)</option>
-            <option value="b" data-iconurl="img/bicycle-24.png">Bike</option>
-            <option value="r" data-iconurl="img/school-24.png">Jog/Run</option>
-            <option value="w" data-iconurl="img/pitch-24.png">Walk</option>               
-            <option value="o" data-iconurl="img/scooter-24.png">Other (roller blade, scooter, kayak, etc.)</option>
-            <option value="tc" data-iconurl="img/warehouse-24.png">Telecommute</option>
-            </select>
-            <select id="id_to_work_norm_time3" name="to_work_norm_time3" class="form-control" >
-            <option value="" selected="selected">Please estimate time</option>
-            <option value="1">Less than 15 minutes</option>
-            <option value="2">15-30 minutes</option>
-            <option value="3">30-45 minutes</option>
-            <option value="4">45-60 minutes</option>
-            <option value="5">More than an hour</option>
-
-            </select>
-        
-            
-                     
-            </div></div>
-        </div>
-     
-        </div>
-        
-   
-        
-        
-        <h4>Do you normally commute AWAY FROM work the same way you did on Walk/Ride Day?</h4>
-        
-     
-        <label class="checkbox">
+            <div class="col-sm-3">Do you normally commute FROM work the same way you normally commute TO work?</div>
+            <div class="col-sm-6">
+            <label class="checkbox">
             <input type="radio" name="AwayNorm" class="AwayNorm" value="AwayNormYes"> Yes
-        </label>
-        <label class="checkbox">
+            </label>
+            <label class="checkbox">
             <input type="radio" name="AwayNorm" class="AwayNorm" value="AwayNormNo"> No
-        </label>
+            </label></div>
+        </div>
 
-      
-      
+
         <div id="AwayNormNo">
-        <h4>How do you commute AWAY FROM work normally?</h4>
-        
-        <div class="form-group">
-     
-            <div id="legs_awayN">
+        <div id="away-work-norm-legs">
             
-            <div class="col-sm-3 right"><button class="btn btn-primary morelegsawayN"><span class="button">Add new leg</span></button></div>
-            <div class="col-sm-9">
-            <select id="id_from_work_norm" name="from_work_norm" class="form-control" >
-            <option value="" selected="selected">Please select mode of transportation</option>
-            <option value="da" data-iconurl="img/car-24.png">Driving alone</option>
-            <option value="dalt" data-iconurl="img/car-24.png">Driving alone, alternative vehicle (taxi, hybrid, or electric vehicle, and car share)</option>
-            <option value="cp" data-iconurl="img/car-24.png">Carpool</option>
-            <option value="t" data-iconurl="img/rail-24.png">Transit (subway, city bus, coach bus, train, ferry, shuttle, etc.)</option>
-            <option value="b" data-iconurl="img/bicycle-24.png">Bike</option>
-            <option value="r" data-iconurl="img/school-24.png">Jog/Run</option>
-            <option value="w" data-iconurl="img/pitch-24.png">Walk</option>               
-            <option value="o" data-iconurl="img/scooter-24.png">Other (roller blade, scooter, kayak, etc.)</option>
-            <option value="tc" data-iconurl="img/warehouse-24.png">Telecommute</option>
-            </select>
-            <select id="id_from_work_norm_time" name="from_work_norm_time" class="form-control" >
-            <option value="" selected="selected">Please estimate time</option>
-            <option value="1">Less than 15 minutes</option>
-            <option value="2">15-30 minutes</option>
-            <option value="3">30-45 minutes</option>
-            <option value="4">45-60 minutes</option>
-            <option value="5">More than an hour</option>
+                <div class=" form-group leg">
+                    <div class="col-sm-3">
+                      <label>How do you commute AWAY FROM work normally?</label>
+                    </div>
+                    <div class="col-sm-6">
+                      <select name="mode" class="form-control" >
+                      <option value="" selected="selected">Please select mode of transportation</option>
+                      <option value="da" data-iconurl="../static/img/car-24.png">Driving alone</option>
+                      <option value="dalt" data-iconurl="../static/img/car-24.png">Driving alone, alternative vehicle (taxi, hybrid, car share, etc.)</option>
+                      <option value="cp" data-iconurl="../static/img/car-24.png">Carpool</option>
+                      <option value="t" data-iconurl="../static/img/rail-24.png">Transit (subway, city bus, coach bus, train, ferry, shuttle, etc.)</option>
+                      <option value="b" data-iconurl="../static/img/bicycle-24.png">Bike</option>
+                      <option value="r" data-iconurl="../static/img/school-24.png">Jog/Run</option>
+                      <option value="w" data-iconurl="../static/img/pitch-24.png">Walk</option>               
+                      <option value="o" data-iconurl="../static/img/scooter-24.png">Other (roller blade, scooter, kayak, etc.)</option>
+                      <option value="tc" data-iconurl="../static/img/warehouse-24.png">Telecommute</option>
+                      </select>
+                    </div>
+                    <div class="col-sm-3">
+                      <select name="time" class="form-control" >
+                        <option value="" selected="selected">Please estimate time</option>
+                        <option value="1">Less than 15 minutes</option>
+                        <option value="2">15-30 minutes</option>
+                        <option value="3">30-45 minutes</option>
+                        <option value="4">45-60 minutes</option>
+                        <option value="5">More than an hour</option>
+                      </select>
+                    </div>
+                    <input type="hidden" value="w" name="type">
+                    <input type="hidden" value="tw" name="direction">
+                </div> 
+            </div>
 
-            </select>
-            </div>
-            </div>
             
-          
-                <div id="morelegsawayN">
-
-           <div class="col-sm-3 right"><button class="btn btn-primary morelegsagainawayN"><span class="button">Add leg</span></button><button class="btn btn-danger lesslegsawayN"><span class="button">X</span></button></div>
-            <div class="col-sm-9">
-               <select id="id_from_work_norm2" name="from_work_norm2" class="form-control">
-            <option value="" selected="selected">Please select second mode</option>
-            <option value="da" data-iconurl="img/car-24.png">Driving alone</option>
-            <option value="dalt" data-iconurl="img/car-24.png">Driving alone, alternative vehicle (taxi, hybrid, or electric vehicle, and car share)</option>
-            <option value="cp" data-iconurl="img/car-24.png">Carpool</option>
-            <option value="t" data-iconurl="img/rail-24.png">Transit (subway, city bus, coach bus, train, ferry, shuttle, etc.)</option>
-            <option value="b" data-iconurl="img/bicycle-24.png">Bike</option>
-            <option value="r" data-iconurl="img/school-24.png">Jog/Run</option>
-            <option value="w" data-iconurl="img/pitch-24.png">Walk</option>               
-            <option value="o" data-iconurl="img/scooter-24.png">Other (roller blade, scooter, kayak, etc.)</option>
-            <option value="tc" data-iconurl="img/warehouse-24.png">Telecommute</option>
-            </select>
-            <select id="id_from_work_norm_time2" name="from_work_norm_time2" class="form-control" >
-            <option value="" selected="selected">Please estimate time</option>
-            <option value="1">Less than 15 minutes</option>
-            <option value="2">15-30 minutes</option>
-            <option value="3">30-45 minutes</option>
-            <option value="4">45-60 minutes</option>
-            <option value="5">More than an hour</option>
-
-            </select>
-        
-             
-                     
+            <div class="form-group">
+              <div class="col-sm-2 col-sm-offset-3">
+              <button class="btn btn-primary morelegs" data-target='away-work-norm-legs'><span class="button">Add another leg</span></button>
+              </div>
             </div>
-                </div>
-                
-                <div id="morelegsagainawayN">
 
-           <div class="col-sm-3 right"><button class="btn btn-danger lesslegsagainawayN"><span class="button">X</span></button></div>
-            <div class="col-sm-9">
-               <select id="id_from_work_norm3" name="from_work_norm3" class="form-control">
-            <option value="" selected="selected">Please select third mode</option>
-            <option value="da" data-iconurl="img/car-24.png">Driving alone</option>
-            <option value="dalt" data-iconurl="img/car-24.png">Driving alone, alternative vehicle (taxi, hybrid, or electric vehicle, and car share)</option>
-            <option value="cp" data-iconurl="img/car-24.png">Carpool</option>
-            <option value="t" data-iconurl="img/rail-24.png">Transit (subway, city bus, coach bus, train, ferry, shuttle, etc.)</option>
-            <option value="b" data-iconurl="img/bicycle-24.png">Bike</option>
-            <option value="r" data-iconurl="img/school-24.png">Jog/Run</option>
-            <option value="w" data-iconurl="img/pitch-24.png">Walk</option>               
-            <option value="o" data-iconurl="img/scooter-24.png">Other (roller blade, scooter, kayak, etc.)</option>
-            <option value="tc" data-iconurl="img/warehouse-24.png">Telecommute</option>
-            </select>
-            <select id="id_from_work_norm_time3" name="from_work_norm_time3" class="form-control" >
-            <option value="" selected="selected">Please estimate time</option>
-            <option value="1">Less than 15 minutes</option>
-            <option value="2">15-30 minutes</option>
-            <option value="3">30-45 minutes</option>
-            <option value="4">45-60 minutes</option>
-            <option value="5">More than an hour</option>
-
-            </select>
-        
-            
-                     
-            </div></div>
         </div>
-        
-        </div>
-       
-        
+         
         </fieldset>
     <hr>
        
     <!--       green impacts -->
-        <div class="alert alert-success">
+
         
-            <fieldset><legend class="alertlegend">See the impact you had today</legend>
+            <fieldset>
+            <legend class="greenimpact">Optional: See the impact you had today</legend>
            
             <p class="lead">These calculators are conceptual only, and refer only to the longest leg of your commute. Please ignore them if they don't reflect your situation or provide appropriate information.</p>
             <hr>
@@ -956,7 +733,7 @@ $(document).ready(function() {
             <div class="form-group">
 
             <div class="col-sm-4">
-            <button id="button_co2" class="btn btn-impact">Calculate saved CO2 emissions</button><span class="help-block helptextdark">Per EPA standards and assumptions, compared to commuting by car alone.</span></div>
+            <button id="button_co2" class="btn btn-warning">Calculate saved CO2 emissions</button><span class="help-block">Per EPA standards and assumptions, compared to commuting by car alone.</span></div>
             
             <div class="col-sm-8">
             <span class="input uneditable-input form-control" id="saved_co2">Click button to calculate</span></div>
@@ -967,7 +744,7 @@ $(document).ready(function() {
         
             <div class="form-group">
             
-            <div class="col-sm-3"><button id="button_calories" class="btn btn-impact">Calculate Calories</button><span class="help-block helptextdark">Per <a target="_blank" href="http://prevention.sph.sc.edu/tools/compendium.htm">The Compendium of Physical Activities</a>, compared to commuting by car or transit.</span></div>
+            <div class="col-sm-3"><button id="button_calories" class="btn btn-warning">Calculate Calories</button><span class="help-block">Per <a target="_blank" href="http://prevention.sph.sc.edu/tools/compendium.htm">The Compendium of Physical Activities</a>, compared to commuting by car or transit.</span></div>
             <div class="col-sm-3">
            
             <input id="id_weight" name="weight" class="form-control" step="0.1" type="number" value="150">  <label class="control-label">Adjust weight [lbs]</label>
@@ -980,11 +757,12 @@ $(document).ready(function() {
             <label class="control-label">Your burned calories</label>
              </div>
             
-        </div>
+            </div>
+
             </fieldset>
             
-            
-            </div>
+            <hr>
+
 
 
             <!-- comments etc -->
