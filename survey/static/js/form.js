@@ -7,8 +7,8 @@ $(function() {
   // toggle more legs options
   $('input.morelegs[type=radio').on('change', function(event) {
     var targetLegs = $(event.target).attr('name'),
-        $targetLegs = $('#' + targetLegs);
-    $targetLegs.toggle(100);
+        $targetLegsContainer = $('#' + targetLegs).parent();
+    $targetLegsContainer.toggle(100);
   });
   
   // add another leg
