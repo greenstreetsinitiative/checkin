@@ -484,7 +484,9 @@ $(document).ready(function() {
         
     <!--      walk/ride    -->
 
-        <hr><fieldset id="walkride">
+      <hr>
+
+      <fieldset id="walkride">
         
         <legend>Walk/Ride Day</legend>
 
@@ -525,7 +527,6 @@ $(document).ready(function() {
 
         </div>
 
-        
         <div class="form-group">
           <div class="col-sm-2 col-sm-offset-3">
           <button class="btn btn-primary morelegs" data-target='to-work-legs'><span class="button">Add another leg</span></button>
@@ -534,66 +535,72 @@ $(document).ready(function() {
         
         <!-- end picking modes of transport -->
         <hr>
+
         <h4>Returning FROM work</h4>
         
         <div class="form-group">
-            <div class="col-sm-3">Did you commute the same way away from work on Walk/Ride Day?</div>
-            <div class="col-sm-6"><label class="checkbox"><input type="radio" name="AwayWR" class="AwayWR" value="AwayWRYes"> Yes </label>
-        <label class="checkbox"> <input type="radio" name="AwayWR" class="AwayWR" value="AwayWRNo"> No  </label></div>
+          <div class="col-sm-3">Did you commute the same way away from work on Walk/Ride Day?</div>
+          <div class="col-sm-6">
+            <label class="checkbox">
+              <input type="radio" name="from-work-legs" class="morelegs" checked> Yes
+            </label>
+            <label class="checkbox">
+              <input type="radio" name="from-work-legs" class="morelegs"> No
+            </label>
+          </div>
         </div>
         
-        <div id="AwayWRNo">
-
-            <div id="away-work-legs">
-            
-                <div class=" form-group leg">
-                    <div class="col-sm-3">
-                      <label>How did you commute AWAY FROM work on Walk/Ride Day?</label>
-                    </div>
-                    <div class="col-sm-6">
-                      <select name="mode" class="form-control" >
-                      <option value="" selected="selected">Please select mode of transportation</option>
-                      <option value="da" data-iconurl="../static/img/car-24.png">Driving alone</option>
-                      <option value="dalt" data-iconurl="../static/img/car-24.png">Driving alone, alternative vehicle (taxi, hybrid, car share, etc.)</option>
-                      <option value="cp" data-iconurl="../static/img/car-24.png">Carpool</option>
-                      <option value="t" data-iconurl="../static/img/rail-24.png">Transit (subway, city bus, coach bus, train, ferry, shuttle, etc.)</option>
-                      <option value="b" data-iconurl="../static/img/bicycle-24.png">Bike</option>
-                      <option value="r" data-iconurl="../static/img/school-24.png">Jog/Run</option>
-                      <option value="w" data-iconurl="../static/img/pitch-24.png">Walk</option>               
-                      <option value="o" data-iconurl="../static/img/scooter-24.png">Other (roller blade, scooter, kayak, etc.)</option>
-                      <option value="tc" data-iconurl="../static/img/warehouse-24.png">Telecommute</option>
-                      </select>
-                    </div>
-                    <div class="col-sm-3">
-                      <select name="time" class="form-control" >
-                        <option value="" selected="selected">Please estimate time</option>
-                        <option value="1">Less than 15 minutes</option>
-                        <option value="2">15-30 minutes</option>
-                        <option value="3">30-45 minutes</option>
-                        <option value="4">45-60 minutes</option>
-                        <option value="5">More than an hour</option>
-                      </select>
-                    </div>
-                    <input type="hidden" value="w" name="type">
-                    <input type="hidden" value="tw" name="direction">
-                </div> 
+        <div id="from-work-legs" class="hidden-leg">
+        
+          <div class="form-group leg">
+            <div class="col-sm-3">
+              <label>How did you commute AWAY FROM work on Walk/Ride Day?</label>
+            </div>
+            <div class="col-sm-6">
+              <select name="mode" class="form-control" >
+              <option value="" selected="selected">Please select mode of transportation</option>
+              <option value="da" data-iconurl="../static/img/car-24.png">Driving alone</option>
+              <option value="dalt" data-iconurl="../static/img/car-24.png">Driving alone, alternative vehicle (taxi, hybrid, car share, etc.)</option>
+              <option value="cp" data-iconurl="../static/img/car-24.png">Carpool</option>
+              <option value="t" data-iconurl="../static/img/rail-24.png">Transit (subway, city bus, coach bus, train, ferry, shuttle, etc.)</option>
+              <option value="b" data-iconurl="../static/img/bicycle-24.png">Bike</option>
+              <option value="r" data-iconurl="../static/img/school-24.png">Jog/Run</option>
+              <option value="w" data-iconurl="../static/img/pitch-24.png">Walk</option>               
+              <option value="o" data-iconurl="../static/img/scooter-24.png">Other (roller blade, scooter, kayak, etc.)</option>
+              <option value="tc" data-iconurl="../static/img/warehouse-24.png">Telecommute</option>
+              </select>
             </div>
 
-            
-            <div class="form-group">
-              <div class="col-sm-2 col-sm-offset-3">
-              <button class="btn btn-primary morelegs" data-target='away-work-legs'><span class="button">Add another leg</span></button>
-              </div>
+            <div class="col-sm-3">
+              <select name="time" class="form-control" >
+                <option value="" selected="selected">Please estimate time</option>
+                <option value="1">Less than 15 minutes</option>
+                <option value="2">15-30 minutes</option>
+                <option value="3">30-45 minutes</option>
+                <option value="4">45-60 minutes</option>
+                <option value="5">More than an hour</option>
+              </select>
             </div>
+            <input type="hidden" value="w" name="type">
+            <input type="hidden" value="fw" name="direction">
+          </div> 
 
         </div>
 
-        </fieldset>
+        <div class="form-group">
+          <div class="col-sm-2 col-sm-offset-3">
+          <button class="btn btn-primary morelegs" data-target='from-work-legs'><span class="button">Add another leg</span></button>
+          </div>
+        </div>
+
+      </fieldset>
         
         
         
     <!--   normal       -->
-       <hr> <fieldset id="normal">
+       <hr>
+
+       <fieldset id="normal">
         
         <legend>Your normal commute</legend>
 

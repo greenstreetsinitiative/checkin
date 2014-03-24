@@ -1,7 +1,15 @@
 $(function() {
   
   //Calls the selectBoxIt method on your HTML select box. Just makes dropdowns nicer.
+  // FIXME: interferes with dropdown in added multiple legs
   $('select').selectBoxIt();
+
+  // toggle more legs options
+  $('input.morelegs[type=radio').on('change', function(event) {
+    var targetLegs = $(event.target).attr('name'),
+        $targetLegs = $('#' + targetLegs);
+    $targetLegs.toggle(100);
+  });
   
   // add another leg
   $('.btn.morelegs').on('click', function(event) {

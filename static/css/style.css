@@ -36,6 +36,10 @@ span.button {
   margin: 0px 20px 20px 10px;
 }
 
+.hidden-leg {
+  display: none;
+}
+
 .container {max-width: 1000px;}
 
 a, a:hover {
