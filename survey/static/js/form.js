@@ -1,4 +1,9 @@
 $(function() {
+  //Calls the selectBoxIt method on your HTML select box. Just makes dropdowns nicer.
+  $("select").selectBoxIt();
+});
+
+$(function() {
   // add another leg
   $('.btn.morelegs').on('click', function(event) {
     var targetLegs = $(event.target).data('target'),
