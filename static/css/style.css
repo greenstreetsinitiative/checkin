@@ -103,12 +103,8 @@ a, a:hover {
 /* Map
 -------------------------------------------------- */
 
-#map_canvas {
-	height: 500px;
-}
-
-#map_container .help-block img {
-	height: 24px;
+#map-canvas {
+	height: 300px;
 }
 
 /* Form

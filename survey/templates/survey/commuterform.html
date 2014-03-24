@@ -27,7 +27,7 @@ function getLastFriday(someDate) {
 }
 $(document).ready(function() {
 
-    var boston = new google.maps.LatLng(42.357778, -71.061667);
+    
     var work = new google.maps.LatLng(42.37, -71.08);
     var home = new google.maps.LatLng(42.36, -71.10);
 
@@ -92,11 +92,11 @@ $(document).ready(function() {
         var friday = getLastFriday(month).format('MMMM DD, YYYY');
         $("#id_month").append("<option value='" + month.format('MMMM YYYY') + "'>" + friday + "</option>");
     }
-    var mapOptions = {
-        zoom: 11,
-        mapTypeId: google.maps.MapTypeId.ROADMAP,
-        center: home
-    };
+    // var mapOptions = {
+    //     zoom: 11,
+    //     mapTypeId: google.maps.MapTypeId.ROADMAP,
+    //     center: google.maps.LatLng(42.357778, -71.061667)
+    // };
 
 
     // init alert message
@@ -106,51 +106,51 @@ $(document).ready(function() {
         $(this).parent().hide("slow");
     });
  
-    var map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
     
-    // home and work place marker
-    var iconHome = "/static/img/home.png";
-    var markerHome = new google.maps.Marker({
-        map:map,
-        title:"Please drag & drop the marker to the intersection closest to your home.",
-        draggable:true,
-        animation: google.maps.Animation.DROP,
-        position: home,
-        icon: iconHome
-    });
-    // animation
-    google.maps.event.addListener(markerHome, 'click', toggleBounce);
-    // track marker dragging        
-    google.maps.event.addListener(markerHome, 'dragend', function() {
-        // write loc coord to hidden geometry field (in WGS84)
-        $("#id_home_location").val("POINT (" + markerHome.position.lng() + " " +  markerHome.position.lat() + ")");
-    });
-    var iconEmployer = "/static/img/factory.png";
-    var markerEmployer = new google.maps.Marker({
-        map: map,
-        title: "Please drag the marker to the location of your work-place.",
-        position: work,
-        draggable: true,
-        animation: google.maps.Animation.DROP,
-        icon: iconEmployer
-    });
-    // animation
-    google.maps.event.addListener(markerEmployer, 'click', toggleBounce);
-    // track marker dragging        
-    google.maps.event.addListener(markerEmployer, 'dragend', function() {
-        // write loc coord to hidden geometry field (in WGS84)
-        work = this.getPosition();
-        $("#id_work_location").val("POINT (" + this.position.lng() + " " +  this.position.lat() + ")");
-    });
     
-    // map animation
-    var toggleBounce = function () {
-        if (markerH.getAnimation() != null) {
-            markerH.setAnimation(null);
-        } else {
-            markerH.setAnimation(google.maps.Animation.BOUNCE);
-        }
-    }
+    // // home and work place marker
+    // var iconHome = "/static/img/home.png";
+    // var markerHome = new google.maps.Marker({
+    //     map:map,
+    //     title:"Please drag & drop the marker to the intersection closest to your home.",
+    //     draggable:true,
+    //     animation: google.maps.Animation.DROP,
+    //     position: home,
+    //     icon: iconHome
+    // });
+    // // animation
+    // google.maps.event.addListener(markerHome, 'click', toggleBounce);
+    // // track marker dragging        
+    // google.maps.event.addListener(markerHome, 'dragend', function() {
+    //     // write loc coord to hidden geometry field (in WGS84)
+    //     $("#id_home_location").val("POINT (" + markerHome.position.lng() + " " +  markerHome.position.lat() + ")");
+    // });
+    // var iconEmployer = "/static/img/factory.png";
+    // var markerEmployer = new google.maps.Marker({
+    //     map: map,
+    //     title: "Please drag the marker to the location of your work-place.",
+    //     position: work,
+    //     draggable: true,
+    //     animation: google.maps.Animation.DROP,
+    //     icon: iconEmployer
+    // });
+    // // animation
+    // google.maps.event.addListener(markerEmployer, 'click', toggleBounce);
+    // // track marker dragging        
+    // google.maps.event.addListener(markerEmployer, 'dragend', function() {
+    //     // write loc coord to hidden geometry field (in WGS84)
+    //     work = this.getPosition();
+    //     $("#id_work_location").val("POINT (" + this.position.lng() + " " +  this.position.lat() + ")");
+    // });
+    
+    // // map animation
+    // var toggleBounce = function () {
+    //     if (markerH.getAnimation() != null) {
+    //         markerH.setAnimation(null);
+    //     } else {
+    //         markerH.setAnimation(google.maps.Animation.BOUNCE);
+    //     }
+    // }
     
     // impact buttons
     // use Google directions distance as base
@@ -270,69 +270,6 @@ $(document).ready(function() {
         return false;
     });
 
-    // receives an array of points and adjusts the map extent accordingly
-    var setMapBounds = function (points) {  
-        var mapbounds = new google.maps.LatLngBounds();
-        $.each(points, function(index, point) { 
-            mapbounds.extend(point);
-        });
-        map.fitBounds(mapbounds);
-    }
-
-
-    // trigger geocoding given address and move markers on map 
-    $("#locate_home, #locate_work").on("click", function() {
-        var address_type = this.id.split("_")[1]; // home or work
-        geocodeAddress(address_type);
-    });
-    $("#id_home_address, #id_work_address").on("focusout", function(e) {
-        var address_type = this.id.split("_")[1]; // home or work
-        geocodeAddress(address_type);
-    });
-    $("#id_home_address, #id_work_address").keyup(function(e) {
-        if(e.which == 13) { // key = 'enter'
-            var address_type = this.id.split("_")[1]; // home or work
-            geocodeAddress(address_type);
-        }
-    });
-
-
-    // calls Google's geocoder, queries employers and moves marker
-    var geocodeAddress = function(address_type) {
-
-        var geocoder = new google.maps.Geocoder();
-        var $address = $("#id_" + address_type + "_address");
-
-        // clear previous results
-        $address.parentsUntil("fieldset").removeClass("error success");
-        
-        geocoder.geocode( { 'address': $address.val() }, function(results, status) {
-            if (status == google.maps.GeocoderStatus.OK) {
-
-                if (address_type === "home") {
-                    home = results[0].geometry.location;
-                    markerHome.setPosition(home);
-                    $("#id_home_location").val("POINT (" + markerHome.position.lng() + " " +  markerHome.position.lat() + ")");
-                    $("#id_home_address").val(results[0]['formatted_address']);
-                    setMapBounds([markerHome.position, markerEmployer.position]);
-                }
-                if (address_type === "work") {
-                    work = results[0].geometry.location;
-                    markerEmployer.setPosition(work);
-                    $("#id_work_location").val("POINT (" + markerEmployer.position.lng() + " " +  markerEmployer.position.lat() + ")");
-                    $("#id_work_address").val(results[0]['formatted_address']);
-                    setMapBounds([markerHome.position, markerEmployer.position]);
-                }
-                $address.parentsUntil("fieldset").addClass("success");
-                $address.parent().children(".help-inline").html("The address was successfully located.");
-                                           
-            } else {
-                $address.parentsUntil("fieldset").addClass("error");
-                $address.parent().children(".help-inline").html("We were not able to locate that address.");
-            }
-        });
-    }
-
     // form validation
     $("#surveyform").on("submit", function () {
 
@@ -447,33 +384,29 @@ $(document).ready(function() {
         <legend>Your locations</legend>
 
         <div class="form-group">
-          <label class="control-label col-sm-3" for="id_home_address">Starting location</label>
+          <label class="control-label col-sm-3" for="home_address">Starting location</label>
           <div class="col-sm-7">
-            <input type="text" class="form-control" id="id_home_address" name="home_address" placeholder="1 Main St, Boston, MA 02111">
+            <input type="text" class="form-control address" id="home_address" name="home_address" placeholder="1 Main St, Boston, MA 02111">
             <span class="help-block"> Where does your commute to work begin?</span>
           </div>
           <div class="col-sm-2">
-            <a id="locate_home" class="btn btn-primary">Locate</a>
+            <a class="btn btn-primary locate-address">Locate</a>
           </div>
         </div>
         
         <div class="form-group">
-          <label class="control-label col-sm-3" for="id_work_address">Work location</label>
+          <label class="control-label col-sm-3" for="work_address">Work location</label>
           <div class="col-sm-7">
-            <input type="text" class="form-control" id="id_work_address" name="work_address" placeholder="100 Main St, Boston, MA 02111">
+            <input type="text" class="form-control address" id="work_address" name="work_address" placeholder="100 Main St, Boston, MA 02111">
             <span class="help-block"> What is the address where you work/worked today? If you telecommuted today, please enter the work address where you most often work when you don't telecommute.</span>
           </div>
           <div class="col-sm-2">
-            <a id="locate_home" class="btn btn-primary">Locate</a>
+            <a class="btn btn-primary locate-address">Locate</a>
           </div>
         </div>
        
-        <p>You can <a data-toggle="collapse" data-target="#map_container" href="javascript:void(0)">view the map</a>, to verify and make sure we located your addresses correctly.</p>
-
-        <div id="map_container" class="collapse">
-            <div id="map_canvas" class="well">map div</div>
-            <p class="help-block">Drag and drop your <img src="../static/img/home.png" alt="Home marker" > home and <img src="../static/img/factory.png" alt="Home marker" > work location to the correct spot on the map if they seem wrong.</p>                       
-        </div>
+        <label class="control-label col-sm-3">Your Commute</label>
+        <div id="map-canvas" class="col-sm-9"></div>
                 
         {{ surveyform.home_location }}
         {{ surveyform.work_location }}
@@ -593,7 +526,7 @@ $(document).ready(function() {
             <button class="btn btn-primary morelegs" data-target='from-work-legs'><span class="button">Add another leg</span></button>
             </div>
           </div>
-          
+
         </div>
 
       </fieldset>
