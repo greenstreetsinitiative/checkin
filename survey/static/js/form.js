@@ -17,6 +17,7 @@ $(function() {
   function geocodeAddress($address) {
     geocoder.geocode({address: $address.val()}, function(results, status) {
       var marker, $helptxt;
+      
       if (status == google.maps.GeocoderStatus.OK) {
         $address.val(results[0]['formatted_address']);
         marker = new google.maps.Marker({
@@ -42,10 +43,11 @@ $(function() {
     });
   }
 
-  // trigger address geocoder
+  // trigger address geocoder on several UI interactions
   $('.btn.locate-address').on('click', function(event) {
     event.preventDefault();
     var $address = $(this).parent().prev().find('input.address');
+    
     geocodeAddress($address);
   });
   $('input.address').on({
@@ -63,31 +65,30 @@ $(function() {
 
   // toggle more legs options
   $('input.morelegs[type=radio').on('change', function(event) {
-    var targetLegs = $(event.target).attr('name'),
+    var targetLegs = $(this).attr('name'),
         $targetLegsContainer = $('#' + targetLegs).parent();
+
     $targetLegsContainer.toggle(100);
   });
   
   // add another leg
   $('.btn.morelegs').on('click', function(event) {
-    var targetLegs = $(event.target).data('target'),
+    event.preventDefault();
+    var targetLegs = $(this).data('target'),
         $targetLegs = $('#' + targetLegs),
         $lastLeg = $('.leg:last', $targetLegs),
         $removeLegBtn = $('<button class="btn btn-danger"><span class="button">X</span></button>'),
         $newLeg;
-
-    event.preventDefault();
 
     $newLeg = $lastLeg
     .clone()
     .appendTo($targetLegs);
 
     $removeLegBtn.on('click', function(event) {
-      var $leg = $(event.target).parentsUntil($targetLegs);
       event.preventDefault();
+      var $leg = $(this).parentsUntil($targetLegs);
       $leg.remove();
     });
-
     $('div:first-child', $newLeg)
     .addClass('right')
     .html($removeLegBtn);
