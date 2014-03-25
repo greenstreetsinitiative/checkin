@@ -16,23 +16,26 @@ $(function() {
   // geocode address
   function geocodeAddress($address) {
     geocoder.geocode({address: $address.val()}, function(results, status) {
-      var marker, $helptxt;
-      
+      var marker, $helptxt, 
+          id = $address.attr('id');
+          
       if (status == google.maps.GeocoderStatus.OK) {
         $address.val(results[0]['formatted_address']);
-        marker = new google.maps.Marker({
-          map: map,
-          title: results[0]['formatted_address'],
-          position: results[0].geometry.location,
-          animation: google.maps.Animation.DROP
-        });
-        cs[$address.attr('id')] = {
-          name: results[0]['formatted_address'],
-          position: results[0].geometry.location
-        };
+        cs[id] = cs[id] || {};
+        cs[id].name = results[0]['formatted_address'];
+        cs[id].position =results[0].geometry.location;
+        if (cs[id].marker === undefined) {
+          cs[id].marker = new google.maps.Marker({
+            map: map,
+            title: results[0]['formatted_address'],
+            position: results[0].geometry.location,
+            animation: google.maps.Animation.DROP
+          });
+        } else {
+          cs[id].marker.setPosition(results[0].geometry.location);
+        }
         map.panTo(results[0].geometry.location);
         // TODO:  if work and home location, geocode route
-        //        remove existing marker
         //        show commute length
       } else {
         $helptxt = $('<span />', {
