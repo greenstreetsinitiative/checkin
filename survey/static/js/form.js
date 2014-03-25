@@ -1,8 +1,16 @@
 $(function() {
   var cs = {}, // formdata
-      map, geocoder;
+      map, geocoder, directionsService, directionsDisplay;
 
   // map & locations
+  geocoder = new google.maps.Geocoder();
+  directionsService = new google.maps.DirectionsService();
+  directionsDisplay = new google.maps.DirectionsRenderer({
+    markerOptions: {
+      visible: false
+    }
+  });
+
   map = new google.maps.Map(document.getElementById('map-canvas'), {
     zoom: 11,
     mapTypeId: google.maps.MapTypeId.ROADMAP,
@@ -11,14 +19,14 @@ $(function() {
     mapTypeControl: false
   });
 
-  geocoder = new google.maps.Geocoder();
+  directionsDisplay.setMap(map);
 
   // geocode address
   function geocodeAddress($address) {
     geocoder.geocode({address: $address.val()}, function(results, status) {
       var marker, $helptxt, 
           id = $address.attr('id');
-          
+
       if (status == google.maps.GeocoderStatus.OK) {
         $address.val(results[0]['formatted_address']);
         cs[id] = cs[id] || {};
@@ -34,14 +42,31 @@ $(function() {
         } else {
           cs[id].marker.setPosition(results[0].geometry.location);
         }
-        map.panTo(results[0].geometry.location);
-        // TODO:  if work and home location, geocode route
-        //        show commute length
+        
+        if (cs.home_address && cs.work_address) {
+          getCommuteRoute();
+        } else {
+          map.panTo(results[0].geometry.location);
+        }
       } else {
         $helptxt = $('<span />', {
           class: 'text-danger'
         }).html('We were not able to locate this address.');
         $address.after($helptxt);
+      }
+    });
+  }
+
+  function getCommuteRoute() {
+    directionsService.route({
+      origin: cs.home_address.position,
+      destination: cs.work_address.position,
+      travelMode: google.maps.TravelMode.DRIVING
+    }, function(response, status) {
+      if (status == google.maps.DirectionsStatus.OK) {
+        directionsDisplay.setDirections(response);
+        $('#commute-distance').text(response.routes[0].legs[0].distance.text + ' (approx. if driving)');
+        // TODO: parse response.routes[0].overview_path to polyline
       }
     });
   }
