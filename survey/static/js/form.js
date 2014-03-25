@@ -48,7 +48,7 @@ $(function() {
         }
         
         if (cs.home_address && cs.work_address) {
-          getCommuteRoute();
+          setCommuteGeom(cs.home_address.position, cs.work_address.position);
         } else {
           map.panTo(results[0].geometry.location);
         }
@@ -62,18 +62,29 @@ $(function() {
     });
   }
 
-  function getCommuteRoute() {
+  function setCommuteGeom(origin, destination) {
     directionsService.route({
-      origin: cs.home_address.position,
-      destination: cs.work_address.position,
+      origin: origin,
+      destination: destination,
       travelMode: google.maps.TravelMode.DRIVING
     }, function(response, status) {
       if (status == google.maps.DirectionsStatus.OK) {
         directionsDisplay.setDirections(response);
         $('#commute-distance').text(response.routes[0].legs[0].distance.text + ' (approx. if driving)');
-        // TODO: parse response.routes[0].overview_path to polyline
+        cs.geom = pathToGeoJson(response.routes[0].overview_path);
       }
     });
+  }
+
+  function pathToGeoJson(path) {
+    return {
+      type: 'MultiLineString',
+      coordinates: [
+        $.map(path, function(v,i) {
+          return [[v.lng(), v.lat()]];
+        })
+      ]
+    };
   }
 
   // trigger address geocoder on several UI interactions
