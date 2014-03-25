@@ -27,8 +27,12 @@ $(function() {
       var marker, $helptxt, 
           id = $address.attr('id');
 
+      $address.next('.text-danger').remove();
+
       if (status == google.maps.GeocoderStatus.OK) {
+        
         $address.val(results[0]['formatted_address']);
+
         cs[id] = cs[id] || {};
         cs[id].name = results[0]['formatted_address'];
         cs[id].position =results[0].geometry.location;
@@ -48,6 +52,7 @@ $(function() {
         } else {
           map.panTo(results[0].geometry.location);
         }
+
       } else {
         $helptxt = $('<span />', {
           class: 'text-danger'
@@ -75,16 +80,10 @@ $(function() {
   $('.btn.locate-address').on('click', function(event) {
     event.preventDefault();
     var $address = $(this).parent().prev().find('input.address');
-    
     geocodeAddress($address);
   });
-  $('input.address').on({
-    focusout: function() {
-      geocodeAddress($(this));
-    },
-    keyup: function(event) {
-      if (event.which === 13) geocodeAddress($(this));
-    }
+  $('input.address').on('keyup', function(event) {
+    if (event.which === 13) geocodeAddress($(this));
   });
   
   //Calls the selectBoxIt method on your HTML select box. Just makes dropdowns nicer.
