@@ -19,8 +19,6 @@ $(function() {
     mapTypeControl: false
   });
 
-  directionsDisplay.setMap(map);
-
   // geocode address
   function geocodeAddress($address) {
     geocoder.geocode({address: $address.val()}, function(results, status) {
@@ -58,6 +56,10 @@ $(function() {
           class: 'text-danger'
         }).html('We were not able to locate this address.');
         $address.after($helptxt);
+        if (cs[id]) {
+          cs[id].marker.setMap(null);
+          delete cs[id];
+        }
         toggleCalculator('disable');
       }
     });
@@ -70,6 +72,7 @@ $(function() {
       travelMode: google.maps.TravelMode.BICYCLING
     }, function(response, status) {
       if (status == google.maps.DirectionsStatus.OK) {
+        directionsDisplay.setMap(map);
         directionsDisplay.setDirections(response);
         $('#commute-distance').text(response.routes[0].legs[0].distance.text + ' (by bike)');
         cs.geom = pathToGeoJson(response.routes[0].overview_path);
@@ -98,6 +101,7 @@ $(function() {
     if (status === 'disable') {
       delete cs.distance;
       delete cs.duration;
+      directionsDisplay.setMap(null);
       $('.calculator button').prop('disabled', true);
     } else if (status === 'enable') {
       $('.calculator button').prop('disabled', false);
