@@ -66,11 +66,11 @@ $(function() {
     directionsService.route({
       origin: origin,
       destination: destination,
-      travelMode: google.maps.TravelMode.DRIVING
+      travelMode: google.maps.TravelMode.BICYCLING
     }, function(response, status) {
       if (status == google.maps.DirectionsStatus.OK) {
         directionsDisplay.setDirections(response);
-        $('#commute-distance').text(response.routes[0].legs[0].distance.text + ' (approx. if driving)');
+        $('#commute-distance').text(response.routes[0].legs[0].distance.text + ' (by bike)');
         cs.geom = pathToGeoJson(response.routes[0].overview_path);
       }
     });
