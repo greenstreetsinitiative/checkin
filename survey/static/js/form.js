@@ -58,6 +58,7 @@ $(function() {
           class: 'text-danger'
         }).html('We were not able to locate this address.');
         $address.after($helptxt);
+        toggleCalculator('disable');
       }
     });
   }
@@ -72,6 +73,11 @@ $(function() {
         directionsDisplay.setDirections(response);
         $('#commute-distance').text(response.routes[0].legs[0].distance.text + ' (by bike)');
         cs.geom = pathToGeoJson(response.routes[0].overview_path);
+        cs.distance = response.routes[0].legs[0].distance.value; // Meters
+        cs.duration = response.routes[0].legs[0].duration.value; // Seconds
+        toggleCalculator('enable');
+      } else {
+        toggleCalculator('disable');
       }
     });
   }
@@ -85,6 +91,17 @@ $(function() {
         })
       ]
     };
+  }
+
+  function toggleCalculator(status) {
+    // we don't know distance and duration
+    if (status === 'disable') {
+      delete cs.distance;
+      delete cs.duration;
+      $('.calculator button').prop('disabled', true);
+    } else if (status === 'enable') {
+      $('.calculator button').prop('disabled', false);
+    }
   }
 
   // trigger address geocoder on several UI interactions
