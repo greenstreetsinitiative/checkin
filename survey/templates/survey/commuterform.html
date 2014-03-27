@@ -546,17 +546,17 @@ $(document).ready(function() {
             <div class="col-sm-3">Do you normally commute TO work the same way you did on Walk/Ride Day?</div>
             <div class="col-sm-6">
             <label class="checkbox">
-                <input type="radio" name="ToNorm" class="ToNorm" value="ToNormYes"> Yes
+                <input type="radio" name="to-work-normal-legs" class="morelegs" checked> Yes
             </label>
             <label class="checkbox">
-                <input type="radio" name="ToNorm" class="ToNorm" value="ToNormNo"> No
+                <input type="radio" name="to-work-normal-legs" class="morelegs"> No
             </label></div>
         </div>
 
 
-        <div id="ToNormNo">
+        <div class="hidden-legs">
 
-            <div id="to-work-norm-legs">
+            <div id="to-work-normal-legs">
             
                 <div class=" form-group leg">
                     <div class="col-sm-3">
@@ -586,7 +586,7 @@ $(document).ready(function() {
                         <option value="5">More than an hour</option>
                       </select>
                     </div>
-                    <input type="hidden" value="w" name="type">
+                    <input type="hidden" value="n" name="type">
                     <input type="hidden" value="tw" name="direction">
                 </div> 
             </div>
@@ -594,7 +594,7 @@ $(document).ready(function() {
             
             <div class="form-group">
               <div class="col-sm-2 col-sm-offset-3">
-              <button class="btn btn-primary morelegs" data-target='to-work-norm-legs'><span class="button">Add another leg</span></button>
+              <button class="btn btn-primary morelegs" data-target='to-work-normal-legs'><span class="button">Add another leg</span></button>
               </div>
             </div>
 
@@ -607,16 +607,16 @@ $(document).ready(function() {
             <div class="col-sm-3">Do you normally commute FROM work the same way you normally commute TO work?</div>
             <div class="col-sm-6">
             <label class="checkbox">
-            <input type="radio" name="AwayNorm" class="AwayNorm" value="AwayNormYes"> Yes
+            <input type="radio" name="from-work-normal-legs" class="morelegs yes" checked> Yes
             </label>
             <label class="checkbox">
-            <input type="radio" name="AwayNorm" class="AwayNorm" value="AwayNormNo"> No
+            <input type="radio" name="from-work-normal-legs" class="morelegs"> No
             </label></div>
         </div>
 
 
-        <div id="AwayNormNo">
-        <div id="away-work-norm-legs">
+        <div class="hidden-legs">
+        <div id="from-work-normal-legs">
             
                 <div class=" form-group leg">
                     <div class="col-sm-3">
@@ -646,15 +646,15 @@ $(document).ready(function() {
                         <option value="5">More than an hour</option>
                       </select>
                     </div>
-                    <input type="hidden" value="w" name="type">
-                    <input type="hidden" value="tw" name="direction">
+                    <input type="hidden" value="n" name="type">
+                    <input type="hidden" value="fw" name="direction">
                 </div> 
             </div>
 
             
             <div class="form-group">
               <div class="col-sm-2 col-sm-offset-3">
-              <button class="btn btn-primary morelegs" data-target='away-work-norm-legs'><span class="button">Add another leg</span></button>
+              <button class="btn btn-primary morelegs" data-target='from-work-normal-legs'><span class="button">Add another leg</span></button>
               </div>
             </div>
 
@@ -676,7 +676,7 @@ $(document).ready(function() {
             <div class="form-group">
 
             <div class="col-sm-4">
-            <button id="button_co2" class="btn btn-warning" disabled="disabled">Calculate saved CO2 emissions</button><span class="help-block">Per EPA standards and assumptions, compared to commuting by car alone.</span></div>
+            <button id="btn-co2" class="btn btn-warning" disabled="disabled">Calculate saved CO2 emissions</button><span class="help-block">Per EPA standards and assumptions, compared to commuting by car alone.</span></div>
             
             <div class="col-sm-8">
             <span class="input uneditable-input form-control" id="saved_co2">Click button to calculate</span></div>
