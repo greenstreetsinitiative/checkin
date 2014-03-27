@@ -424,7 +424,7 @@ $(document).ready(function() {
         <legend>Walk/Ride Day</legend>
 
         <!-- begin picking modes of transport -->
-        <div id="to-work-legs">
+        <div id="w-to-work-legs">
             <h4>Commuting TO work</h4>
           <div class=" form-group leg">
             <div class="col-sm-3">
@@ -462,7 +462,7 @@ $(document).ready(function() {
 
         <div class="form-group">
           <div class="col-sm-2 col-sm-offset-3">
-          <button class="btn btn-primary morelegs" data-target='to-work-legs'><span class="button">Add another leg</span></button>
+          <button class="btn btn-primary morelegs" data-target='w-to-work-legs'><span class="button">Add another leg</span></button>
           </div>
         </div>
         
@@ -475,16 +475,16 @@ $(document).ready(function() {
           <div class="col-sm-3">Did you commute the same way away from work on Walk/Ride Day?</div>
           <div class="col-sm-6">
             <label class="checkbox">
-              <input type="radio" name="from-work-legs" class="morelegs" checked> Yes
+              <input type="radio" name="w-from-work-legs" class="morelegs yes" checked> Yes
             </label>
             <label class="checkbox">
-              <input type="radio" name="from-work-legs" class="morelegs"> No
+              <input type="radio" name="w-from-work-legs" class="morelegs"> No
             </label>
           </div>
         </div>
         
         <div class="hidden-legs">
-          <div id="from-work-legs">
+          <div id="w-from-work-legs">
           
             <div class="form-group leg">
               <div class="col-sm-3">
@@ -523,7 +523,7 @@ $(document).ready(function() {
 
           <div class="form-group">
             <div class="col-sm-2 col-sm-offset-3">
-            <button class="btn btn-primary morelegs" data-target='from-work-legs'><span class="button">Add another leg</span></button>
+            <button class="btn btn-primary morelegs" data-target='w-from-work-legs'><span class="button">Add another leg</span></button>
             </div>
           </div>
 
@@ -546,17 +546,17 @@ $(document).ready(function() {
             <div class="col-sm-3">Do you normally commute TO work the same way you did on Walk/Ride Day?</div>
             <div class="col-sm-6">
             <label class="checkbox">
-                <input type="radio" name="to-work-normal-legs" class="morelegs" checked> Yes
+                <input type="radio" name="n-to-work-legs" class="morelegs yes" checked> Yes
             </label>
             <label class="checkbox">
-                <input type="radio" name="to-work-normal-legs" class="morelegs"> No
+                <input type="radio" name="n-to-work-legs" class="morelegs"> No
             </label></div>
         </div>
 
 
         <div class="hidden-legs">
 
-            <div id="to-work-normal-legs">
+            <div id="n-to-work-legs">
             
                 <div class=" form-group leg">
                     <div class="col-sm-3">
@@ -594,7 +594,7 @@ $(document).ready(function() {
             
             <div class="form-group">
               <div class="col-sm-2 col-sm-offset-3">
-              <button class="btn btn-primary morelegs" data-target='to-work-normal-legs'><span class="button">Add another leg</span></button>
+              <button class="btn btn-primary morelegs" data-target='n-to-work-legs'><span class="button">Add another leg</span></button>
               </div>
             </div>
 
@@ -607,16 +607,16 @@ $(document).ready(function() {
             <div class="col-sm-3">Do you normally commute FROM work the same way you normally commute TO work?</div>
             <div class="col-sm-6">
             <label class="checkbox">
-            <input type="radio" name="from-work-normal-legs" class="morelegs yes" checked> Yes
+            <input type="radio" name="n-from-work-legs" class="morelegs yes" checked> Yes
             </label>
             <label class="checkbox">
-            <input type="radio" name="from-work-normal-legs" class="morelegs"> No
+            <input type="radio" name="n-from-work-legs" class="morelegs"> No
             </label></div>
         </div>
 
 
         <div class="hidden-legs">
-        <div id="from-work-normal-legs">
+        <div id="n-from-work-legs">
             
                 <div class=" form-group leg">
                     <div class="col-sm-3">
@@ -654,7 +654,7 @@ $(document).ready(function() {
             
             <div class="form-group">
               <div class="col-sm-2 col-sm-offset-3">
-              <button class="btn btn-primary morelegs" data-target='from-work-normal-legs'><span class="button">Add another leg</span></button>
+              <button class="btn btn-primary morelegs" data-target='n-from-work-legs'><span class="button">Add another leg</span></button>
               </div>
             </div>
 
