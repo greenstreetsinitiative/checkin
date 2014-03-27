@@ -123,10 +123,9 @@ $(function() {
   $('select').selectBoxIt();
 
   // toggle more legs options
-  $('input.morelegs[type=radio').on('change', function(event) {
+  $('input.morelegs:radio').on('change', function(event) {
     var targetLegs = $(this).attr('name'),
-        $targetLegsContainer = $('#' + targetLegs).parent();
-
+        $targetLegsContainer = $('#' + targetLegs).parent(); 
     $targetLegsContainer.toggle(100);
   });
   
