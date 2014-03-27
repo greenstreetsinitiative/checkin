@@ -151,4 +151,54 @@ $(function() {
     .addClass('right')
     .html($removeLegBtn);
   });
+
+  // returns array of all commute legs
+  function collectAllLegs() {
+    var legs = [];
+    $('div.leg:visible').each(function() {
+      legs.push({
+        mode: $('select[name=mode]', this).val(),
+        time: $('select[name=time]', this).val(),
+        day: $('input[name=day]', this).val(),
+        direction: $('input[name=direction]', this).val()
+      });
+    });
+    $('input.morelegs.yes:radio:checked').each(function() {
+      var legType = $(this).attr('name');
+      $.merge(legs, duplicateLegs(legType, legs));
+    });
+    return legs;
+  }
+
+  // returns array with duplicated legs
+  // according to a given set of rules
+  function duplicateLegs(legType, legs) {
+    return {
+      'w-from-work-legs': function() {
+        var dLegs = $.grep(legs, function(l,i) {
+          return l.day === 'w' && l.direction === 'tw';
+        }).reverse();
+        return $.map(dLegs, function(l,i) {
+          return $.extend({}, l, { direction: 'fw' });
+        });
+      },
+      'n-to-work-legs': function() {
+        var dLegs = $.grep(legs, function(l,i) {
+          return l.day === 'w' && l.direction === 'tw';
+        });
+        return $.map(dLegs, function(l,i) {
+          return $.extend({}, l, { day: 'n' });
+        });
+      },
+      'n-from-work-legs': function() {
+        var dLegs = $.grep(legs, function(l,i) {
+          return l.day === 'n' && l.direction === 'tw';
+        }).reverse();
+        return $.map(dLegs, function(l,i) {
+          return $.extend({}, l, { direction: 'fw' });
+        });
+      }
+    }[legType]();
+  }
+
 });
