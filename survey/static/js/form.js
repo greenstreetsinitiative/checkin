@@ -205,4 +205,32 @@ $(function() {
     }[legType]();
   }
 
+  // calculate CO2 for Walk/Ride day
+  // approximation by using time for non-car legs 
+  // to estimate proportional non-car distance
+  $('#btn-co2').on('click', function(event) {
+    event.preventDefault();
+    var legs = collectAllLegs(),
+        wLegs, distanceNoCar, savedCO2,
+        timeTotal = 0, 
+        timeNoCar = 0;
+
+    wLegs = $.grep(legs, function(l,i) {
+      return l.day === 'w';
+    });
+    $.each(wLegs, function(i,l) {
+      timeTotal += parseInt(l.time);
+      if (['da', 'dalt', 'cp'].indexOf(l.mode) === -1) timeNoCar += parseInt(l.time);
+    });
+    if (timeNoCar === 0) {
+      $('#saved-co2').text('No CO2 emissions saved.');
+    } else {
+      distanceNoCar = ( parseInt(cs.distance) * 2 / timeTotal ) * timeNoCar;
+      // EPA standard: 0.41kg CO2 per mile driven 
+      // (convert to lbs and meters)
+      savedCO2 = 0.41 * 2.20462262 * distanceNoCar / 1609.344;
+      $('#saved-co2').text('You saved ' + Math.round(savedCO2) + ' lbs CO2 emissions on Walk/Ride Day');
+    }
+  });
+
 });
