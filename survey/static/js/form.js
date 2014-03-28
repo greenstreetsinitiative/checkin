@@ -223,7 +223,7 @@ $(function() {
       if (['da', 'dalt', 'cp'].indexOf(l.mode) === -1) timeNoCar += parseInt(l.time);
     });
     if (timeNoCar === 0) {
-      $('#saved-co2').text('No CO2 emissions saved.');
+      $('#saved-co2').text('You didn\'t save CO2 emissions on Walk/Ride Day');
     } else {
       distanceNoCar = ( parseInt(cs.distance) * 2 / timeTotal ) * timeNoCar;
       // EPA standard: 0.41kg CO2 per mile driven 
@@ -233,4 +233,31 @@ $(function() {
     }
   });
 
+  // calculate calories: kcal = METS * hours * kg
+  // http://en.wikipedia.org/wiki/Metabolic_equivalent
+  $('#btn-cal').on('click', function(event) {
+    event.preventDefault();
+    var legs = collectAllLegs(),
+        weight, METS, wlegs,
+        calories = 0;
+
+    METS = {
+      'b': 4.0,
+      'r': 7.0,
+      'w': 3.3,
+      'o': 3.5
+    };
+    weight = parseInt($('#weight').val());
+    wLegs = $.grep(legs, function(l,i) {
+      return l.day === 'w';
+    });
+    $.each(wLegs, function(i,l) {
+      calories += (METS[l.mode] || 0) * ((l.time || 0) * 0.25) * (weight * 0.4536);
+    });
+    if (calories > 0) {
+      $('#burned-cal').text('You burned ' + Math.round(calories) + ' extra calories on Walk/Ride Day');
+    } else {
+      $('#burned-cal').text('You didn\'t burn extra calories on Walk/Ride Day');
+    }
+  });
 });

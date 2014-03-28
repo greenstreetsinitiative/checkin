@@ -99,95 +99,6 @@ $(document).ready(function() {
         e.preventDefault(); 
         $(this).parent().hide("slow");
     });
-   
-    // impact buttons
-    // use Google directions distance as base
-    var directionsService = new google.maps.DirectionsService();
-    $("#button_calories").click(function() {
-
-        var weight = parseFloat($("#id_weight").val());
-        if (weight > 0) $("#id_weight").val(weight); 
-        var calories = 0;
-        var duration = 0;
-        var mode_to = $("#id_to_work_today option:selected").val();
-        var mode_from = $("#id_from_work_today option:selected").val();
-        
-        switch(mode_to) {
-            case "w":
-                var travelmode_to = google.maps.TravelMode.WALKING;
-                var mets_to = 2.5;
-                break;
-            case "b":
-                var travelmode_to = google.maps.TravelMode.BICYCLING;
-                var mets_to = 8;
-                break;
-            case "o":
-                var travelmode_to = google.maps.TravelMode.BICYCLING;
-                var mets_to = 12; // we estimate the same mets as for b but 50% more time
-                break;
-            default:
-                var mets_to = 0;
-        }
-        switch(mode_from) {
-            case "w":
-                var travelmode_from = google.maps.TravelMode.WALKING;
-                var mets_from = 2.5;
-                break;
-            case "b":
-                var travelmode_from = google.maps.TravelMode.BICYCLING;
-                var mets_from = 8;
-                break;
-            case "o":
-                var travelmode_from = google.maps.TravelMode.BICYCLING;
-                var mets_from = 12; // we estimate the same mets as for b but 50% more time
-                break;
-            default:
-                var mets_from = 0;
-        }
-        if (weight > 0) {
-            if (mets_to !== 0) {
-                var request_to = {
-                    origin: markerHome.getPosition(),
-                    destination: markerEmployer.getPosition(),
-                    unitSystem: google.maps.UnitSystem.METRIC,
-                    travelMode: travelmode_to
-                };
-                directionsService.route(request_to, function(result, status) {
-                    if (status == google.maps.DirectionsStatus.OK) {
-                        duration += result.routes[0].legs[0].duration.value;
-                        //calories = (mets/2.2) * weight * hours duration
-                        calories += duration / 3600 * weight * mets_to / 2.2;
-                        $("#burned_calories").val(Math.round(calories));
-                        $("#id_duration").val(duration);
-                    }
-                });
-            }
-            if (mets_from !== 0) {
-                var request_from = {
-                    origin: markerHome.getPosition(),
-                    destination: markerEmployer.getPosition(),
-                    unitSystem: google.maps.UnitSystem.METRIC,
-                    travelMode: travelmode_from
-                };
-                directionsService.route(request_from, function(result, status) {
-                    if (status == google.maps.DirectionsStatus.OK) {
-                        duration += result.routes[0].legs[0].duration.value;
-                        //calories = (mets/2.2) * weight * hours duration
-                        calories += duration / 3600 * weight * mets_from / 2.2;
-                        $("#burned_calories").text(Math.round(calories));
-                        $("#id_duration").val(duration);
-                    }
-                });
-            }
-            if (mets_from === 0 && mets_to === 0) { 
-                // car or transit doesn't burn calories
-                $("#burned_calories").text("No calories burned today.");
-            }
-        } else {
-            $("#burned_calories").text("Please enter your weight first.");
-        }
-        return false;
-    });
 
     // form validation
     $("#surveyform").on("submit", function () {
@@ -606,16 +517,16 @@ $(document).ready(function() {
         
             <div class="form-group">
             
-            <div class="col-sm-3"><button id="button_calories" class="btn btn-warning" disabled="disabled">Calculate Calories</button><span class="help-block">Per <a target="_blank" href="http://prevention.sph.sc.edu/tools/compendium.htm">The Compendium of Physical Activities</a>, compared to commuting by car or transit.</span></div>
+            <div class="col-sm-3"><button id="btn-cal" class="btn btn-warning" disabled="disabled">Calculate Calories</button><span class="help-block">Per <a target="_blank" href="http://en.wikipedia.org/wiki/Metabolic_equivalent">Metabolic equivalent</a>, compared to commuting by car or transit.</span></div>
             <div class="col-sm-3">
            
-            <input id="id_weight" name="weight" class="form-control" step="0.1" type="number" value="150">  <label class="control-label">Adjust weight [lbs]</label>
+            <input id="weight" name="weight" class="form-control" step="0.1" type="number" value="150">  <label class="control-label">Adjust weight [lbs]</label>
             
             </div>
         
             <div class="col-sm-6">
             
-            <span class="input uneditable-input form-control" id="burned_calories">Click button to calculate</span>
+            <span class="input uneditable-input form-control" id="burned-cal">Click button to calculate</span>
             <label class="control-label">Your burned calories</label>
              </div>
             
