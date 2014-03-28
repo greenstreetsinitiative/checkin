@@ -152,16 +152,20 @@ $(function() {
     .html($removeLegBtn);
   });
 
-  // returns array of all commute legs
+  // returns array of all valid commute legs
   function collectAllLegs() {
     var legs = [];
     $('div.leg:visible').each(function() {
-      legs.push({
-        mode: $('select[name=mode]', this).val(),
-        time: $('select[name=time]', this).val(),
-        day: $('input[name=day]', this).val(),
-        direction: $('input[name=direction]', this).val()
-      });
+      var mode = $('select[name=mode]', this).val(),
+          time = $('select[name=time]', this).val();
+      if (mode && time) {
+        legs.push({
+          mode: mode,
+          time: time,
+          day: $('input[name=day]', this).val(),
+          direction: $('input[name=direction]', this).val()
+        });
+      }
     });
     $('input.morelegs.yes:radio:checked').each(function() {
       var legType = $(this).attr('name');
