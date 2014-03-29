@@ -544,22 +544,252 @@ $(document).ready(function() {
             <!-- comments etc -->
             <h3>Comments or feedback:</h3>
             <textarea class="form-control" rows="3"></textarea>
-            <div id="submit-error" class="alert alert-error" style="display: none;">
-                <a class="close" href="http://localhost:8000/commuterform/#">×</a>
-                <h4 class="alert-heading"></h4>
-                <p></p>
+
+
+            <hr>
+
+            <!-- begin extra questions -->
+            <fieldset id="optional">
+        
+            <legend>Additional questions</legend>
+
+            <h4></h4>
+            <div class="form-group">
+              <div class="col-sm-3">
+                <label>In general, how would you describe your health?</label>
+              </div>
+              <div class="col-sm-9">
+              <div class="radio">
+                <label>
+                  <input type="radio" name="health" id="healthexcellent" value="healthexcellent"> Excellent
+                </label>
+              </div>
+              <div class="radio">
+                <label>
+                  <input type="radio" name="health" id="healthverygood" value="healthverygood"> Very good
+                </label>
+              </div>
+              <div class="radio">
+                <label>
+                  <input type="radio" name="health" id="healthgood" value="healthgood" checked> Good
+                </label>
+              </div>
+              <div class="radio">
+                <label>
+                  <input type="radio" name="health" id="healthfair" value="healthfair"> Fair
+                </label>
+              </div>
+              <div class="radio">
+                <label>
+                  <input type="radio" name="health" id="healthpoor" value="healthpoor"> Poor
+                </label>
+              </div>
+            </div> 
+            </div>
+
+            <hr>
+            <div class="form-group">
+                <div class="col-sm-3">
+                  <label>Optional details about you</label>
+                </div>
+                <div class="col-sm-3">
+                  <p>My weight is: <input type="number" class="form-control" placeholder="Text input"> pounds.</p>
+                </div>
+                <div class="col-sm-3">
+                  <p>My height is: <input type="number" class="form-control" placeholder="Text input"> feet and <input type="number" class="form-control" placeholder="Text input"> inches tall.</p>
+                </div>
+                <div class="col-sm-3">
+                  <p>My gender is:</p>
+                  <div class="radio-inline">
+                    <label>
+                      <input type="radio" name="gender" id="female" value="genderfemale" checked> Female
+                    </label>
+                  </div>
+                  <div class="radio-inline">
+                    <label>
+                      <input type="radio" name="gender" id="male" value="gendermale"> Male
+                    </label>
+                  </div>
+                  <div class="radio-inline">
+                    <label>
+                      <input type="radio" name="gender" id="other" value="genderother"> Other 
+                    </label>
+                  </div><input type="text" class="form-control" placeholder="gender">
+                </div>
             </div>
             <hr>
-         
+            <div class="form-group">
+                <div class="col-sm-3">
+                  <label>INCLUDING Walk/Ride Day, how many days in the last week did you commute TO work via:</label>
+                </div>
+
+                <div class="col-sm-9">
+
+                <div class="col-sm-9">
+                  <div class="col-sm-3"><input type="number" name="cdays" class="form-control" placeholder="0"></div>
+                  <div><p>Driving alone</p></div>
+                </div>
+                
+                <div class="col-sm-9">
+                  <div class="col-sm-3"><input type="number" name="caltdays" class="form-control" placeholder="0"></div>
+                  <div><p>Driving alone, alternative vehicle (including taxi, hybrid, car shares)</p></div>
+                </div>
+                
+                <div class="col-sm-9">
+                  <div class="col-sm-3"><input type="number" name="cpdays" class="form-control" placeholder="0"></div>
+                  <div><p>Carpool</p></div>
+                </div>
+                
+                <div class="col-sm-9">
+                  <div class="col-sm-3"><input type="number" name="tdays" class="form-control" placeholder="0"> </div>
+                  <div><p>Transit</p></div>
+                </div>
+                
+                <div class="col-sm-9">
+                  <div class="col-sm-3"><input type="number" name="bdays" class="form-control" placeholder="0"> </div>
+                  <div><p>Bike</p></div>
+                </div>
+                
+                <div class="col-sm-9">
+                  <div class="col-sm-3"><input type="number" name="rdays" class="form-control" placeholder="0"> </div>
+                  <div><p>Jog/Run</p></div>
+                </div>
+                
+                <div class="col-sm-9">
+                  <div class="col-sm-3"><input type="number" name="wdays" class="form-control" placeholder="0"> </div>
+                  <div><p>Walk</p></div>
+                </div>
+                
+                <div class="col-sm-9">  
+                  <div class="col-sm-3"><input type="number" name="odays" class="form-control" placeholder="0"> </div>
+                  <div><p>Other (roller blade, scooter, kayak, etc.)</p></div>
+                </div>
+                
+                <div class="col-sm-9">
+                  <div class="col-sm-3"><input type="number" name="tcdays" class="form-control" placeholder="0"></div>
+                  <div><p>Telecommute</p></div>
+                </div>
+
+              </div>
+            </div>
+            <hr>
+            <div class="form-group">
+              <div class="col-sm-3">
+                <label>In the last week, INCLUDING Walk/Ride Day, did you always commute AWAY FROM work in the same way?</label>
+              </div>
+              <div class="col-sm-9">
+                  <div class="radio-inline">
+                    <label>
+                      <input type="radio" class="lastweek" name="lastweek" id="lastweekYes" value="lastweekAwayWRYes" checked> Yes
+                    </label>
+                  </div>
+                  <div class="radio-inline">
+                    <label>
+                      <input type="radio" class="lastweek" name="lastweek" id="lastweekNo" value="lastweekAwayWRNo"> No
+                    </label>
+                  </div>
+              </div>
+            </div>
+
+            <div id="lastweekaway" class="form-group">
+                <div class="col-sm-3">
+                  <label>INCLUDING Walk/Ride Day, how many days in the last week did you commute AWAY FROM work via:</label>
+                </div>
+
+                <div class="col-sm-9">
+
+                <div class="col-sm-9">
+                  <div class="col-sm-3"><input type="number" name="cdaysaway" class="form-control" placeholder="0"></div>
+                  <div><p>Driving alone</p></div>
+                </div>
+                
+                <div class="col-sm-9">
+                  <div class="col-sm-3"><input type="number" name="caltdaysaway" class="form-control" placeholder="0"></div>
+                  <div><p>Driving alone, alternative vehicle (including taxi, hybrid, car shares)</p></div>
+                </div>
+                
+                <div class="col-sm-9">
+                  <div class="col-sm-3"><input type="number" name="cpdaysaway" class="form-control" placeholder="0"></div>
+                  <div><p>Carpool</p></div>
+                </div>
+                
+                <div class="col-sm-9">
+                  <div class="col-sm-3"><input type="number" name="tdaysaway" class="form-control" placeholder="0"> </div>
+                  <div><p>Transit</p></div>
+                </div>
+                
+                <div class="col-sm-9">
+                  <div class="col-sm-3"><input type="number" name="bdaysaway" class="form-control" placeholder="0"> </div>
+                  <div><p>Bike</p></div>
+                </div>
+                
+                <div class="col-sm-9">
+                  <div class="col-sm-3"><input type="number" name="rdaysaway" class="form-control" placeholder="0"> </div>
+                  <div><p>Jog/Run</p></div>
+                </div>
+                
+                <div class="col-sm-9">
+                  <div class="col-sm-3"><input type="number" name="wdaysaway" class="form-control" placeholder="0"> </div>
+                  <div><p>Walk</p></div>
+                </div>
+                
+                <div class="col-sm-9">  
+                  <div class="col-sm-3"><input type="number" name="odaysaway" class="form-control" placeholder="0"> </div>
+                  <div><p>Other (roller blade, scooter, kayak, etc.)</p></div>
+                </div>
+                
+                <div class="col-sm-9">
+                  <div class="col-sm-3"><input type="number" name="tcdaysaway" class="form-control" placeholder="0"></div>
+                  <div><p>Telecommute</p></div>
+                </div>
+
+              </div>
+            </div>
+            <hr>
+            <div class="form-group">
+              
+              <div class="col-sm-12"><strong>In the last 7 days, did you make any changes to your normal transportation routine OUTSIDE OF your work commute? If yes, what changes?</strong>
+                <textarea class="form-control" rows="3" name="outsidechanges" placeholder="e.g. biked more, transit more, walked more etc. to shopping, visiting friends/family, picking up kids, etc."></textarea>
+              </div>
+            </div>
+            <hr>
+            <div class="form-group">
+              <div class="col-sm-12"><strong>How was Walk/Ride Day affected you? Has it affected your transportation habits? Your health? Your thinking about your commute? Your thinking about environmental, health, or community issues? Any additional notes or thoughts?</strong>
+                <textarea class="form-control" rows="3" name="affectedyou"></textarea>
+              </div>
+            </div> 
+
+            <hr>
+            <div class="form-group">
+              <div class="col-sm-12">
+            <label class="checkbox">
+            <input type="checkbox" value="contact"> I am willing to be contacted by the Green Streets Initiative to give feedback about Walk/Ride Day.
+            </label>
+            <label class="checkbox">
+            <input type="checkbox" name="volunteer"> I would like to volunteer to help support Green Streets' efforts.
+            </label>
+            </div>
+            </div>                     
+            </fieldset> <!-- end extra questions -->
+
             <!-- submit -->
             <div class="form-actions">
             
-            <p class="lead">We invite you to answer 8 optional questions every month about your transportation practices and lifestyle. These questions take approximately <strong>2 minutes</strong> to complete. Your answers will provide valuable detail about how people's commutes change over time, and will be used to improve Walk/Ride Days. Thank you very much for your time.</p>
-                <button id="button_submit" type="submit" class="btn btn-large btn-primary">Check-in my commute <em>and</em> proceed to 8 optional questions!</button>
+            <p id="optional" class="lead">We invite you to answer a few optional questions every month about your transportation practices and lifestyle. These questions take approximately <strong>2 minutes</strong> to complete. Your answers will provide valuable detail about how people's commutes change over time, and will be used to improve Walk/Ride Days. Thank you very much for your time.</p>
+                <button id="button_submit_optional" type="submit" class="btn btn-large btn-primary">Answer optional questions</button>
                 <button id="button_submit" type="submit" class="btn btn-large btn-success">Check-in my commute and exit</button>
-                
             </div>
-                
+             
+            <!-- error messages -->
+            <div class="form-group">
+            <div class="col-sm-12">
+            <div id="submit-error" class="bg-danger" style="display: none;">
+                <a class="close" href="http://localhost:8000/commuterform/#">×</a>
+                <h4 class="text-danger"></h4>
+                <p></p>
+            </div>
+            </div>
+            </div>   
                         
 
             </form>

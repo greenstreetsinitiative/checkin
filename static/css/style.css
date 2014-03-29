@@ -55,6 +55,10 @@ a, a:hover {
 	white-space: nowrap;
 }
 
+#submit-error {
+  padding:8px;
+}
+
 /* Topnav budget numbers
 -------------------------------------------------- */
 

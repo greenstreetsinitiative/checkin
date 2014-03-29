@@ -108,32 +108,14 @@ $(function() {
     }
   }
 
-  // hide extra questions 
-  $("#ToNormNo").hide();
-  $types2 = $('.ToNorm');
-  $away2 = $('#ToNormNo');
-  $types2.change(function() {
-      $this = $(this).val();
-      if ($this == "ToNormNo") {
-          $away2.show(500);
-                  }
-      else  {
-          $away2.hide(250);
-      }
-  });   
+  // extra questions 
 
-  $("#AwayNormNo").hide();
-  $types = $('.AwayNorm');
-  $away = $('#AwayNormNo');
-  $types.change(function() {
-      $this = $(this).val();
-      if ($this == "AwayNormNo") {
-          $away.show(500);
-                  }
-      else  {
-          $away.hide(250);
-      }
-  }); 
+  $('fieldset#optional').hide();
+  $("#lastweekaway").hide();
+
+  $('input.lastweek:radio').on('change', function(event) {
+    $("#lastweekaway").toggle(100);
+  });
 
   // trigger address geocoder on several UI interactions
   $('.btn.locate-address').on('click', function(event) {
@@ -283,4 +265,16 @@ $(function() {
       $('#burned-cal').text('You didn\'t burn extra calories on Walk/Ride Day');
     }
   });
+
+  //toggle additional checkin questions
+  $('#button_submit_optional').on('click', function(e){
+    e.preventDefault();
+
+    $('fieldset#optional').show();
+
+    $('p#optional').hide();
+    $('#button_submit_optional').hide();
+
+  });
+
 });
