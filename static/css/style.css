@@ -19,17 +19,22 @@ legend {
   border-bottom: 2px solid #5f9a87;
 }
 
-.selectboxit-selected {
-    background: #ADD8E6;
-  }
-
 .right {
   text-align:right;
 }
        
 span.button {
     display: block;
-    pointer-events: none;   // < --- Solution!
+    pointer-events: none;   
+}
+
+#commute-distance {
+  font-size: 24px;
+  font-weight: normal;
+  text-align: center;
+  margin: 10px auto;
+  background: #FFEECC;
+  padding: 8px;
 }
 
 .leg {
