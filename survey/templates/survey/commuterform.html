@@ -147,14 +147,17 @@ $(document).ready(function() {
 
 {% endblock %}
 
-{% block pageheader %}
-    <h1>Check-in your Walk/Ride Day commute!</h1>
-    <p class="lead">A check-in helps us monitor the impact of our initiative and involves only a few quick steps.</p>
-{% endblock pageheader %}
+
+    
+
 
 {% block body %}
 
 <section>
+
+    <h1>Walk/Ride Day Check-In Form</h1>
+    <p class="lead">Check in on the last Friday of every month. The Corporate Challenge takes place April through October.</p>
+    
       <form id="surveyform" role="form" class="form-horizontal" action="." method="POST">
 
         {% csrf_token %}
