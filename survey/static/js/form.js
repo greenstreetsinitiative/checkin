@@ -108,6 +108,33 @@ $(function() {
     }
   }
 
+  // hide extra questions 
+  $("#ToNormNo").hide();
+  $types2 = $('.ToNorm');
+  $away2 = $('#ToNormNo');
+  $types2.change(function() {
+      $this = $(this).val();
+      if ($this == "ToNormNo") {
+          $away2.show(500);
+                  }
+      else  {
+          $away2.hide(250);
+      }
+  });   
+
+  $("#AwayNormNo").hide();
+  $types = $('.AwayNorm');
+  $away = $('#AwayNormNo');
+  $types.change(function() {
+      $this = $(this).val();
+      if ($this == "AwayNormNo") {
+          $away.show(500);
+                  }
+      else  {
+          $away.hide(250);
+      }
+  }); 
+
   // trigger address geocoder on several UI interactions
   $('.btn.locate-address').on('click', function(event) {
     event.preventDefault();
@@ -117,10 +144,6 @@ $(function() {
   $('input.address').on('keyup', function(event) {
     if (event.which === 13) geocodeAddress($(this));
   });
-  
-  //Calls the selectBoxIt method on your HTML select box. Just makes dropdowns nicer.
-  // FIXME: interferes with dropdown in added multiple legs
-  $('select').selectBoxIt();
 
   // toggle more legs options
   $('input.morelegs:radio').on('change', function(event) {

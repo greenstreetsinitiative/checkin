@@ -157,7 +157,7 @@ $(document).ready(function() {
 
     <h1>Walk/Ride Day Check-In Form</h1>
     <p class="lead">Check in on the last Friday of every month. The Corporate Challenge takes place April through October.</p>
-    
+
       <form id="surveyform" role="form" class="form-horizontal" action="." method="POST">
 
         {% csrf_token %}
@@ -200,7 +200,7 @@ $(document).ready(function() {
           <label class="control-label col-sm-3">Your employer's name:</label>
           <div class="col-sm-9">
             <select class="form-control" id="id_employer" name="employer">
-              <option value="FindEmployer" data-iconurl="../static/img/commercial-24.png"> Find employer</option>
+              <option value="FindEmployer"> Find employer</option>
               <option value="Other employer (not registered in Challenge)">Other employer (not registered in Challenge)</option>
               <option value="Self">Self</option>
               {% for employer in employers %}<option value="{{ employer.name|escape }}">{{ employer.name|escape }}</option>{% endfor %}
@@ -266,15 +266,15 @@ $(document).ready(function() {
             <div class="col-sm-6">
               <select name="mode" class="form-control" >
               <option value="" selected="selected">Please select mode of transportation</option>
-              <option value="da" data-iconurl="../static/img/car-24.png">Driving alone</option>
-              <option value="dalt" data-iconurl="../static/img/car-24.png">Driving alone, alternative vehicle (taxi, hybrid, car share, etc.)</option>
-              <option value="cp" data-iconurl="../static/img/car-24.png">Carpool</option>
-              <option value="t" data-iconurl="../static/img/rail-24.png">Transit (subway, city bus, coach bus, train, ferry, shuttle, etc.)</option>
-              <option value="b" data-iconurl="../static/img/bicycle-24.png">Bike</option>
-              <option value="r" data-iconurl="../static/img/school-24.png">Jog/Run</option>
-              <option value="w" data-iconurl="../static/img/pitch-24.png">Walk</option>               
-              <option value="o" data-iconurl="../static/img/scooter-24.png">Other (roller blade, scooter, kayak, etc.)</option>
-              <option value="tc" data-iconurl="../static/img/warehouse-24.png">Telecommute</option>
+              <option value="da">Driving alone</option>
+              <option value="dalt">Driving alone, alternative vehicle (taxi, hybrid, car share, etc.)</option>
+              <option value="cp">Carpool</option>
+              <option value="t">Transit (subway, city bus, coach bus, train, ferry, shuttle, etc.)</option>
+              <option value="b">Bike</option>
+              <option value="r">Jog/Run</option>
+              <option value="w">Walk</option>               
+              <option value="o">Other (roller blade, scooter, kayak, etc.)</option>
+              <option value="tc">Telecommute</option>
               </select>
             </div>
             <div class="col-sm-3">
@@ -326,15 +326,15 @@ $(document).ready(function() {
               <div class="col-sm-6">
                 <select name="mode" class="form-control" >
                 <option value="" selected="selected">Please select mode of transportation</option>
-                <option value="da" data-iconurl="../static/img/car-24.png">Driving alone</option>
-                <option value="dalt" data-iconurl="../static/img/car-24.png">Driving alone, alternative vehicle (taxi, hybrid, car share, etc.)</option>
-                <option value="cp" data-iconurl="../static/img/car-24.png">Carpool</option>
-                <option value="t" data-iconurl="../static/img/rail-24.png">Transit (subway, city bus, coach bus, train, ferry, shuttle, etc.)</option>
-                <option value="b" data-iconurl="../static/img/bicycle-24.png">Bike</option>
-                <option value="r" data-iconurl="../static/img/school-24.png">Jog/Run</option>
-                <option value="w" data-iconurl="../static/img/pitch-24.png">Walk</option>               
-                <option value="o" data-iconurl="../static/img/scooter-24.png">Other (roller blade, scooter, kayak, etc.)</option>
-                <option value="tc" data-iconurl="../static/img/warehouse-24.png">Telecommute</option>
+                <option value="da">Driving alone</option>
+                <option value="dalt">Driving alone, alternative vehicle (taxi, hybrid, car share, etc.)</option>
+                <option value="cp">Carpool</option>
+                <option value="t">Transit (subway, city bus, coach bus, train, ferry, shuttle, etc.)</option>
+                <option value="b">Bike</option>
+                <option value="r">Jog/Run</option>
+                <option value="w">Walk</option>               
+                <option value="o">Other (roller blade, scooter, kayak, etc.)</option>
+                <option value="tc">Telecommute</option>
                 </select>
               </div>
 
@@ -398,15 +398,15 @@ $(document).ready(function() {
                     <div class="col-sm-6">
                       <select name="mode" class="form-control" >
                       <option value="" selected="selected">Please select mode of transportation</option>
-                      <option value="da" data-iconurl="../static/img/car-24.png">Driving alone</option>
-                      <option value="dalt" data-iconurl="../static/img/car-24.png">Driving alone, alternative vehicle (taxi, hybrid, car share, etc.)</option>
-                      <option value="cp" data-iconurl="../static/img/car-24.png">Carpool</option>
-                      <option value="t" data-iconurl="../static/img/rail-24.png">Transit (subway, city bus, coach bus, train, ferry, shuttle, etc.)</option>
-                      <option value="b" data-iconurl="../static/img/bicycle-24.png">Bike</option>
-                      <option value="r" data-iconurl="../static/img/school-24.png">Jog/Run</option>
-                      <option value="w" data-iconurl="../static/img/pitch-24.png">Walk</option>               
-                      <option value="o" data-iconurl="../static/img/scooter-24.png">Other (roller blade, scooter, kayak, etc.)</option>
-                      <option value="tc" data-iconurl="../static/img/warehouse-24.png">Telecommute</option>
+                      <option value="da">Driving alone</option>
+                      <option value="dalt">Driving alone, alternative vehicle (taxi, hybrid, car share, etc.)</option>
+                      <option value="cp">Carpool</option>
+                      <option value="t">Transit (subway, city bus, coach bus, train, ferry, shuttle, etc.)</option>
+                      <option value="b">Bike</option>
+                      <option value="r">Jog/Run</option>
+                      <option value="w">Walk</option>               
+                      <option value="o">Other (roller blade, scooter, kayak, etc.)</option>
+                      <option value="tc">Telecommute</option>
                       </select>
                     </div>
                     <div class="col-sm-3">
@@ -458,15 +458,15 @@ $(document).ready(function() {
                     <div class="col-sm-6">
                       <select name="mode" class="form-control" >
                       <option value="" selected="selected">Please select mode of transportation</option>
-                      <option value="da" data-iconurl="../static/img/car-24.png">Driving alone</option>
-                      <option value="dalt" data-iconurl="../static/img/car-24.png">Driving alone, alternative vehicle (taxi, hybrid, car share, etc.)</option>
-                      <option value="cp" data-iconurl="../static/img/car-24.png">Carpool</option>
-                      <option value="t" data-iconurl="../static/img/rail-24.png">Transit (subway, city bus, coach bus, train, ferry, shuttle, etc.)</option>
-                      <option value="b" data-iconurl="../static/img/bicycle-24.png">Bike</option>
-                      <option value="r" data-iconurl="../static/img/school-24.png">Jog/Run</option>
-                      <option value="w" data-iconurl="../static/img/pitch-24.png">Walk</option>               
-                      <option value="o" data-iconurl="../static/img/scooter-24.png">Other (roller blade, scooter, kayak, etc.)</option>
-                      <option value="tc" data-iconurl="../static/img/warehouse-24.png">Telecommute</option>
+                      <option value="da">Driving alone</option>
+                      <option value="dalt">Driving alone, alternative vehicle (taxi, hybrid, car share, etc.)</option>
+                      <option value="cp">Carpool</option>
+                      <option value="t">Transit (subway, city bus, coach bus, train, ferry, shuttle, etc.)</option>
+                      <option value="b">Bike</option>
+                      <option value="r">Jog/Run</option>
+                      <option value="w">Walk</option>               
+                      <option value="o">Other (roller blade, scooter, kayak, etc.)</option>
+                      <option value="tc">Telecommute</option>
                       </select>
                     </div>
                     <div class="col-sm-3">
