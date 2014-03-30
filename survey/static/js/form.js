@@ -75,11 +75,14 @@ $(function() {
         directionsDisplay.setMap(map);
         directionsDisplay.setDirections(response);
         $('#commute-distance').text(response.routes[0].legs[0].distance.text + ' (by bike)');
+        $('#commute-distance').css('background', '#FFEECC');
         cs.geom = pathToGeoJson(response.routes[0].overview_path);
         cs.distance = response.routes[0].legs[0].distance.value; // Meters
         cs.duration = response.routes[0].legs[0].duration.value; // Seconds
         toggleCalculator('enable');
       } else {
+        $('#commute-distance').text('');
+        $('#commute-distance').css('background', '#fff');
         toggleCalculator('disable');
       }
     });
