@@ -190,10 +190,10 @@ $(document).ready(function() {
           </div>
         </div>
         <div class="form-group">
-          <label class="control-label col-sm-3" for="id_email">Your email:</label>
+          <label class="control-label col-sm-3" for="email">Your email:</label>
           <div class="col-sm-9">
-            <input id="id_email"  class="form-control" maxlength="75" name="email" type="email">
-            <span class="help-block">Please use your work email if your employer is part of the Walk/Ride Day Challenge</span>
+            <input id="email"  class="form-control" maxlength="75" name="email" type="email">
+            <span class="help-block"><span class="required">Required: </span>please use your work email if your employer is part of the Walk/Ride Day Challenge</span>
           </div>
         </div>
         <div class="form-group">
@@ -205,7 +205,7 @@ $(document).ready(function() {
               <option value="Self">Self</option>
               {% for employer in employers %}<option value="{{ employer.name|escape }}">{{ employer.name|escape }}</option>{% endfor %}
             </select>
-            <span class="help-block required_field"> Required if your employer is part of the Walk/Ride Day Challenge.</span>
+            <span class="help-block required"> Required if your employer is part of the Walk/Ride Day Challenge.</span>
           </div>
         </div>
       </fieldset>
@@ -220,7 +220,7 @@ $(document).ready(function() {
           <label class="control-label col-sm-3" for="home_address">Starting location</label>
           <div class="col-sm-7">
             <input type="text" class="form-control address" id="home_address" name="home_address" placeholder="1 Main St, Boston, MA 02111">
-            <span class="help-block"> Where does your commute to work begin?</span>
+            <span class="help-block"><span class="required">Required: </span> where does your commute to work begin?</span>
           </div>
           <div class="col-sm-2">
             <a class="btn btn-primary locate-address">Locate</a>
@@ -231,7 +231,7 @@ $(document).ready(function() {
           <label class="control-label col-sm-3" for="work_address">Work location</label>
           <div class="col-sm-7">
             <input type="text" class="form-control address" id="work_address" name="work_address" placeholder="100 Main St, Boston, MA 02111">
-            <span class="help-block"> What is the address where you work/worked today? If you telecommuted today, please enter the work address where you most often work when you don't telecommute.</span>
+            <span class="help-block"><span class="required">Required: </span>what is the address where you work/worked today? If you telecommuted today, please enter the work address where you most often work when you don't telecommute.</span>
           </div>
           <div class="col-sm-2">
             <a class="btn btn-primary locate-address">Locate</a>
@@ -261,7 +261,7 @@ $(document).ready(function() {
             <h4>Commuting TO work</h4>
           <div class=" form-group leg">
             <div class="col-sm-3">
-              <label>How did you commute TO work on Walk/Ride Day?</label>
+              <label><span class="required">Required: </span>how did you commute TO work on Walk/Ride Day?</label>
             </div>
             <div class="col-sm-6">
               <select name="mode" class="form-control" >
