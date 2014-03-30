@@ -93,53 +93,7 @@ $(document).ready(function() {
         $("#id_month").append("<option value='" + month.format('MMMM YYYY') + "'>" + friday + "</option>");
     }
 
-    // init alert message
-    $("#submit-error").hide();
-    $(".alert .close").on('click', function (e) {
-        e.preventDefault(); 
-        $(this).parent().hide("slow");
-    });
 
-    // form validation
-    $("#surveyform").on("submit", function () {
-
-        // clear error messages
-        $("#submit-error").hide();
-        
-        // check for valid email
-        var emailReg = /^([a-zA-Z0-9_\.\-\+\'])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
-        if (emailReg.test($("#id_email").val()) === false) {
-            $("#submit-error .alert-heading").html("Error #1: Invalid Email Address");
-            $("#submit-error p").html("Please provide a valid email address.");
-            $("#submit-error").show("slow"); 
-            return false;
-        }
-
-        // check locations for default locations
-        if ($("#id_home_location").val() === "POINT (0.0000000000000000 0.0000000000000000)") {
-            $("#submit-error .alert-heading").html("Error #2: No home or start location");
-            $("#submit-error p").html("Please provide your home or start location.");
-            $("#submit-error").show("slow"); 
-            return false;
-        }
-        if ($("#id_work_location").val() === "POINT (0.0000000000000000 0.0000000000000000)") {
-            $("#submit-error .alert-heading").html("Error #2: No work or end location");
-            $("#submit-error p").html("Please provide your work or end location.");
-            $("#submit-error").show("slow");
-            return false;
-        }
-
-        // no mode selected
-        if ($("#id_to_work_today option:selected").val() === "" || $("#id_from_work_today option:selected").val() === "") {
-            $("#submit-error .alert-heading").html("Error #3: No mode selected");
-            $("#submit-error p").html("Please tell us how you commuted to and from work today.");
-            $("#submit-error").show("slow");
-            return false;
-        }
-
-        // store form data on client
-        $.jStorage.set("surveyform", $(this).serializeArray());
-   });
 });
 
 </script>
@@ -158,21 +112,21 @@ $(document).ready(function() {
     <h1>Walk/Ride Day Check-In Form</h1>
     <p class="lead">Check in on the last Friday of every month. The Corporate Challenge takes place April through October.</p>
 
-      <form id="surveyform" role="form" class="form-horizontal" action="." method="POST">
+      <form id="surveyform" role="form" class="form-horizontal">
 
         {% csrf_token %}
 
         <hr>
         <p>The information you share with us may be shared with your employer, if you are an employee of a company participating in the Walk/Ride Day Corporate Challenge, unless you check the box below. Please note that we will not share your identifying information with any organization other than your employer if your workplace is participating in the Challenge. 
          <label class="checkbox">
-         <input type="checkbox"> Do not share my personal information with my employer</label></p>
+         <input type="checkbox" id="share"> Do not share my personal information with my employer</label></p>
     <hr>
                
          <div class="form-group">
              
              <div class="col-sm-12">
              
-             <select id="id_month" name="month" class="form-control"><option value="" selected="">Please verify your check-in date</option><option value="April 2014">April 25, 2014</option><option value="May 2014">May 30, 2014</option><option value="June 2014">June 27, 2014</option><option value="July 2014">July 25, 2014</option><option value="August 2014">August 29, 2014</option><option value="September 2014">September 26, 2014</option><option value="October 2014">October 31, 2014</option></select>
+             <select id="month" name="month" class="form-control"><option value="" selected="">Please verify your check-in date</option><option value="April 2014">April 25, 2014</option><option value="May 2014">May 30, 2014</option><option value="June 2014">June 27, 2014</option><option value="July 2014">July 25, 2014</option><option value="August 2014">August 29, 2014</option><option value="September 2014">September 26, 2014</option><option value="October 2014">October 31, 2014</option></select>
              <span class="help-block">Walk/Ride Day is the last Friday of every month. If that Friday is impossible for you, you may substitute another day in the same week. Please note that most retail partners’ incentives will only be given out on the last Friday.</span>
              </div>
          </div>
@@ -184,9 +138,9 @@ $(document).ready(function() {
         <legend>About you</legend>
         
         <div class="form-group">
-          <label class="control-label col-sm-3" for="id_name">Your name</label>
+          <label class="control-label col-sm-3" for="name">Your name</label>
           <div class="col-sm-9">
-            <input id="id_name"  class="form-control" maxlength="50" name="name" type="text" >
+            <input id="name"  class="form-control" maxlength="50" name="name" type="text" >
           </div>
         </div>
         <div class="form-group">
@@ -199,11 +153,10 @@ $(document).ready(function() {
         <div class="form-group">
           <label class="control-label col-sm-3">Your employer's name:</label>
           <div class="col-sm-9">
-            <select class="form-control" id="id_employer" name="employer">
-              <option value="FindEmployer"> Find employer</option>
-              <option value="Other employer (not registered in Challenge)">Other employer (not registered in Challenge)</option>
-              <option value="Self">Self</option>
-              {% for employer in employers %}<option value="{{ employer.name|escape }}">{{ employer.name|escape }}</option>{% endfor %}
+            <select class="form-control" id="employer" name="employer">
+              <option value="1105" selected>Other employer (not registered in Challenge)</option>
+              <option value="1155">Self</option>
+              {% for employer in employers %}<option value="{{ employer.id }}">{{ employer.name|escape }}</option>{% endfor %}
             </select>
             <span class="help-block required"> Required if your employer is part of the Walk/Ride Day Challenge.</span>
           </div>
@@ -543,7 +496,7 @@ $(document).ready(function() {
 
             <!-- comments etc -->
             <h3>Comments or feedback:</h3>
-            <textarea class="form-control" rows="3"></textarea>
+            <textarea id="comments" class="form-control" rows="3"></textarea>
 
 
             <hr>
@@ -777,7 +730,7 @@ $(document).ready(function() {
             
             <p id="optional" class="lead">We invite you to answer a few optional questions every month about your transportation practices and lifestyle. These questions take approximately <strong>2 minutes</strong> to complete. Your answers will provide valuable detail about how people's commutes change over time, and will be used to improve Walk/Ride Days. Thank you very much for your time.</p>
                 <button id="button_submit_optional" type="submit" class="btn btn-large btn-primary">Answer optional questions</button>
-                <button id="button_submit" type="submit" class="btn btn-large btn-success">Check-in my commute and exit</button>
+                <button id="btn-submit" type="submit" class="btn btn-large btn-success">Check-in my commute and exit</button>
             </div>
              
             <!-- error messages -->

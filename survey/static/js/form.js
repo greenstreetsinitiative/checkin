@@ -1,5 +1,5 @@
 $(function() {
-  var cs = {}, // formdata
+  var cs = {}, // commutersurvey data
       map, geocoder, directionsService, directionsDisplay;
 
   // map & locations
@@ -23,7 +23,7 @@ $(function() {
   function geocodeAddress($address) {
     geocoder.geocode({address: $address.val()}, function(results, status) {
       var marker, $helptxt, 
-          id = $address.attr('id');
+          location = $address.attr('id').replace('address', 'location');
 
       $address.next('.text-danger').remove();
 
@@ -31,22 +31,22 @@ $(function() {
         
         $address.val(results[0]['formatted_address']);
 
-        cs[id] = cs[id] || {};
-        cs[id].name = results[0]['formatted_address'];
-        cs[id].position =results[0].geometry.location;
-        if (cs[id].marker === undefined) {
-          cs[id].marker = new google.maps.Marker({
+        cs[location] = cs[location] || {};
+        cs[location].name = results[0]['formatted_address'];
+        cs[location].position =results[0].geometry.location;
+        if (cs[location].marker === undefined) {
+          cs[location].marker = new google.maps.Marker({
             map: map,
             title: results[0]['formatted_address'],
             position: results[0].geometry.location,
             animation: google.maps.Animation.DROP
           });
         } else {
-          cs[id].marker.setPosition(results[0].geometry.location);
+          cs[location].marker.setPosition(results[0].geometry.location);
         }
         
-        if (cs.home_address && cs.work_address) {
-          setCommuteGeom(cs.home_address.position, cs.work_address.position);
+        if (cs.home_location && cs.work_location) {
+          setCommuteGeom(cs.home_location.position, cs.work_location.position);
         } else {
           map.panTo(results[0].geometry.location);
         }
@@ -56,10 +56,11 @@ $(function() {
           class: 'text-danger'
         }).html('We were not able to locate this address.');
         $address.after($helptxt);
-        if (cs[id]) {
-          cs[id].marker.setMap(null);
-          delete cs[id];
+        if (cs[location]) {
+          cs[location].marker.setMap(null);
+          delete cs[location];
         }
+        toggleCommuteDistance('');
         toggleCalculator('disable');
       }
     });
@@ -74,18 +75,26 @@ $(function() {
       if (status == google.maps.DirectionsStatus.OK) {
         directionsDisplay.setMap(map);
         directionsDisplay.setDirections(response);
-        $('#commute-distance').text(response.routes[0].legs[0].distance.text + ' (by bike)');
-        $('#commute-distance').css('background', '#FFEECC');
         cs.geom = pathToGeoJson(response.routes[0].overview_path);
         cs.distance = response.routes[0].legs[0].distance.value; // Meters
         cs.duration = response.routes[0].legs[0].duration.value; // Seconds
+        toggleCommuteDistance(response.routes[0].legs[0].distance.text + ' (by bike)');
         toggleCalculator('enable');
       } else {
-        $('#commute-distance').text('');
-        $('#commute-distance').css('background', '#fff');
+        toggleCommuteDistance('');
         toggleCalculator('disable');
       }
     });
+  }
+
+  function toggleCommuteDistance(text) {
+    if (text !== '') {
+      $('#commute-distance').text(text);
+      $('#commute-distance').css('background', '#FFEECC');
+    } else {
+      $('#commute-distance').text('');
+      $('#commute-distance').css('background', '#fff');
+    }
   }
 
   function pathToGeoJson(path) {
@@ -278,6 +287,88 @@ $(function() {
     $('p#optional').hide();
     $('#button_submit_optional').hide();
 
+  });
+
+  function collectFormData() {
+    var fields = ['month', 'share', 'name', 'email', 'employer', 'home_address', 'work_address', 'weight', 'comments'],
+        formData = {};
+
+    $.each(fields, function(i,f) {
+      var $field = $('#' + f);
+      if ($field.attr('type') === 'checkbox') {
+       formData[f] = $field.prop('checked'); 
+      } else {
+        formData[f] = $field.val();
+      }
+    });
+    formData.legs = collectAllLegs();
+    return formData;
+  }
+
+  function addErrorMsg($element, text) {
+    $errorMsg = $('<span />', {
+      class: 'text-danger validation-error'
+    }).html(text);
+    $element.after($errorMsg);
+  }
+
+  function validate(surveyData) {
+    var emailRe = /^([a-zA-Z0-9_\.\-\+\'])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/,
+        minLegs,
+        isValid = true;
+
+    // clear previous errors
+    $('.validation-error').remove();
+    // email
+    if (!emailRe.test(surveyData.email)) {
+      addErrorMsg($('#email'), 'Error: Please provide a valid email-address.');
+      isValid = false;
+    }
+    // home and work address
+    $('.address').each(function(a,i) {
+      if (!$(this).val()) {
+        addErrorMsg($(this), 'Error: Please provide a valid street address.');
+        isValid = false;
+      }
+    });
+    // minimum legs
+    minLegs = [{
+      element: '#w-to-work-legs',
+      day: 'w',
+      direction: 'tw'
+    }, {
+      element: '#w-from-work-legs',
+      day: 'w',
+      direction: 'fw'
+    }];
+    $.each(minLegs, function(i,leg) {
+      var validLegs = $.grep(surveyData.legs, function(l,i) {
+        return l.day === leg.day && l.direction === leg.direction;
+      });
+      if (validLegs < 1) {
+        addErrorMsg($(leg.element).next(), 'Error: Please provide at least one commute leg with transportation mode and estimated time.');
+        isValid = false;
+      }
+    });
+    return isValid;
+  }
+
+  // submit formdata
+  $('#btn-submit').on('click', function(event) {
+    event.preventDefault();
+    var surveyData;
+    
+    surveyData = $.extend({}, cs, collectFormData());
+    if (!validate(surveyData)) return;
+    surveyData['csrfmiddlewaretoken'] = $('input[name=csrfmiddlewaretoken]').val();
+    // TODO: add https://github.com/andris9/simpleStorage
+    $.ajax({
+      type: 'POST',
+      url: '/api/survey/',
+      data: surveyData
+    }).fail(function(jqXHR, textStatus) {
+      console.log('Something went wrong: ' + textStatus);
+    }); 
   });
 
 });
