@@ -42,6 +42,62 @@ a, a:hover {
   padding:8px;
 }
 
+
+/* leaderboard styles */
+
+h2.leaderboard {
+  text-transform: none;
+}
+
+.stats {
+  font-size:12pt;
+  font-weight:normal;
+  text-align:center;
+  line-height:1.1;
+  padding-top:20px;
+  padding-bottom:20px;
+  margin-bottom:20px;
+  background:#ddd;
+}
+
+a.selected {
+  font-size:16pt;
+  font-weight:bold;
+}
+
+a:link.participation, a:visited.participation {
+ color: orange;
+}
+
+a:link.gcommute, a:visited.gcommute {
+ color: green;
+}
+
+a:link.gswitch, a:visited.gswitch {
+ color: blue;
+}
+
+a:link.co2, a:visited.co2 {
+ color: brown;
+}
+
+a:link.calories, a:visited.calories {
+ color: purple;
+}
+
+a.company {
+  color:magenta;
+}
+
+.ranksubtitle {
+  line-height:1.1;
+  font-size: 12pt;
+  margin-top:-6px;
+}
+
+
+
+
 /* Topnav budget numbers
 -------------------------------------------------- */
 
