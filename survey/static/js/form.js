@@ -120,15 +120,6 @@ $(function() {
     }
   }
 
-  // extra questions 
-
-  $('fieldset#optional').hide();
-  $("#lastweekaway").hide();
-
-  $('input.lastweek:radio').on('change', function(event) {
-    $("#lastweekaway").toggle(100);
-  });
-
   // trigger address geocoder on several UI interactions
   $('.btn.locate-address').on('click', function(event) {
     event.preventDefault();
@@ -302,6 +293,9 @@ $(function() {
       }
     });
     formData.legs = collectAllLegs();
+
+    // TODO: collect optional form data 
+
     return formData;
   }
 
@@ -354,11 +348,23 @@ $(function() {
   }
 
   // submit formdata
-  $('#btn-submit').on('click', function(event) {
+  $('button.btn-form-submit').on('click', function(event) {
     event.preventDefault();
     var surveyData;
     
     surveyData = $.extend({}, cs, collectFormData());
+
+    // show optional questions and exit
+    if ($(this).hasClass('optional')) {
+      console.log('optional questions');
+      $('input.lastweek:radio').on('change', function(event) {
+        $('#lastweekaway').toggle(100);
+      });
+      $('#optional-questions').show(100);
+      $('button.btn-form-submit.optional').remove();
+      return;
+    }
+
     if (!validate(surveyData)) return;
     surveyData['csrfmiddlewaretoken'] = $('input[name=csrfmiddlewaretoken]').val();
     // TODO: add https://github.com/andris9/simpleStorage
@@ -366,8 +372,10 @@ $(function() {
       type: 'POST',
       url: '/api/survey/',
       data: surveyData
-    }).fail(function(jqXHR, textStatus) {
-      console.log('Something went wrong: ' + textStatus);
+    }).done(function() {
+      window.location.href = '/commuterform/complete/';
+    }).fail(function() {
+      alert('An error occured and your checkin could not be saved. Please try again or contact info@GoGreenStreets.org.');
     }); 
   });
 

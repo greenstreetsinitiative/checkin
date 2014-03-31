@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% load qr_tags %}
 
 {% block title %}Successful Walk/Ride Day check-in!{% endblock %}
 
@@ -51,11 +50,6 @@
 <section class="thanks-page">
     <div class="row">
       <div class="span12">
-        {% with email|add:" successfully checked-in for Walk/Ride Day "|add:month as confirmation %}
-        <p>{% qr_from_text confirmation "m" %}</p>
-        {% endwith %}
-        <p class="lead">This QR-code contains your email address together with a check-in confirmation. Feel free to share it with <a class="nowrap" target="_blank" href="http://gogreenstreets.org/retailers">retailers</a>, if you would like to collect goodies and discounts.</p>
-	<h2>Now <a href="/leaderboard" style="text-decoration:underline">CLICK HERE</a> to see how your company is doing in the Corporate Challenge!</h2>
         <p class="lead">Thank you for checking in and for traveling sustainably!</p>
       </div>
     </div>

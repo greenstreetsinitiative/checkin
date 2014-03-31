@@ -28,22 +28,6 @@ span.button {
     pointer-events: none;   
 }
 
-#commute-distance {
-  font-size: 24px;
-  font-weight: normal;
-  text-align: center;
-  margin: 10px auto;
-  padding: 8px;
-}
-
-.leg {
-  margin: 0px 20px 10px 10px;
-}
-
-.hidden-legs {
-  display: none;
-}
-
 .container {max-width: 1000px;}
 
 a, a:hover {
@@ -160,6 +144,28 @@ fieldset.studentgroup {
   font-weight: bold;
   font-size: 1.2em;
 }
+
+#commute-distance {
+  font-size: 24px;
+  font-weight: normal;
+  text-align: center;
+  margin: 10px auto;
+  padding: 8px;
+}
+
+.leg {
+  margin: 0px 20px 10px 10px;
+}
+
+.hidden-legs {
+  display: none;
+}
+
+#optional-questions, #lastweekaway {
+  display: none;
+}
+
+
 
 /* Share buttons
 -------------------------------------------------- */
