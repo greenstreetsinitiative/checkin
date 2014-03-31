@@ -23,7 +23,8 @@ COLOR_SCHEME = {
 
 def index(request):
 	latest_check_ins = Commutersurvey.objects.order_by('month')[:5]
-	context = {'latest_check_ins' : latest_check_ins}
+	reply_data = leaderboard_reply_data('perc', 'August 2013', 'sector', '2');
+	context = {'latest_check_ins' : latest_check_ins, 'reply_data' : reply_data }
 	return render(request, 'leaderboard/index.html', context)
 
 def getSectorNum(sector):
@@ -329,6 +330,8 @@ def leaderboard_context():
 	return context
 
 def leaderboard(request):
+	test = leaderboard_reply_data('perc', 'August 2013', 'sector', '2');
+	print test
 	if request.method == "POST":
 		if request.POST['just_emp'] == 'false':
 			reply_data = leaderboard_reply_data(request.POST['selVVP'], request.POST['selMonth'], request.POST['selSVS'], request.POST['selSOS'],)

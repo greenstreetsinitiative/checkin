@@ -188,11 +188,9 @@ class Commutersurvey(models.Model):
 
     name = models.CharField(max_length=50, blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
-    share = models.BooleanField(default=False)
     newsletter = models.BooleanField(default=True)
     employer = models.CharField('Employer', max_length=100, blank=False, null=True)
     weight = models.DecimalField(max_digits=5, decimal_places=1, blank=True, null=True)
-    comments = models.TextField(null=True, blank=True)
 
     ip = models.IPAddressField('IP Address', blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
