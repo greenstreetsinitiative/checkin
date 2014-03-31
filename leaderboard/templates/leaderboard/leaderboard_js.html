@@ -153,23 +153,27 @@
             <p class="lead">The latest stats from the 2014 Corporate Challenge.</p>
         </div>
     </div>
-    <div class="row clearfix">
-        <div class="col-md-4 column">
-            <p class="lead"><strong>Showing companies that are:</strong></p>
+    <div class="row clearfix filters">
+        <div class="col-md-6 column">
+            <p class="lead"><strong>Filter by</strong></p>
+            <label><input type="radio" name="color" value="nofilter" checked/> None (show everyone)</label>
+            <label><input type="radio" name="color" value="size"/> Size</label>
+            <label><input type="radio" name="color" value="sector"/> Sector</label>
+            <label><input type="radio" name="color" value ="groups"/> Groups with subteams</label>
         </div>
-        <div class="col-md-4 column">
-            <label class="control-label"><strong>Select Size:</strong></label> 
-            <select id="id_svs" name='svs' class="form-control">
-            <option value="sector">By Sector</option>
-            <option value="size">By Size</option>
-            <option value="name">By Name</option>
-            </select>
-        </div>
-        <div class="col-md-4 column">
-            <label class="control-label" id="sos_label"><strong>Select Sector:</strong></label>
+
+        <div class="col-md-6 column filteroptions">
+            <!-- (all hidden until invoked) -->
+
+            <!-- size options -->
+
+            <!-- sector options -->
             <select id="id_sos" name="sos" class="form-control">
             {% for sector in sectors %}<option value={{ sector.id }}>{{ sector.name }}</option>{% endfor %}
             </select>
+
+            <!-- groups with subteam options -->
+
         </div>
     </div>
     <div class="row clearfix">

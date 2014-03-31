@@ -118,6 +118,17 @@ a.company {
   margin:0px;
 }
 
+.filters {
+  background-color:#efde99;
+  padding:10px;
+}
+
+.filteroptions {
+  float: none;
+  height: 65px;
+  display: table-cell !important;
+  vertical-align: bottom;}
+
 
 
 /* Topnav budget numbers
