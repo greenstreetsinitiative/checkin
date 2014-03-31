@@ -57,7 +57,7 @@ h2.leaderboard {
   padding-top:20px;
   padding-bottom:20px;
   margin-bottom:20px;
-  background:#ddd;
+  background:#eaeaea;
 }
 
 a.selected {
@@ -65,23 +65,23 @@ a.selected {
   font-weight:bold;
 }
 
-a:link.participation, a:visited.participation {
+.participation, a:link.participation, a:visited.participation {
  color: orange;
 }
 
-a:link.gcommute, a:visited.gcommute {
+.gcommute, a:link.gcommute, a:visited.gcommute {
  color: green;
 }
 
-a:link.gswitch, a:visited.gswitch {
+.gswitch, a:link.gswitch, a:visited.gswitch {
  color: blue;
 }
 
-a:link.co2, a:visited.co2 {
+.co2, a:link.co2, a:visited.co2 {
  color: brown;
 }
 
-a:link.calories, a:visited.calories {
+.calories, a:link.calories, a:visited.calories {
  color: purple;
 }
 
@@ -95,7 +95,101 @@ a.company {
   margin-top:-6px;
 }
 
+.labelHeader {
+        text-align: right;
+    }
 
+.table-borderless thead > tr > th, .table-borderless tbody > tr > th {border: none;}
+
+
+.gc {text-align:right;}
+.gstd {
+    border: 1px white solid;
+    text-align:right;
+    background-color: #4CB5FF;
+  }
+.gctd {
+    border: 1px white solid;
+    text-align:right;
+    background-color: #93C480;
+  }
+.cctd {
+    border: 1px white solid;
+    text-align:right;
+    background-color: #FF664C;
+  }
+.ustd {
+    border: 1px white solid;
+    text-align:right;
+    background-color: #B472FF;
+  }
+
+.mode {
+  font-size:8pt;
+  text-align:center;
+  line-height:1;
+  margin:0px;
+}
+
+.filters {
+  background-color:#efde99;
+  padding:10px;
+}
+
+.filteroptions {
+  float: none;
+  height: 65px;
+  display: table-cell !important;
+  vertical-align: bottom;
+}
+
+.matrixWRlabel {
+  height:120px;
+  width:50px;
+  position:relative;
+  margin:0px auto;
+  float:left;
+  vertical-align:middle;
+}
+
+.matrixWRlabel h4 {
+  position:absolute;
+  width:120px;
+  line-height:50px;
+  left:0;
+  top:100%;
+  white-space: nowrap;
+  writing-mode: tb-rl;
+  filter: flipv fliph;
+  -moz-transform: rotate(270deg);  /* FF3.5+ */        
+  -o-transform: rotate(270deg);  /* Opera 10.5 */   
+  -webkit-transform: rotate(270deg);  /* Saf3.1+, Chrome */  
+  -ms-transform:rotate(270deg); /* IE 9 */            
+  filter:  progid:DXImageTransform.Microsoft.BasicImage(rotation=3);  /* IE6,IE7 */          
+  -ms-filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3); /* IE8 */
+  transform:rotate(-90deg); 
+  -webkit-transform:rotate(-90deg); 
+  transform-origin:0 0;
+  -webkit-transform-origin:0 0;
+  text-align:right;
+}
+
+.summary {
+  font-size: 12px;
+  line-height:1.1;
+  padding: 14px;
+  text-align: center;
+  margin-top:20px;
+  margin-bottom:20px;
+  border: 5px solid white;
+
+}
+
+div.participation {background-color: moccasin;}
+div.gcommute {background-color: lightgreen;}
+div.gswitch {background-color: lightskyblue;}
+div.co2 {background-color: rosybrown;}
+div.calories {background-color: plum;}
 
 
 /* Topnav budget numbers

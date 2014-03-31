@@ -151,29 +151,33 @@
             <p class="lead">The latest stats from the 2014 Corporate Challenge.</p>
         </div>
     </div>
-    <div class="row clearfix">
-        <div class="col-md-4 column">
-            <p class="lead"><strong>Showing companies that are:</strong></p>
+    <div class="row clearfix filters">
+        <div class="col-md-6 column">
+            <p class="lead"><strong>Filter by</strong></p>
+            <label><input type="radio" name="color" value="nofilter" checked/> None (show everyone)</label>
+            <label><input type="radio" name="color" value="size"/> Size</label>
+            <label><input type="radio" name="color" value="sector"/> Sector</label>
+            <label><input type="radio" name="color" value ="groups"/> Groups with subteams</label>
         </div>
-        <div class="col-md-4 column">
-            <label class="control-label"><strong>Select Size:</strong></label> 
-            <select id="id_svs" name='svs' class="form-control">
-            <option value="sector">By Sector</option>
-            <option value="size">By Size</option>
-            <option value="name">By Name</option>
-            </select>
-        </div>
-        <div class="col-md-4 column">
-            <label class="control-label" id="sos_label"><strong>Select Sector:</strong></label>
+
+        <div class="col-md-6 column filteroptions">
+            <!-- (all hidden until invoked) -->
+
+            <!-- size options -->
+
+            <!-- sector options -->
             <select id="id_sos" name="sos" class="form-control">
             {% for sector in sectors %}<option value={{ sector.id }}>{{ sector.name }}</option>{% endfor %}
             </select>
+
+            <!-- groups with subteam options -->
+
         </div>
     </div>
     <div class="row clearfix">
         <div class="col-md-12 column">
             <hr>
-            <h2 class="leaderboard">Rankings of companies of (this size) and (this sector)</h2>
+            <h2 class="leaderboard">Rankings of companies of (this size, sector, group)</h2>
             <p class="lead">Click on any company to generate details for that company.</p>
         </div>
     </div>
@@ -189,6 +193,12 @@
         <div class="col-md-2 column stats"><a href="" class="calories">Calories burned</a>
         </div>
     </div>
+
+    <!-- participation info -->
+
+    <!-- green commutes info -->
+
+    <!-- green switches info -->
     <div class="row clearfix">
         <div class="col-md-4 column">
             <div class="panel panel-default gswitchpanel">
@@ -198,7 +208,7 @@
                     </h3>
                 </div>
                 <div class="panel-body">
-                    Since April, the (24 companies) of (this size) in (this sector) have made (452 green switches) total!
+                    Since April, the (24 companies) of (this size, sector, or group) have made (452 green switches) total!
                 </div>
             </div>
         </div>
@@ -224,171 +234,225 @@
         </div>
     </div>
 
+    <!-- carbon dioxide info -->
+
+    <!-- calories info -->
+
+
+
     <div class="row clearfix">
         <div class="col-md-12 column">
             <hr>
             <h2 class="leaderboard">Details for (this company)</h2>
-            <p class="lead">This company might have several subteams! That information can go here</p>
+            <p class="lead">Lots of details!</p>
         </div>
     </div>
+
+
     <div class="row clearfix">
-        <div class="col-md-8 column"> AWESOME GRAPH
+        <div class="col-md-2 column col-md-offset-1 summary participation">
+            <h4>Employee Participation</h4>
+            <p>(Number) check ins</p>
+            <p>(Percent) of employees</p>
         </div>
-        <div class="col-md-4 column"> AWESOME CHART
+        <div class="col-md-2 column summary gcommute">
+            <h4>Green Commutes</h4>
+            <p>(Number) commutes</p>
+            <p>(Percent) of all commutes</p>
+        </div>
+        <div class="col-md-2 column summary gswitch">
+            <h4>Green Switches</h4>
+            <p>(Number) switches</p>
+            <p>(Percent) of all commutes</p>
+        </div>
+        <div class="col-md-2 column summary co2">
+            <h4>Carbon Dioxide</h4>
+            <p>(Number) tons saved</p>
+            <p>(Number unit) per employee</p>
+        </div>
+        <div class="col-md-2 column summary calories">
+            <h4>Calories Burned</h4>
+            <p>(Number) burned</p>
+            <p>(Number unit) per employee</p>
+        </div>
+
+    </div>
+
+    <div class="row clearfix">
+        <div class="col-md-8 column"> 
+            <!-- Where the generated bar chart goes -->
+            <div id="breakDownGraph" style="height:300px"></div>
+        </div>
+        <div class="col-md-3 column"> 
+            <div id="totalBreakDown">
+            <table class="table table-borderless">
+                <tr>
+                    <th id="totals"><h4>Totals: </h4></th>
+                </tr>
+                <tr>
+                    <td><div class="gc text-right">Commutes:</div></td>
+                    <td class="gc" id="total_checkins">0</td>
+                </tr>
+                <tr>
+                    <td><div class="text-right">Green Switches:</div></td>
+                    <td class="gstd" id="total_gs">0</td>
+                </tr>
+                <tr>
+                    <td><div class="text-right">Green Commutes:</div></td>
+                    <td class="gctd" id="total_gc">0</td>
+                </tr>
+                <tr>
+                    <td><div class="text-right">Car Commutes:</div></td>
+                    <td class="cctd" id="total_cc">0</td>
+                </tr>
+                <tr>
+                    <td><div class="text-right">Other:</div></td>
+                    <td class="ustd" id="total_us">0</td>
+                </tr>
+            </table>
+            </div>
         </div>
     </div>
 
 
-    <hr>
+    <div class="row clearfix">
+        <div class="col-md-8 col-md-offset-2 column">
 
 
+            
 
 
-
-
-
-
-
-<div class="row">
-    <div class="control-group span9">
-        <select id="id_companies" class="span8">
-        </select>
-    </div>
-    <div class="span1" id="spinnerLabel">
-        <h4>Loading...</h4>
-    </div>
-    <div class="span1" id="spinner" style="height:40px">
-    </div>
-</div>
-<div class="row">
-	<div class="span2 offset10">
-		<strong>Normal Day Commute</strong>
-	</div>
-</div>
-<div class="row">
-	<div class="span6" style="height:400px">
-		<div class="spacer" style="height:80px">
-			<span class="hidden sas_label">Sector: <strong><span id="sector_label"></span></strong></span> <br />
-			<span class="hidden sas_label">Size Category: <strong><span id="size_label"></span></strong></span>
-		</div>
-		<div id="breakDownGraph" style="height:300px">
-		</div>
-	</div>
-	<div class="span2">
-		<div class="spacer" style="height:63px">
-		</div>
-		<div id="totalBreakDown">
-			<table class="table">
-				<tr>
-					<th id="totals"><h4>Totals: </h4></th>
-				</tr>
-				<tr>
-					<td><div class="gc text-right">Commutes:</div></td>
-					<td class="gc" id="total_checkins"></td>
-				</tr>
-				<tr>
-					<td><div class="text-right">Green Switches:</div></td>
-					<td class="gstd" id="total_gs"></td>
-				</tr>
-				<tr>
-					<td><div class="text-right">Green Commutes:</div></td>
-					<td class="gctd" id="total_gc"></td>
-				</tr>
-				<tr>
-					<td><div class="text-right">Car Commutes:</div></td>
-					<td class="cctd" id="total_cc"></td>
-				</tr>
-				<tr>
-					<td><div class="text-right">Other:</div></td>
-					<td class="ustd" id="total_us"></td>
-				</tr>
-			</table>
-		</div>
-	</div>
-    <div class="span4" id="breakDownTable">
-        <table class="table table-bordered">
+            <div>
+            <h3>Switches made on Walk/Ride Day</h3>
+            <div class="table-responsive">
+            <table class="table table-borderless table-hover">
             <tr>
-                <td></td>
-                <td><img src="/static/img/c.png" height="32" width="32" class="img-circle" title="Driving a personal car on normal days"></img></td>
-                <td><img src="/static/img/cp.png" height="32" width="32" class="img-circle" title="Carpooling on normal days"></img></td>
-                <td><img src="/static/img/w.png" height="32" width="32" class="img-circle" title="Walking on normal days"></img></td>
-                <td><img src="/static/img/b.png" height="32" width="32" class="img-circle" title="Biking on normal days"></img></td>
-                <td><img src="/static/img/t.png" height="32" width="32" class="img-circle" title="Taking public transit on normal days"></img></td>
-                <td><img src="/static/img/tc.png" height="32" width="32" class="img-circle" title="Telecommuting on normal days"></img></td>
-                <td><img src="/static/img/o.png" height="32" width="32" class="img-circle" title="Other transportaition on normal days"></img></td>
+                <th></th><th></th><th colspan="10"><h4>Modes taken on a normal day</h4></th>
             </tr>
             <tr>
-                <td><img src="/static/img/c.png" height="32" width="32" class="img-circle" title="Driving a personal car on Walk-Ride days"></img></td>
-                <td class='cctd'></td>
-                <td class='ustd'></td>
-                <td class='ustd'></td>
-                <td class='ustd'></td>
-                <td class='ustd'></td>
-                <td class='ustd'></td>
-                <td class='ustd'></td>
+                <td></td><td></td>
+                <td><p class="mode"><img src="/static/img/car-24.png" height="32" width="32" class="img-circle" title="Driving a personal car on normal days"></img><br>Car</p></td>
+                <td><p class="mode"><img src="/static/img/car-24.png" height="32" width="32" class="img-circle" title="Car (alternative vehicle) on normal days"></img><br>Car (alt.)</p></td>
+                <td><p class="mode"><img src="/static/img/car-24.png" height="32" width="32" class="img-circle" title="Carpooling on normal days"></img><br>Carpool</p></td>
+                <td><p class="mode"><img src="/static/img/school-24.png" height="32" width="32" class="img-circle" title="Walking on normal days"></img><br>Walk</p></td>
+                <td><p class="mode"><img src="/static/img/pitch-24.png" height="32" width="32" class="img-circle" title="Jog/running on normal days"></img><br>Run</p></td>
+                <td><p class="mode"><img src="/static/img/bicycle-24.png" height="32" width="32" class="img-circle" title="Biking on normal days"></img><br>Bike</p></td>
+                <td><p class="mode"><img src="/static/img/rail-24.png" height="32" width="32" class="img-circle" title="Taking public transit on normal days"></img><br>Transit</p></td>
+                <td><p class="mode"><img src="/static/img/warehouse-24.png" height="32" width="32" class="img-circle" title="Telecommuting on normal days"></img><br>Telecommute</p></td>
+                <td><p class="mode"><img src="/static/img/scooter-24.png" height="32" width="32" class="img-circle" title="Other transportaition on normal days"></img><br>Other</p></td>
             </tr>
             <tr>
-                <td><img src="/static/img/cp.png" height="32" width="32" class="img-circle" title="Carpooling on Walk-Ride days"></img></td>
-                <td class='gstd'></td>
-                <td class='gctd'></td>
-                <td class='gctd'></td>
-                <td class='gctd'></td>
-                <td class='gctd'></td>
-                <td class='gctd'></td>
-                <td class='ustd'></td>
+                <th rowspan="10"><div class="matrixWRlabel"><h4>Walk/Ride Day</h4></div></th>
+                <td><p class="mode"><img src="/static/img/car-24.png" height="32" width="32" class="img-circle" title="Driving a personal car on Walk-Ride days"></img><br>Car</p></td>
+                <td class='cctd'>0</td>
+                <td class='ustd'>0</td>
+                <td class='ustd'>0</td>
+                <td class='ustd'>0</td>
+                <td class='ustd'>0</td>
+                <td class='ustd'>0</td>
+                <td class='ustd'>0</td>
+                <td class='ustd'>0</td>
+                <td class='ustd'>0</td>
             </tr>
             <tr>
-                <td><img src="/static/img/w.png" height="32" width="32" class="img-circle" title="Walking on Walk-Ride days"></img></td>
-                <td class='gstd'></td>
-                <td class='gstd'></td>
-                <td class='gctd'></td>
-                <td class='gctd'></td>
-                <td class='gstd'></td>
-                <td class='gctd'></td>
-                <td class='ustd'></td>
+                <td><p class="mode"><img src="/static/img/car-24.png" height="32" width="32" class="img-circle" title="Car (alternative vehicle) on Walk-Ride days"></img><br>Car (alt.)</p></td>
+                <td class='gstd'>0</td>
+                <td class='gctd'>0</td>
+                <td class='gctd'>0</td>
+                <td class='gctd'>0</td>
+                <td class='gctd'>0</td>
+                <td class='gctd'>0</td>
+                <td class='gctd'>0</td>
+                <td class='gctd'>0</td>
+                <td class='ustd'>0</td>
             </tr>
             <tr>
-                <td><img src="/static/img/b.png" height="32" width="32" class="img-circle" title="Biking on Walk-Ride days"></img></td>
-                <td class='gstd'></td>
-                <td class='gstd'></td>
-                <td class='gctd'></td>
-                <td class='gctd'></td>
-                <td class='gstd'></td>
-                <td class='gctd'></td>
-                <td class='ustd'></td>
+                <td><p class="mode"><img src="/static/img/car-24.png" height="32" width="32" class="img-circle" title="Carpooling on Walk-Ride days"></img><br>Carpool</p></td>
+                <td class='gstd'>0</td>
+                <td class='gctd'>0</td>
+                <td class='gctd'>0</td>
+                <td class='gctd'>0</td>
+                <td class='gctd'>0</td>
+                <td class='gctd'>0</td>
+                <td class='gctd'>0</td>
+                <td class='gctd'>0</td>
+                <td class='ustd'>0</td>
             </tr>
             <tr>
-                <td><img src="/static/img/t.png" height="32" width="32" class="img-circle" title="Taking public transit on Walk-Ride days"></img></td>
-                <td class='gstd'></td>
-                <td class='gstd'></td>
-                <td class='gctd'></td>
-                <td class='gctd'></td>
-                <td class='gctd'></td>
-                <td class='gctd'></td>
-                <td class='ustd'></td>
+                <td><p class="mode"><img src="/static/img/school-24.png" height="32" width="32" class="img-circle" title="Walking on Walk-Ride days"></img><br>Walk</p></td>
+                <td class='gstd'>0</td>
+                <td class='gstd'>0</td>
+                <td class='gstd'>0</td>
+                <td class='gctd'>0</td>
+                <td class='gctd'>0</td>
+                <td class='gctd'>0</td>
+                <td class='gstd'>0</td>
+                <td class='gstd'>0</td>
+                <td class='ustd'>0</td>
             </tr>
             <tr>
-                <td><img src="/static/img/tc.png" height="32" width="32" class="img-circle" title="Telecommuting on Walk-Ride days"></img></td>
-                <td class='gstd'></td>
-                <td class='gstd'></td>
-                <td class='gctd'></td>
-                <td class='gctd'></td>
-                <td class='gstd'></td>
-                <td class='gctd'></td>
-                <td class='ustd'></td>
+                <td><p class="mode"><img src="/static/img/pitch-24.png" height="32" width="32" class="img-circle" title="Running on Walk-Ride days"></img><br>Run</p></td>
+                <td class='gstd'>0</td>
+                <td class='gstd'>0</td>
+                <td class='gstd'>0</td>
+                <td class='gctd'>0</td>
+                <td class='gctd'>0</td>
+                <td class='gctd'>0</td>
+                <td class='gstd'>0</td>
+                <td class='gstd'>0</td>
+                <td class='ustd'>0</td>
             </tr>
             <tr>
-                <td><img src="/static/img/o.png" height="32" width="32" class="img-circle" title="Other transportation on Walk-Ride days"></img></td>
-                <td class='ustd'></td>
-                <td class='ustd'></td>
-                <td class='ustd'></td>
-                <td class='ustd'></td>
-                <td class='ustd'></td>
-                <td class='ustd'></td>
-                <td class='ustd'></td>
+                <td><p class="mode"><img src="/static/img/bicycle-24.png" height="32" width="32" class="img-circle" title="Biking on Walk-Ride days"></img><br>Bike</p></td>
+                <td class='gstd'>0</td>
+                <td class='gstd'>0</td>
+                <td class='gstd'>0</td>
+                <td class='gctd'>0</td>
+                <td class='gctd'>0</td>
+                <td class='gctd'>0</td>
+                <td class='gstd'>0</td>
+                <td class='gstd'>0</td>
+                <td class='ustd'>0</td>
             </tr>
-        </table>
-		<strong>W/R Day Commute</strong>
+            <tr>
+                <td><p class="mode"><img src="/static/img/rail-24.png" height="32" width="32" class="img-circle" title="Taking public transit on Walk-Ride days"></img><br>Transit</p></td>
+                <td class='gstd'>0</td>
+                <td class='gstd'>0</td>
+                <td class='gstd'>0</td>
+                <td class='gctd'>0</td>
+                <td class='gctd'>0</td>
+                <td class='gctd'>0</td>
+                <td class='gctd'>0</td>
+                <td class='gctd'>0</td>
+                <td class='ustd'>0</td>
+            </tr>
+            <tr>
+                <td><p class="mode"><img src="/static/img/warehouse-24.png" height="32" width="32" class="img-circle" title="Telecommuting on Walk-Ride days"></img><br>Telecommute</p></td>
+                <td class='gstd'>0</td>
+                <td class='gstd'>0</td>
+                <td class='gstd'>0</td>
+                <td class='gctd'>0</td>
+                <td class='gctd'>0</td>
+                <td class='gctd'>0</td>
+                <td class='gstd'>0</td>
+                <td class='gctd'>0</td>
+                <td class='ustd'>0</td>
+            </tr>
+            <tr>
+                <td><p class="mode"><img src="/static/img/scooter-24.png" height="32" width="32" class="img-circle" title="Other transportation on Walk-Ride days"></img><br>Other</p></td>
+                <td class='ustd'>0</td>
+                <td class='ustd'>0</td>
+                <td class='ustd'>0</td>
+                <td class='ustd'>0</td>
+                <td class='ustd'>0</td>
+                <td class='ustd'>0</td>
+                <td class='ustd'>0</td>
+                <td class='ustd'>0</td>
+                <td class='ustd'>0</td>
+            </tr>
+            </table></div>
+            </div>
+        </div>
     </div>
 </div>
 <div class="row">
@@ -419,6 +483,10 @@
 		background-color: #B472FF;
 	}
 </style>
+<script>$(document).ready(function () {
+    $('.matrixWRlabel').css('height', $('.matrixWRlabel').width());
+});</script>
+
 </body>
 </html>
 {% endblock %}
