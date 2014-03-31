@@ -95,6 +95,28 @@ a.company {
   margin-top:-6px;
 }
 
+.labelHeader {
+        text-align: right;
+    }
+.gstd {
+    background-color: #4CB5FF;
+  }
+.gctd {
+    background-color: #93C480;
+  }
+.cctd {
+    background-color: #FF664C;
+  }
+.ustd {
+    background-color: #B472FF;
+  }
+
+.mode {
+  font-size:8pt;
+  text-align:center;
+  line-height:1;
+  margin:0px;
+}
 
 
 
