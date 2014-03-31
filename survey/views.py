@@ -59,4 +59,16 @@ def commuter(request):
         return render_to_response('survey/commuterform.html', locals(), context_instance=RequestContext(request))
 
 
+def api(request):
+    """
+    Simple REST api for survey data
+    """
+
+    request = process_request(request)
+
+    if request.method == 'POST':
+        # TODO: process formdata
+        return HttpResponse(status=200)
+
+    return HttpResponse(status=500)
 

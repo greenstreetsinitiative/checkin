@@ -32,7 +32,7 @@ LEG_DIRECTIONS = (
     ('fw', _('from work')),
 )
 
-LEG_TYPES = (
+LEG_DAYS = (
     ('w', _('Walk/Ride Day')),
     ('n', _('Normal day')),
 )
@@ -147,8 +147,8 @@ class Leg(models.Model):
 
     mode = models.CharField(blank=True, null=True, max_length=2, choices=COMMUTER_MODES)
     direction = models.CharField(blank=True, null=True, max_length=2, choices=LEG_DIRECTIONS)
-    type = models.CharField(blank=True, null=True, max_length=1, choices=LEG_TYPES)
     duration = models.IntegerField(blank=True, null=True, choices=LEG_DURATIONS)
+    day = models.CharField(blank=True, null=True, max_length=1, choices=LEG_DAYS)
 
     class Meta:
         verbose_name = _('Leg')
@@ -188,10 +188,11 @@ class Commutersurvey(models.Model):
 
     name = models.CharField(max_length=50, blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
-    #private = models.BooleanField(default=False)
+    share = models.BooleanField(default=False)
     newsletter = models.BooleanField(default=True)
     employer = models.CharField('Employer', max_length=100, blank=False, null=True)
     weight = models.DecimalField(max_digits=5, decimal_places=1, blank=True, null=True)
+    comments = models.TextField(null=True, blank=True)
 
     ip = models.IPAddressField('IP Address', blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)

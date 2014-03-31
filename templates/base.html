@@ -36,8 +36,6 @@
     
     {% block style %}
     <link rel="stylesheet" href="/static/libs/bootstrap/css/bootstrap.min.css">
-    
-    <link type="text/css" rel="stylesheet" href="{% static 'libs/selectboxit.css' %}" />
     <link rel="stylesheet" href="/static/css/style.css">
     <!--[if lte IE 8]>
     <link rel="stylesheet" href="/static/css/ie8.css">
@@ -69,13 +67,6 @@
 <hr>  
     <div class="main container {{ LANGUAGE_CODE }}">
 
-    <div>
-            <h1>Walk/Ride Day 2014 Check-In Form</h1>
-            <h4>April 25 | May 30 | June 27 | July 25 | August 29 | September 26 | October 31</h4>
-            <p class="lead">A check-in helps us monitor the impact of our initiative and involves only a few quick steps. </p>
-   
-      </div>
-
     {% block body %}{% endblock %}
 
     <footer class="footer">
@@ -91,47 +82,3 @@
     <script src="/static/libs/jquery-1.11.0.min.js" type="text/javascript"></script>
 
     {% block javascript %}{% endblock %}
-  <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
-    <script src="{% static 'libs/selectboxit.min.js' %}" type="text/javascript"></script>
-
-
-<script type="text/javascript">
-
-$("#ToNormNo").hide();
- 
-    $(function() {
-    $types2 = $('.ToNorm');
-    $away2 = $('#ToNormNo');
-    $types2.change(function() {
-        $this = $(this).val();
-        if ($this == "ToNormNo") {
-            $away2.show(500);
-                    }
-        else  {
-            $away2.hide(250);
-        }
-    });
-});   
-
-
-$("#AwayNormNo").hide();
- 
-    $(function() {
-    $types = $('.AwayNorm');
-    $away = $('#AwayNormNo');
-    $types.change(function() {
-        $this = $(this).val();
-        if ($this == "AwayNormNo") {
-            $away.show(500);
-                    }
-        else  {
-            $away.hide(250);
-        }
-    });
-});   
-
-
-
-</script>
-</body>
-</html>

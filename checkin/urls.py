@@ -13,6 +13,7 @@ urlpatterns = patterns('',
     
     # Commuterform
     url(r'^commuterform/$', 'survey.views.commuter', name='commuterform'),
+    url(r'^commuterform/complete/$', TemplateView.as_view(template_name='survey/thanks.html'), name='complete'),
 
     # Leaderboard
     url(r'^leaderboard/$', 'leaderboard.views.leaderboard'),
@@ -22,6 +23,10 @@ urlpatterns = patterns('',
     url(r'^emplbreakdown/$', 'leaderboardlist.views.chooseMonth'),
     url(r'^nvobreakdown/$', 'leaderboard.views.nvobreakdown'),
     url(r'^nvobreakdown/(?P<selEmpID>[-\w]+)/$', 'leaderboard.views.nvobreakdown'),
+
+    # data api
+    url(r'^api/survey/$', 'survey.views.api', name='survey_api'),
+
 
     # Examples:
     # url(r'^$', 'django_test.views.home', name='home'),
