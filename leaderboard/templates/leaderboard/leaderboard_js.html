@@ -8,137 +8,137 @@
 <script type="text/javascript" src="/static/libs/spin.min.js"></script>
 <script type="text/javascript" src="/static/libs/jquery.spin.js"></script>
 <script type="text/javascript">
-    // $("document").ready(function() {
-    //     $("#id_vol_v_perc").change(getResults);
-    //     $("#id_month").change(getResults);
-    //     $("#id_svs").change(switchSOS);
-    //     $("#id_sos").change(getResults);
-    //     $("#id_companies").change(function() {
-    //         getNewEmp($("#id_companies").val());
-    //         });
-    //     getResults();
-    // });
-    // function getResults() {
-    //     $("#spinner").spin("small");
-    //     $("#spinnerLabel").removeClass("hidden");
-    //     var hostname = top.location.host.toString();
-    //     $.post("http://"+hostname+"/leaderboard/",
-    //         {
-    //             "selVVP":$("#id_vol_v_perc").val(),
-    //             "selMonth":$("#id_month").val(),
-    //             "selSVS":$("#id_svs").val(),
-    //             "selSOS":$("#id_sos").val(),
-    //             "just_emp": "false",
-    //         },
-    //         makeChange, 'json');
-    // }
-    // function getNewEmp(emp) {
-    //     $("#spinner").spin("small");
-    //     $("#spinnerLabel").removeClass("hidden");
-    //     var hostname = top.location.host.toString();
-    //     $("#comanyName").text(emp);
-    //     $.post("http://"+hostname+"/leaderboard/",
-    //         {
-    //         "just_emp": "true",
-    //         "focusEmployer": emp,
-    //         },
-    //         newEmp, 'json');
-    // }
-    // function makeChange(data, status) {
-    //     $("#month-label").text($("#id_month option:selected").text());
-    //     $("#vvp-label").text($("#id_vol_v_perc option:selected").text());
-    //     $('#id_companies').empty();
-    //     if (data.vol_v_perc === 'perc') {
-    // 		vvpMsg = '% participation out of {0} employees';
-    //     }
-    //     else {
-    // 		vvpMsg = ' check-ins out of {0} employees';
-    //     }
-    //     if ($("#id_svs").val() !== "name") {
-    //         empOptFS = '{0} place is {1} with {2}{3}';
-    //     }
-    //     else {
-    // 		empOptFS = '{1} with {4} employees';
-    //     }
-    //     for(var i=0; i<data.top_companies.length; i++) {
-    //         $('#id_companies').append('<option value="{0}">{1}</option>'.format(data.top_companies[i][0], empOptFS.format(Number.getOrdinalFor(i+1, true), data.top_companies[i][0], data.top_companies[i][2], vvpMsg.format(data.top_companies[i][3]), data.top_companies[i][3])));
-    //     }
-    //     newEmp(data, status);
-    // }
+    $("document").ready(function() {
+        $("#id_vol_v_perc").change(getResults);
+        $("#id_month").change(getResults);
+        $("#id_svs").change(switchSOS);
+        $("#id_sos").change(getResults);
+        $("#id_companies").change(function() {
+            getNewEmp($("#id_companies").val());
+            });
+        getResults();
+    });
+    function getResults() {
+        $("#spinner").spin("small");
+        $("#spinnerLabel").removeClass("hidden");
+        var hostname = top.location.host.toString();
+        $.post("http://"+hostname+"/leaderboard/",
+            {
+                "selVVP":$("#id_vol_v_perc").val(),
+                "selMonth":$("#id_month").val(),
+                "selSVS":$("#id_svs").val(),
+                "selSOS":$("#id_sos").val(),
+                "just_emp": "false",
+            },
+            makeChange, 'json');
+    }
+    function getNewEmp(emp) {
+        $("#spinner").spin("small");
+        $("#spinnerLabel").removeClass("hidden");
+        var hostname = top.location.host.toString();
+        $("#comanyName").text(emp);
+        $.post("http://"+hostname+"/leaderboard/",
+            {
+            "just_emp": "true",
+            "focusEmployer": emp,
+            },
+            newEmp, 'json');
+    }
+    function makeChange(data, status) {
+        $("#month-label").text($("#id_month option:selected").text());
+        $("#vvp-label").text($("#id_vol_v_perc option:selected").text());
+        $('#id_companies').empty();
+        if (data.vol_v_perc === 'perc') {
+    		vvpMsg = '% participation out of {0} employees';
+        }
+        else {
+    		vvpMsg = ' check-ins out of {0} employees';
+        }
+        if ($("#id_svs").val() !== "name") {
+            empOptFS = '{0} place is {1} with {2}{3}';
+        }
+        else {
+    		empOptFS = '{1} with {4} employees';
+        }
+        for(var i=0; i<data.top_companies.length; i++) {
+            $('#id_companies').append('<option value="{0}">{1}</option>'.format(data.top_companies[i][0], empOptFS.format(Number.getOrdinalFor(i+1, true), data.top_companies[i][0], data.top_companies[i][2], vvpMsg.format(data.top_companies[i][3]), data.top_companies[i][3])));
+        }
+        newEmp(data, status);
+    }
 
-    // (function(o) {
-    //  Number.getOrdinalFor = function(intNum, includeNumber) {
-    //  return (includeNumber ? intNum : "")
-    //  + (o[((intNum = Math.abs(intNum % 100)) - 20) % 10] || o[intNum] || "th");
-    //  };
-    //  })([,"st","nd","rd"]);
+    (function(o) {
+     Number.getOrdinalFor = function(intNum, includeNumber) {
+     return (includeNumber ? intNum : "")
+     + (o[((intNum = Math.abs(intNum % 100)) - 20) % 10] || o[intNum] || "th");
+     };
+     })([,"st","nd","rd"]);
 
-    // function newEmp(data, status) {
-    // 	if ($("#id_svs").val() == "name") {
-    // 		$("#sector_label").parents("span").removeClass("hidden");
-    // 		$("#sector_label").text(data.emp_sector);
-    // 		if (typeof data.emp_size_cat !== 'undefined') {
-    // 			$("#size_label").parents("span").removeClass("hidden");
-    // 			$("#size_label").text(data.emp_size_cat);
-    // 		}
-    // 	}
-    // 	else {
-    // 		$(".sas_label").addClass("hidden");
-    // 	}
-    //     var chart = new CanvasJS.Chart("breakDownGraph", data.chart_data);
-    //     chart.render();
-    //     $("#total_checkins").text(data.total_breakdown.total);
-    //     $("#total_gs").text(data.total_breakdown.gs);
-    //     $("#total_gc").text(data.total_breakdown.gc);
-    //     $("#total_us").text(data.total_breakdown.us);
-    //     $("#total_cc").text(data.total_breakdown.cc);
-    //     var commuterModes = ['c', 'cp', 'w', 'b', 't', 'tc', 'o'];
-    //     tableString = "#breakDownTable>table>tbody>tr:eq({0})>td:eq({1})";
-    //     for (var i=0; i<7; i++) { // td differentiation is normal day differentiation
-    //         for (var j=0; j<7; j++) {
-    //             $(tableString.format((i+1).toString(), (j+1).toString())).text(data.checkin_matrix[i][j]);
-    //         }
-    //     }
-    //     $("#spinner").spin(false);
-    //     $("#spinnerLabel").addClass("hidden");
-    // }
-    // function switchSOS() {
-    //     newSOS = $("#id_svs").val();
-    //     if (newSOS == "size") {
-    //         $("#sosdiv").removeClass("hidden");
-    //         $("#vvpdiv").removeClass("hidden");
-    //         $("#monthdiv").removeClass("hidden");
-    //         $("#sos_label>strong").text("Select Size");
-    //         $("#id_sos").empty();
-    // 		if ($("#id_vol_v_perc").val() == 'vol') {
-    //         	$("#id_sos").html('<option value="1">Small (1-10 Employees)</option><option value="2">Medium (11-100 Employees)</option><option value="3">Large (101-1000 Employees)</option><option value="4" selected="true">Largest (>1000 Employees)</option>');
-    // 		}
-    // 		else {
-    // 			$("#id_sos").html('<option value="1">Small (1-10 Employees)</option><option value="2" selected="true">Medium (11-100 Employees)</option><option value="3">Large (101-1000 Employees)</option><option value="4">Largest (>1000 Employees)</option>');
-    // 		}
-    //     }
-    //     else if (newSOS == "sector") {
-    //         $("#sosdiv").removeClass("hidden");
-    //         $("#vvpdiv").removeClass("hidden");
-    //         $("#monthdiv").removeClass("hidden");
-    //         $("#sos_label>strong").text("Select Sector");
-    //         $("#id_sos").empty(); 
-    //         $("#id_sos").html("{% for sector in sectors %}<option value={{ sector.id }}>{{ sector.name }}</option>{% endfor %}"); 
-    //     }
-    //     else {
-    //         $("#sosdiv").addClass("hidden");
-    //         $("#vvpdiv").addClass("hidden");
-    //         $("#monthdiv").addClass("hidden");
-    //     }
-    //     getResults();
-    // }
-    // String.prototype.format = function() {
-    //     var formatted = this;
-    //     for(arg in arguments) {
-    //         formatted = formatted.replace("{" + arg + "}", arguments[arg]);
-    //     }
-    //     return formatted;
-    // };
+    function newEmp(data, status) {
+    	if ($("#id_svs").val() == "name") {
+    		$("#sector_label").parents("span").removeClass("hidden");
+    		$("#sector_label").text(data.emp_sector);
+    		if (typeof data.emp_size_cat !== 'undefined') {
+    			$("#size_label").parents("span").removeClass("hidden");
+    			$("#size_label").text(data.emp_size_cat);
+    		}
+    	}
+    	else {
+    		$(".sas_label").addClass("hidden");
+    	}
+        var chart = new CanvasJS.Chart("breakDownGraph", data.chart_data);
+        chart.render();
+        $("#total_checkins").text(data.total_breakdown.total);
+        $("#total_gs").text(data.total_breakdown.gs);
+        $("#total_gc").text(data.total_breakdown.gc);
+        $("#total_us").text(data.total_breakdown.us);
+        $("#total_cc").text(data.total_breakdown.cc);
+        var commuterModes = ['c', 'cp', 'w', 'b', 't', 'tc', 'o'];
+        tableString = "#breakDownTable>table>tbody>tr:eq({0})>td:eq({1})";
+        for (var i=0; i<7; i++) { // td differentiation is normal day differentiation
+            for (var j=0; j<7; j++) {
+                $(tableString.format((i+1).toString(), (j+1).toString())).text(data.checkin_matrix[i][j]);
+            }
+        }
+        $("#spinner").spin(false);
+        $("#spinnerLabel").addClass("hidden");
+    }
+    function switchSOS() {
+        newSOS = $("#id_svs").val();
+        if (newSOS == "size") {
+            $("#sosdiv").removeClass("hidden");
+            $("#vvpdiv").removeClass("hidden");
+            $("#monthdiv").removeClass("hidden");
+            $("#sos_label>strong").text("Select Size");
+            $("#id_sos").empty();
+    		if ($("#id_vol_v_perc").val() == 'vol') {
+            	$("#id_sos").html('<option value="1">Small (1-10 Employees)</option><option value="2">Medium (11-100 Employees)</option><option value="3">Large (101-1000 Employees)</option><option value="4" selected="true">Largest (>1000 Employees)</option>');
+    		}
+    		else {
+    			$("#id_sos").html('<option value="1">Small (1-10 Employees)</option><option value="2" selected="true">Medium (11-100 Employees)</option><option value="3">Large (101-1000 Employees)</option><option value="4">Largest (>1000 Employees)</option>');
+    		}
+        }
+        else if (newSOS == "sector") {
+            $("#sosdiv").removeClass("hidden");
+            $("#vvpdiv").removeClass("hidden");
+            $("#monthdiv").removeClass("hidden");
+            $("#sos_label>strong").text("Select Sector");
+            $("#id_sos").empty(); 
+            $("#id_sos").html("{% for sector in sectors %}<option value={{ sector.id }}>{{ sector.name }}</option>{% endfor %}"); 
+        }
+        else {
+            $("#sosdiv").addClass("hidden");
+            $("#vvpdiv").addClass("hidden");
+            $("#monthdiv").addClass("hidden");
+        }
+        getResults();
+    }
+    String.prototype.format = function() {
+        var formatted = this;
+        for(arg in arguments) {
+            formatted = formatted.replace("{" + arg + "}", arguments[arg]);
+        }
+        return formatted;
+    };
 </script>
 <script type="text/javascript" src="/static/libs/canvasjs.min.js"></script>
 {% endblock %}
