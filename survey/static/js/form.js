@@ -354,6 +354,8 @@ $(function() {
     
     surveyData = $.extend({}, cs, collectFormData());
 
+    if (!validate(surveyData)) return;
+    
     // show optional questions and exit
     if ($(this).hasClass('optional')) {
       console.log('optional questions');
@@ -365,7 +367,6 @@ $(function() {
       return;
     }
 
-    if (!validate(surveyData)) return;
     surveyData['csrfmiddlewaretoken'] = $('input[name=csrfmiddlewaretoken]').val();
     // TODO: add https://github.com/andris9/simpleStorage
     $.ajax({
