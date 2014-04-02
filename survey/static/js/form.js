@@ -267,7 +267,7 @@ $(function() {
       'w': 3.3,
       'o': 3.5
     };
-    weight = parseInt($('#weight').val());
+    weight = parseInt($('#weight_cal').val());
     wLegs = $.grep(legs, function(l,i) {
       return l.day === 'w';
     });
@@ -292,22 +292,31 @@ $(function() {
 
   });
 
+  // in optional question section
+  function duplicateLastWeek(data) {
+    var lastWeekDays = ['caltdays', 'cpdays', 'tdays', 'tdays', 'bdays', 'rdays', 'wdays', 'odays', 'tcdays'];
+    $.each(lastWeekDays, function(i,v) {
+      data[v + 'away'] = data[v];
+    });
+    return data;
+  }
+
   function collectFormData() {
-    var fields = ['month', 'share', 'name', 'email', 'employer', 'home_address', 'work_address', 'weight', 'comments'],
+    var fields = ['month', 'share', 'name', 'email', 'employer', 'home_address', 'work_address', 'comments', 'health', 'weight', 'height', 'gender', 'gender_other', 'caltdays', 'cpdays', 'tdays', 'tdays', 'bdays', 'rdays', 'wdays', 'odays', 'tcdays', 'lastweek', 'cdaysaway', 'caltdaysaway', 'cpdaysaway', 'tdaysaway', 'bdaysaway', 'rdaysaway', 'wdaysaway', 'odaysaway', 'tcdaysaway', 'outsidechanges', 'affectedyou', 'contact', 'volunteer'],
         formData = {};
 
     $.each(fields, function(i,f) {
       var $field = $('#' + f);
       if ($field.attr('type') === 'checkbox') {
-       formData[f] = $field.prop('checked'); 
+        formData[f] = $field.prop('checked'); 
+      } else if ($('input[name=' + f + ']').attr('type') === 'radio') {
+        formData[f] = $('input[name=' + f + ']:radio:checked').val();
       } else {
         formData[f] = $field.val();
       }
     });
+    formData = (formData.lastweek === 'y') ? duplicateLastWeek(formData) : formData;
     formData.legs = collectAllLegs();
-
-    // TODO: collect optional form data 
-
     return formData;
   }
 
@@ -380,7 +389,7 @@ $(function() {
 
     // show optional questions and exit
     if ($(this).hasClass('optional')) {
-      $('input.lastweek:radio').on('change', function(event) {
+      $('input[name=lastweek]:radio').on('change', function() {
         $('#lastweekaway').toggle(100);
       });
       $('#optional-questions').show(100);
@@ -389,7 +398,7 @@ $(function() {
     }
 
     // set local cache
-    cache(surveyData);   
+    cache(surveyData); 
 
     // persist
     surveyData['csrfmiddlewaretoken'] = $('input[name=csrfmiddlewaretoken]').val();
@@ -418,6 +427,8 @@ $(function() {
       $field = $('#' + f);
       if ($field.attr('type') === 'checkbox') {
         $field.prop('checked', v); 
+      } else if ($('input[name=' + f + ']').attr('type') === 'radio') {
+        $('input[name=' + f + '][value=' + v + ']:radio').prop('checked', true);
       } else {
         $field.val(v);
       }
@@ -435,5 +446,8 @@ $(function() {
     }
     if (cs.home_address && cs.work_address) setCommuteGeom(cs.home_address, cs.work_address);
   });
+
+  // show extra questions lastweek section
+  if ($('input[name=lastweek]:radio:checked').val() === 'n') $('#lastweekaway').show();
 
 });
