@@ -45,6 +45,19 @@ LEG_DURATIONS = (
     (5, _('More than an hour')),
 )
 
+HEALTH_CHOICES = (
+    (5, _('Excellent')),
+    (4, _('Very Good')),
+    (3, _('Good')),
+    (2, _('Fair')),
+    (1, _('Poor')),
+)
+
+GENDER_CHOICES = (
+    ('m', _('Male')),
+    ('f', _('Female')),
+    ('o', _('Other')),
+)
 
 class EmplSizeCategory(models.Model):
     name = models.CharField(max_length=50)
@@ -185,7 +198,35 @@ class Commutersurvey(models.Model):
     ip = models.IPAddressField('IP Address', blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
 
-    weight = models.DecimalField(max_digits=5, decimal_places=1, blank=True, null=True)
+    # optional survey questions
+    health = models.IntegerField(null=True, blank=True, choices=HEALTH_CHOICES)
+    weight = models.CharField(null=True, blank=True, max_length=20)
+    height = models.CharField(null=True, blank=True, max_length=20)
+    gender = models.CharField(null=True, blank=True, max_length=1, choices=GENDER_CHOICES)
+    gender_other = models.CharField(null=True, blank=True, max_length=50)
+    cdays = models.IntegerField(null=True, blank=True)
+    caltdays = models.IntegerField(null=True, blank=True)
+    cpdays = models.IntegerField(null=True, blank=True)
+    tdays = models.IntegerField(null=True, blank=True)
+    bdays = models.IntegerField(null=True, blank=True)
+    rdays = models.IntegerField(null=True, blank=True)
+    wdays = models.IntegerField(null=True, blank=True)
+    odays = models.IntegerField(null=True, blank=True)
+    tcdays = models.IntegerField(null=True, blank=True)
+    lastweek = models.BooleanField(default=True)
+    cdaysaway = models.IntegerField(null=True, blank=True)
+    caltdaysaway = models.IntegerField(null=True, blank=True)
+    cpdaysaway = models.IntegerField(null=True, blank=True)
+    tdaysaway = models.IntegerField(null=True, blank=True)
+    bdaysaway = models.IntegerField(null=True, blank=True)
+    rdaysaway = models.IntegerField(null=True, blank=True)
+    wdaysaway = models.IntegerField(null=True, blank=True)
+    odaysaway = models.IntegerField(null=True, blank=True)
+    tcdaysaway = models.IntegerField(null=True, blank=True)
+    outsidechanges = models.TextField(null=True, blank=True)
+    affectedyou = models.TextField(null=True, blank=True)
+    contact = models.BooleanField(default=False)
+    volunteer = models.BooleanField(default=False)
 
     objects = models.GeoManager()
 
