@@ -439,6 +439,7 @@ $(function() {
         // FIXME: detect wtw pattern and compare
         // array.push(mode+time).reverse.join
         // combination of mode+time
+        // to only toggle yes/no questions instead of showing everything
         $('#' + legContainerId).parent().show(100);
         $('input.morelegs[name=' + legContainerId + ']').prop('checked', true);
         $('input.morelegs.yes[name=' + legContainerId + ']').prop('checked', false);
