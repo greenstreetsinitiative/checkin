@@ -27,6 +27,15 @@ def index(request):
 	context = {'latest_check_ins' : latest_check_ins, 'reply_data' : reply_data }
 	return render(request, 'leaderboard/index.html', context)
 
+def new_leaderboard(request, filter_by, sector):
+	context = leaderboard_reply_data('perc', 'August 2013', filter_by, sector);
+	context['sectors'] = sorted(EmplSector.objects.all(), key=getSectorNum),
+	context['months'] = Month.objects.filter(active=True).order_by('-id')
+	green_switch_ranks = green_switch_rankings();
+	context['gs_ranks'] = green_switch_ranks
+	print context
+	return render(request, 'leaderboard/leaderboard_js.html', context)
+
 def getSectorNum(sector):
 	if sector.name[1] == ' ':
 		return int(sector.name[0])
@@ -79,6 +88,21 @@ def getEmpCheckinMatrix(emp):
 			numTypeCommutes = empCommutes.filter(to_work_today=todayWM, to_work_normally=normalWM).count() + empCommutes.filter(from_work_today=todayWM, from_work_normally=normalWM).count()
 			checkinMatrix[todayPos] += [numTypeCommutes,]
 	return checkinMatrix
+
+def green_switch_rankings(sector=0):
+
+	rank = []
+	if sector == 0:
+		employers = Employer.objects.filter(active=True)
+
+	for emp in employers:
+		breakdown = getBreakDown(emp, 'August 2013')
+		rank.append([{'gs' : breakdown['gs'], 'name' : emp.name, 'id' : emp.id }])
+
+	return sorted(rank, key=lambda idx: idx[0], reverse=True);
+
+
+
 
 def getBreakDown(emp, month):
 	empSurveys = emp.get_surveys(month)
@@ -288,6 +312,7 @@ def leaderboard_nvo_data(empName):
 
 def leaderboard_reply_data(vol_v_perc, month, svs, sos, focusEmployer=None):
 	topEmps = getTopCompanies(vol_v_perc, month, svs, sos)
+
 	if focusEmployer is None and len(topEmps) > 0:
 		focusEmployer = topEmps[0]
 		emp = Employer.objects.get(name=focusEmployer[0])
@@ -330,8 +355,6 @@ def leaderboard_context():
 	return context
 
 def leaderboard(request):
-	test = leaderboard_reply_data('perc', 'August 2013', 'sector', '2');
-	print test
 	if request.method == "POST":
 		if request.POST['just_emp'] == 'false':
 			reply_data = leaderboard_reply_data(request.POST['selVVP'], request.POST['selMonth'], request.POST['selSVS'], request.POST['selSOS'],)

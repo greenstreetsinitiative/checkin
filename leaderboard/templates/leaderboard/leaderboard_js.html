@@ -216,6 +216,7 @@
             <h3>Most green switches</h3><p class="ranksubtitle">Total</p>
             <ol>
                 <li><a href="" class="company">Company</a> with (number)</li>
+				{% for company in top_companies %} <li>{{ company.0 }}</li> {% endfor %}
                 <li>Company with number</li>
                 <li>Company with number</li>
                 <li>Company with number</li>

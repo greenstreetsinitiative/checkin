@@ -35,4 +35,5 @@ urlpatterns = patterns('',
 
     url(r'^grappelli/', include('grappelli.urls')),
     url(r'^admin/', include(admin.site.urls)),
+	url(r'^leaderboard/([^/]+)/(\d)/$', 'leaderboard.views.new_leaderboard'),
 ) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
