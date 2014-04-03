@@ -231,7 +231,8 @@ class Migration(SchemaMigration):
 
 
         # Changing field 'Commutersurvey.weight'
-        db.alter_column(u'survey_commutersurvey', 'weight', self.gf('django.db.models.fields.DecimalField')(null=True, max_digits=5, decimal_places=1))
+        # FIXME: needs routine to cast VARCHAR to NUMERIC
+        # db.alter_column(u'survey_commutersurvey', 'weight', self.gf('django.db.models.fields.DecimalField')(null=True, max_digits=5, decimal_places=1))
 
     models = {
         u'survey.commutersurvey': {

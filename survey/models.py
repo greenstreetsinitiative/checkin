@@ -152,25 +152,6 @@ class Employer(models.Model):
         return returningSurveys
 
 
-class Leg(models.Model):
-    """
-    A leg (part) of a commute. One commute can be composed of multiple legs of 
-    different transportation modes.
-    """
-
-    mode = models.CharField(blank=True, null=True, max_length=2, choices=COMMUTER_MODES)
-    direction = models.CharField(blank=True, null=True, max_length=2, choices=LEG_DIRECTIONS)
-    duration = models.IntegerField(blank=True, null=True, choices=LEG_DURATIONS)
-    day = models.CharField(blank=True, null=True, max_length=1, choices=LEG_DAYS)
-
-    class Meta:
-        verbose_name = _('Leg')
-        verbose_name_plural = _('Legs')
-
-    def __unicode__(self):
-        return u'%s' % (self.mode) 
-    
-
 class Commutersurvey(models.Model):
     """
     Questions for adults about their commute work
@@ -186,8 +167,6 @@ class Commutersurvey(models.Model):
 
     distance = models.DecimalField(max_digits=10, decimal_places=1, blank=True, null=True)
     duration = models.DecimalField(max_digits=10, decimal_places=1, blank=True, null=True)
-
-    legs = models.ManyToManyField(Leg)
 
     name = models.CharField(max_length=50, blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
@@ -247,6 +226,10 @@ class Commutersurvey(models.Model):
         verbose_name = 'Commuter Survey'
         verbose_name_plural = 'Commuter Surveys'     
 
+    @property
+    def legs(self):
+        return self.leg_set.all()
+
     # FIXME: migrate to multiple legs if still needed
     # @property
     # def to_work_switch(self):
@@ -264,3 +247,22 @@ class Commutersurvey(models.Model):
     #         self.from_work_normally = 'o'
     #     return self.CheckinDict[(self.from_work_normally, self.from_work_today)]
 
+
+class Leg(models.Model):
+    """
+    A leg (part) of a commute. One commute can be composed of multiple legs of 
+    different transportation modes.
+    """
+
+    mode = models.CharField(blank=True, null=True, max_length=2, choices=COMMUTER_MODES)
+    direction = models.CharField(blank=True, null=True, max_length=2, choices=LEG_DIRECTIONS)
+    duration = models.IntegerField(blank=True, null=True, choices=LEG_DURATIONS)
+    day = models.CharField(blank=True, null=True, max_length=1, choices=LEG_DAYS)
+    commutersurvey = models.ForeignKey(Commutersurvey)
+
+    class Meta:
+        verbose_name = _('Leg')
+        verbose_name_plural = _('Legs')
+
+    def __unicode__(self):
+        return u'%s' % (self.mode) 
