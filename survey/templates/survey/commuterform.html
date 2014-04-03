@@ -10,7 +10,7 @@
 
 <script src="/static/libs/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
 <script src="/static/libs/jquery.json-2.4.min.js" type="text/javascript"></script>
-<script src="/static/libs/jstorage.min.js" type="text/javascript"></script>
+<script src="{% static 'libs/simpleStorage.min.js' %}" type="text/javascript"></script>
 <script src="/static/libs/moment.min.js" type="text/javascript"></script>
 
 <script src="{% static 'js/form.js' %}" type="text/javascript"></script>
@@ -30,38 +30,6 @@ $(document).ready(function() {
     
     var work = new google.maps.LatLng(42.37, -71.08);
     var home = new google.maps.LatLng(42.36, -71.10);
-
-    // load data from client
-    var cachedForm = $.jStorage.get("surveyform"); 
-    if (cachedForm) {
-        $.each(cachedForm, function(key, obj) {
-            if (jQuery.inArray(obj.name, ["csrfmiddlewaretoken", "month"]) < 0) {
-                var $formElement = $("input[name=" + obj.name + "]");
-
-                if ($formElement.attr("type") === "checkbox") {
-                    $formElement.prop("checked", true);
-                } else if (jQuery.inArray($formElement.attr("type"), ["text", "hidden"]) > -1) {
-                    $formElement.val(obj.value);
-                } else {
-                    // we only have selects
-                    $formElement = $("select[name=" + obj.name + "]")
-                    $formElement.val(obj.value);
-                }
-            }
-        });
-
-        // update map markers
-        var homeGeom = $("#id_home_location").val();
-        var workGeom = $("#id_work_location").val();
-        if (homeGeom !== "POINT (0.0000000000000000 0.0000000000000000)") {
-            homeCoords = homeGeom.replace("POINT (", "").replace(")", "").split(" ");
-            home = new google.maps.LatLng(homeCoords[1], homeCoords[0]);
-        }
-        if (workGeom !== "POINT (0.0000000000000000 0.0000000000000000)") {
-            workCoords = workGeom.replace("POINT (", "").replace(")", "").split(" ");
-            work = new google.maps.LatLng(workCoords[1], workCoords[0]);
-        }
-    }
 
     // dropdown for current +2 months selectable W/R Days
 	/*
@@ -476,7 +444,7 @@ $(document).ready(function() {
             <div class="col-sm-3"><button id="btn-cal" class="btn btn-warning" disabled="disabled">Calculate Calories</button><span class="help-block">Per <a target="_blank" href="http://en.wikipedia.org/wiki/Metabolic_equivalent">Metabolic equivalent</a>, compared to commuting by car or transit.</span></div>
             <div class="col-sm-3">
            
-            <input id="weight" name="weight" class="form-control" step="0.1" type="number" value="150">  <label class="control-label">Adjust weight [lbs]</label>
+            <input id="weight_cal" name="weight_cal" class="form-control" step="0.1" type="number" value="150">  <label class="control-label">Adjust weight [lbs]</label>
             
             </div>
         
@@ -511,33 +479,15 @@ $(document).ready(function() {
               <div class="col-sm-3">
                 <label>In general, how would you describe your health?</label>
               </div>
-              <div class="col-sm-9">
-              <div class="radio">
-                <label>
-                  <input type="radio" name="health" id="healthexcellent" value="healthexcellent"> Excellent
-                </label>
-              </div>
-              <div class="radio">
-                <label>
-                  <input type="radio" name="health" id="healthverygood" value="healthverygood"> Very good
-                </label>
-              </div>
-              <div class="radio">
-                <label>
-                  <input type="radio" name="health" id="healthgood" value="healthgood" checked> Good
-                </label>
-              </div>
-              <div class="radio">
-                <label>
-                  <input type="radio" name="health" id="healthfair" value="healthfair"> Fair
-                </label>
-              </div>
-              <div class="radio">
-                <label>
-                  <input type="radio" name="health" id="healthpoor" value="healthpoor"> Poor
-                </label>
-              </div>
-            </div> 
+              <div class="col-sm-3">
+                  <select id="health" class="form-control" >
+                    <option value="5">Excellent</option>
+                    <option value="4">Very good</option>
+                    <option value="3" selected>Good</option>
+                    <option value="3">Fair</option>
+                    <option value="1">Poor</option>
+                  </select>
+              </div> 
             </div>
 
             <hr>
@@ -546,28 +496,29 @@ $(document).ready(function() {
                   <label>Optional details about you</label>
                 </div>
                 <div class="col-sm-3">
-                  <p>My weight is: <input type="number" class="form-control" placeholder="Text input"> pounds.</p>
+                  <p>My weight is: <input id="weight" type="number" class="form-control" placeholder="Weight in lbs"> pounds.</p>
                 </div>
                 <div class="col-sm-3">
-                  <p>My height is: <input type="number" class="form-control" placeholder="Text input"> feet and <input type="number" class="form-control" placeholder="Text input"> inches tall.</p>
+                  <p>My height is: <input id="height" type="number" class="form-control" placeholder="Height in ft"></p>
                 </div>
                 <div class="col-sm-3">
                   <p>My gender is:</p>
                   <div class="radio-inline">
                     <label>
-                      <input type="radio" name="gender" id="female" value="genderfemale" checked> Female
+                      <input type="radio" name="gender" value="f" checked> Female
                     </label>
                   </div>
                   <div class="radio-inline">
                     <label>
-                      <input type="radio" name="gender" id="male" value="gendermale"> Male
+                      <input type="radio" name="gender" value="m"> Male
                     </label>
                   </div>
                   <div class="radio-inline">
                     <label>
-                      <input type="radio" name="gender" id="other" value="genderother"> Other 
+                      <input type="radio" name="gender" value="o"> Other 
                     </label>
-                  </div><input type="text" class="form-control" placeholder="gender">
+                  </div>
+                  <input type="text" id="gender_other" class="form-control" placeholder="Other">
                 </div>
             </div>
             <hr>
@@ -579,53 +530,55 @@ $(document).ready(function() {
                 <div class="col-sm-9">
 
                 <div class="col-sm-9">
-                  <div class="col-sm-3"><input type="number" name="cdays" class="form-control" placeholder="0"></div>
+                  <div class="col-sm-3"><input type="number" id="cdays" class="form-control" placeholder="0"></div>
                   <div><p>Driving alone</p></div>
                 </div>
                 
                 <div class="col-sm-9">
-                  <div class="col-sm-3"><input type="number" name="caltdays" class="form-control" placeholder="0"></div>
+                  <div class="col-sm-3"><input type="number" id="caltdays" class="form-control" placeholder="0"></div>
                   <div><p>Driving alone, alternative vehicle (including taxi, hybrid, car shares)</p></div>
                 </div>
                 
                 <div class="col-sm-9">
-                  <div class="col-sm-3"><input type="number" name="cpdays" class="form-control" placeholder="0"></div>
+                  <div class="col-sm-3"><input type="number" id="cpdays" class="form-control" placeholder="0"></div>
                   <div><p>Carpool</p></div>
                 </div>
                 
                 <div class="col-sm-9">
-                  <div class="col-sm-3"><input type="number" name="tdays" class="form-control" placeholder="0"> </div>
+                  <div class="col-sm-3"><input type="number" id="tdays" class="form-control" placeholder="0"> </div>
                   <div><p>Transit</p></div>
                 </div>
                 
                 <div class="col-sm-9">
-                  <div class="col-sm-3"><input type="number" name="bdays" class="form-control" placeholder="0"> </div>
+                  <div class="col-sm-3"><input type="number" id="bdays" class="form-control" placeholder="0"> </div>
                   <div><p>Bike</p></div>
                 </div>
                 
                 <div class="col-sm-9">
-                  <div class="col-sm-3"><input type="number" name="rdays" class="form-control" placeholder="0"> </div>
+                  <div class="col-sm-3"><input type="number" id="rdays" class="form-control" placeholder="0"> </div>
                   <div><p>Jog/Run</p></div>
                 </div>
                 
                 <div class="col-sm-9">
-                  <div class="col-sm-3"><input type="number" name="wdays" class="form-control" placeholder="0"> </div>
+                  <div class="col-sm-3"><input type="number" id="wdays" class="form-control" placeholder="0"> </div>
                   <div><p>Walk</p></div>
                 </div>
                 
                 <div class="col-sm-9">  
-                  <div class="col-sm-3"><input type="number" name="odays" class="form-control" placeholder="0"> </div>
+                  <div class="col-sm-3"><input type="number" id="odays" class="form-control" placeholder="0"> </div>
                   <div><p>Other (roller blade, scooter, kayak, etc.)</p></div>
                 </div>
                 
                 <div class="col-sm-9">
-                  <div class="col-sm-3"><input type="number" name="tcdays" class="form-control" placeholder="0"></div>
+                  <div class="col-sm-3"><input type="number" id="tcdays" class="form-control" placeholder="0"></div>
                   <div><p>Telecommute</p></div>
                 </div>
 
               </div>
             </div>
+            
             <hr>
+            
             <div class="form-group">
               <div class="col-sm-3">
                 <label>In the last week, INCLUDING Walk/Ride Day, did you always commute AWAY FROM work in the same way?</label>
@@ -633,12 +586,12 @@ $(document).ready(function() {
               <div class="col-sm-9">
                   <div class="radio-inline">
                     <label>
-                      <input type="radio" class="lastweek" name="lastweek" id="lastweekYes" value="lastweekAwayWRYes" checked> Yes
+                      <input type="radio" name="lastweek" value="y" checked> Yes
                     </label>
                   </div>
                   <div class="radio-inline">
                     <label>
-                      <input type="radio" class="lastweek" name="lastweek" id="lastweekNo" value="lastweekAwayWRNo"> No
+                      <input type="radio" name="lastweek" value="n"> No
                     </label>
                   </div>
               </div>
@@ -652,63 +605,64 @@ $(document).ready(function() {
                 <div class="col-sm-9">
 
                 <div class="col-sm-9">
-                  <div class="col-sm-3"><input type="number" name="cdaysaway" class="form-control" placeholder="0"></div>
+                  <div class="col-sm-3"><input type="number" id="cdaysaway" class="form-control" placeholder="0"></div>
                   <div><p>Driving alone</p></div>
                 </div>
                 
                 <div class="col-sm-9">
-                  <div class="col-sm-3"><input type="number" name="caltdaysaway" class="form-control" placeholder="0"></div>
+                  <div class="col-sm-3"><input type="number" id="caltdaysaway" class="form-control" placeholder="0"></div>
                   <div><p>Driving alone, alternative vehicle (including taxi, hybrid, car shares)</p></div>
                 </div>
                 
                 <div class="col-sm-9">
-                  <div class="col-sm-3"><input type="number" name="cpdaysaway" class="form-control" placeholder="0"></div>
+                  <div class="col-sm-3"><input type="number" id="cpdaysaway" class="form-control" placeholder="0"></div>
                   <div><p>Carpool</p></div>
                 </div>
                 
                 <div class="col-sm-9">
-                  <div class="col-sm-3"><input type="number" name="tdaysaway" class="form-control" placeholder="0"> </div>
+                  <div class="col-sm-3"><input type="number" id="tdaysaway" class="form-control" placeholder="0"> </div>
                   <div><p>Transit</p></div>
                 </div>
                 
                 <div class="col-sm-9">
-                  <div class="col-sm-3"><input type="number" name="bdaysaway" class="form-control" placeholder="0"> </div>
+                  <div class="col-sm-3"><input type="number" id="bdaysaway" class="form-control" placeholder="0"> </div>
                   <div><p>Bike</p></div>
                 </div>
                 
                 <div class="col-sm-9">
-                  <div class="col-sm-3"><input type="number" name="rdaysaway" class="form-control" placeholder="0"> </div>
+                  <div class="col-sm-3"><input type="number" id="rdaysaway" class="form-control" placeholder="0"> </div>
                   <div><p>Jog/Run</p></div>
                 </div>
                 
                 <div class="col-sm-9">
-                  <div class="col-sm-3"><input type="number" name="wdaysaway" class="form-control" placeholder="0"> </div>
+                  <div class="col-sm-3"><input type="number" id="wdaysaway" class="form-control" placeholder="0"> </div>
                   <div><p>Walk</p></div>
                 </div>
                 
                 <div class="col-sm-9">  
-                  <div class="col-sm-3"><input type="number" name="odaysaway" class="form-control" placeholder="0"> </div>
+                  <div class="col-sm-3"><input type="number" id="odaysaway" class="form-control" placeholder="0"> </div>
                   <div><p>Other (roller blade, scooter, kayak, etc.)</p></div>
                 </div>
                 
                 <div class="col-sm-9">
-                  <div class="col-sm-3"><input type="number" name="tcdaysaway" class="form-control" placeholder="0"></div>
+                  <div class="col-sm-3"><input type="number" id="tcdaysaway" class="form-control" placeholder="0"></div>
                   <div><p>Telecommute</p></div>
                 </div>
-
-              </div>
+</div>
             </div>
+            
             <hr>
+
             <div class="form-group">
               
               <div class="col-sm-12"><strong>In the last 7 days, did you make any changes to your normal transportation routine OUTSIDE OF your work commute? If yes, what changes?</strong>
-                <textarea class="form-control" rows="3" name="outsidechanges" placeholder="e.g. biked more, transit more, walked more etc. to shopping, visiting friends/family, picking up kids, etc."></textarea>
+                <textarea class="form-control" rows="3" id="outsidechanges" placeholder="e.g. biked more, transit more, walked more etc. to shopping, visiting friends/family, picking up kids, etc."></textarea>
               </div>
             </div>
             <hr>
             <div class="form-group">
               <div class="col-sm-12"><strong>How was Walk/Ride Day affected you? Has it affected your transportation habits? Your health? Your thinking about your commute? Your thinking about environmental, health, or community issues? Any additional notes or thoughts?</strong>
-                <textarea class="form-control" rows="3" name="affectedyou"></textarea>
+                <textarea class="form-control" rows="3" id="affectedyou"></textarea>
               </div>
             </div> 
 
@@ -716,10 +670,10 @@ $(document).ready(function() {
             <div class="form-group">
               <div class="col-sm-12">
             <label class="checkbox">
-            <input type="checkbox" value="contact"> I am willing to be contacted by the Green Streets Initiative to give feedback about Walk/Ride Day.
+            <input type="checkbox" id="contact"> I am willing to be contacted by the Green Streets Initiative to give feedback about Walk/Ride Day.
             </label>
             <label class="checkbox">
-            <input type="checkbox" name="volunteer"> I would like to volunteer to help support Green Streets' efforts.
+            <input type="checkbox" id="volunteer"> I would like to volunteer to help support Green Streets' efforts.
             </label>
             </div>
             </div>                     
@@ -733,18 +687,6 @@ $(document).ready(function() {
                 <button type="submit" class="btn btn-large btn-success btn-form-submit">Check-in my commute and exit</button>
             </div>
              
-            <!-- error messages -->
-            <div class="form-group">
-            <div class="col-sm-12">
-            <div id="submit-error" class="bg-danger" style="display: none;">
-                <a class="close" href="http://localhost:8000/commuterform/#">×</a>
-                <h4 class="text-danger"></h4>
-                <p></p>
-            </div>
-            </div>
-            </div>   
-                        
-
             </form>
 
 </section>

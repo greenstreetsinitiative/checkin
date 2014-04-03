@@ -1,5 +1,5 @@
 $(function() {
-  var cs = {}, // commutersurvey data
+  var cs, // commutersurvey data
       map, geocoder, directionsService, directionsDisplay;
 
   // map & locations
@@ -10,6 +10,9 @@ $(function() {
       visible: false
     }
   });
+
+  // read cache
+  cs = simpleStorage.get('commutersurvey') || {};
 
   map = new google.maps.Map(document.getElementById('map-canvas'), {
     zoom: 11,
@@ -136,29 +139,38 @@ $(function() {
         $targetLegsContainer = $('#' + targetLegs).parent(); 
     $targetLegsContainer.toggle(100);
   });
-  
+
   // add another leg
   $('.btn.morelegs').on('click', function(event) {
     event.preventDefault();
-    var targetLegs = $(this).data('target'),
-        $targetLegs = $('#' + targetLegs),
-        $lastLeg = $('.leg:last', $targetLegs),
+    addLeg($(this).data('target'));
+  });
+
+  function addLeg(group, legData) {
+    var $container = ('#' + group),
+        $lastLeg = $('.leg:last', $container),
         $removeLegBtn = $('<button class="btn btn-danger"><span class="button">X</span></button>'),
         $newLeg;
 
     $newLeg = $lastLeg
     .clone()
-    .appendTo($targetLegs);
+    .appendTo($container);
+
+    if (legData) {
+      $.each(legData, function(k,v) {
+        $('[name=' + k +']', $newLeg).val(v);
+      });
+    }
 
     $removeLegBtn.on('click', function(event) {
       event.preventDefault();
-      var $leg = $(this).parentsUntil($targetLegs);
+      var $leg = $(this).parentsUntil($container);
       $leg.remove();
     });
     $('div:first-child', $newLeg)
     .addClass('right')
     .html($removeLegBtn);
-  });
+  }
 
   // returns array of all valid commute legs
   function collectAllLegs() {
@@ -255,7 +267,7 @@ $(function() {
       'w': 3.3,
       'o': 3.5
     };
-    weight = parseInt($('#weight').val());
+    weight = parseInt($('#weight_cal').val());
     wLegs = $.grep(legs, function(l,i) {
       return l.day === 'w';
     });
@@ -280,22 +292,31 @@ $(function() {
 
   });
 
+  // in optional question section
+  function duplicateLastWeek(data) {
+    var lastWeekDays = ['caltdays', 'cpdays', 'tdays', 'tdays', 'bdays', 'rdays', 'wdays', 'odays', 'tcdays'];
+    $.each(lastWeekDays, function(i,v) {
+      data[v + 'away'] = data[v];
+    });
+    return data;
+  }
+
   function collectFormData() {
-    var fields = ['month', 'share', 'name', 'email', 'employer', 'home_address', 'work_address', 'weight', 'comments'],
+    var fields = ['month', 'share', 'name', 'email', 'employer', 'home_address', 'work_address', 'comments', 'health', 'weight', 'height', 'gender', 'gender_other', 'cdays', 'caltdays', 'cpdays', 'tdays', 'bdays', 'rdays', 'wdays', 'odays', 'tcdays', 'lastweek', 'cdaysaway', 'caltdaysaway', 'cpdaysaway', 'tdaysaway', 'bdaysaway', 'rdaysaway', 'wdaysaway', 'odaysaway', 'tcdaysaway', 'outsidechanges', 'affectedyou', 'contact', 'volunteer'],
         formData = {};
 
     $.each(fields, function(i,f) {
       var $field = $('#' + f);
       if ($field.attr('type') === 'checkbox') {
-       formData[f] = $field.prop('checked'); 
+        formData[f] = $field.prop('checked'); 
+      } else if ($('input[name=' + f + ']').attr('type') === 'radio') {
+        formData[f] = $('input[name=' + f + ']:radio:checked').val();
       } else {
         formData[f] = $field.val();
       }
     });
+    formData = (formData.lastweek === 'y') ? duplicateLastWeek(formData) : formData;
     formData.legs = collectAllLegs();
-
-    // TODO: collect optional form data 
-
     return formData;
   }
 
@@ -347,6 +368,16 @@ $(function() {
     return isValid;
   }
 
+  function cache(data) {
+    var noCacheKeys = ['home_location', 'work_location', 'geom'],
+        cacheData = $.extend(true, {}, data);
+    
+    $.each(noCacheKeys, function(i,v) {
+      if (cacheData[v]) delete cacheData[v];
+    });
+    return simpleStorage.set('commutersurvey', cacheData);
+  }
+
   // submit formdata
   $('button.btn-form-submit').on('click', function(event) {
     event.preventDefault();
@@ -354,10 +385,11 @@ $(function() {
     
     surveyData = $.extend({}, cs, collectFormData());
 
+    if (!validate(surveyData)) return;
+
     // show optional questions and exit
     if ($(this).hasClass('optional')) {
-      console.log('optional questions');
-      $('input.lastweek:radio').on('change', function(event) {
+      $('input[name=lastweek]:radio').on('change', function() {
         $('#lastweekaway').toggle(100);
       });
       $('#optional-questions').show(100);
@@ -365,9 +397,11 @@ $(function() {
       return;
     }
 
-    if (!validate(surveyData)) return;
+    // set local cache
+    cache(surveyData); 
+
+    // persist
     surveyData['csrfmiddlewaretoken'] = $('input[name=csrfmiddlewaretoken]').val();
-    // TODO: add https://github.com/andris9/simpleStorage
     $.ajax({
       type: 'POST',
       url: '/api/survey/',
@@ -378,5 +412,43 @@ $(function() {
       alert('An error occured and your checkin could not be saved. Please try again or contact info@GoGreenStreets.org.');
     }); 
   });
+
+  // apply cached data
+  $.each(cs, function(f,v) {
+    var $field,
+        legContainers = {
+          'wtw': 'w-to-work-legs',
+          'wfw': 'w-from-work-legs',
+          'ntw': 'n-to-work-legs',
+          'nfw': 'n-from-work-legs'
+        };
+    
+    if (f !== 'legs') {
+      $field = $('#' + f);
+      if ($field.attr('type') === 'checkbox') {
+        $field.prop('checked', v); 
+      } else if ($('input[name=' + f + ']').attr('type') === 'radio') {
+        $('input[name=' + f + '][value=' + v + ']:radio').prop('checked', true);
+      } else {
+        $field.val(v);
+      }
+    } else {
+      $.each(v, function(k,l) {
+        var legContainerId = legContainers[l.day + l.direction];
+        addLeg(legContainerId, l);
+        // FIXME: detect wtw pattern and compare
+        // array.push(mode+time).reverse.join
+        // combination of mode+time
+        // to only toggle yes/no questions instead of showing everything
+        $('#' + legContainerId).parent().show(100);
+        $('input.morelegs[name=' + legContainerId + ']').prop('checked', true);
+        $('input.morelegs.yes[name=' + legContainerId + ']').prop('checked', false);
+      });
+    }
+    if (cs.home_address && cs.work_address) setCommuteGeom(cs.home_address, cs.work_address);
+  });
+
+  // show extra questions lastweek section
+  if ($('input[name=lastweek]:radio:checked').val() === 'n') $('#lastweekaway').show();
 
 });

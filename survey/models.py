@@ -45,6 +45,19 @@ LEG_DURATIONS = (
     (5, _('More than an hour')),
 )
 
+HEALTH_CHOICES = (
+    (5, _('Excellent')),
+    (4, _('Very Good')),
+    (3, _('Good')),
+    (2, _('Fair')),
+    (1, _('Poor')),
+)
+
+GENDER_CHOICES = (
+    ('m', _('Male')),
+    ('f', _('Female')),
+    ('o', _('Other')),
+)
 
 class EmplSizeCategory(models.Model):
     name = models.CharField(max_length=50)
@@ -166,36 +179,57 @@ class Commutersurvey(models.Model):
 
     month = models.CharField('Walk/Ride Day Month', max_length=50)
 
-    home_location = models.PointField(geography=True, blank=True, null=True, default='POINT(0 0)') # default SRS 4326
     home_address = models.CharField(max_length=200)
-    work_location = models.PointField(geography=True, blank=True, null=True, default='POINT(0 0)')
     work_address = models.CharField(max_length=200)
 
-    # commute line string
     geom = models.MultiLineStringField('Commute', geography=True, blank=True, null=True)
 
     distance = models.DecimalField(max_digits=10, decimal_places=1, blank=True, null=True)
     duration = models.DecimalField(max_digits=10, decimal_places=1, blank=True, null=True)
 
-    to_work_today = models.CharField(max_length=2, blank=False, null=True, choices=COMMUTER_MODES)
-    from_work_today = models.CharField(max_length=2, blank=False, null=True, choices=COMMUTER_MODES)  
-    to_work_normally = models.CharField(max_length=2, blank=False, null=True, choices=COMMUTER_MODES)
-    from_work_normally = models.CharField(max_length=2, blank=False, null=True, choices=COMMUTER_MODES) 
-
-    other_greentravel = models.BooleanField(default=False)
-
     legs = models.ManyToManyField(Leg)
 
     name = models.CharField(max_length=50, blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
-    newsletter = models.BooleanField(default=True)
+    share = models.BooleanField(default=False)
     employer = models.CharField('Employer', max_length=100, blank=False, null=True)
-    weight = models.DecimalField(max_digits=5, decimal_places=1, blank=True, null=True)
+    comments = models.TextField(null=True, blank=True)
 
     ip = models.IPAddressField('IP Address', blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
 
+    # optional survey questions
+    health = models.IntegerField(null=True, blank=True, choices=HEALTH_CHOICES)
+    weight = models.CharField(null=True, blank=True, max_length=20)
+    height = models.CharField(null=True, blank=True, max_length=20)
+    gender = models.CharField(null=True, blank=True, max_length=1, choices=GENDER_CHOICES)
+    gender_other = models.CharField(null=True, blank=True, max_length=50)
+    cdays = models.IntegerField(null=True, blank=True)
+    caltdays = models.IntegerField(null=True, blank=True)
+    cpdays = models.IntegerField(null=True, blank=True)
+    tdays = models.IntegerField(null=True, blank=True)
+    bdays = models.IntegerField(null=True, blank=True)
+    rdays = models.IntegerField(null=True, blank=True)
+    wdays = models.IntegerField(null=True, blank=True)
+    odays = models.IntegerField(null=True, blank=True)
+    tcdays = models.IntegerField(null=True, blank=True)
+    lastweek = models.BooleanField(default=True)
+    cdaysaway = models.IntegerField(null=True, blank=True)
+    caltdaysaway = models.IntegerField(null=True, blank=True)
+    cpdaysaway = models.IntegerField(null=True, blank=True)
+    tdaysaway = models.IntegerField(null=True, blank=True)
+    bdaysaway = models.IntegerField(null=True, blank=True)
+    rdaysaway = models.IntegerField(null=True, blank=True)
+    wdaysaway = models.IntegerField(null=True, blank=True)
+    odaysaway = models.IntegerField(null=True, blank=True)
+    tcdaysaway = models.IntegerField(null=True, blank=True)
+    outsidechanges = models.TextField(null=True, blank=True)
+    affectedyou = models.TextField(null=True, blank=True)
+    contact = models.BooleanField(default=False)
+    volunteer = models.BooleanField(default=False)
+
     objects = models.GeoManager()
+
     CheckinDict = {
             ('c', 'c'):2, ('c', 'cp'):4, ('c', 'w'):4, ('c', 'b'):4, ('c', 't'):4, ('c', 'tc'):4, ('c', 'o'):1,
             ('cp', 'c'):1, ('cp', 'cp'):3, ('cp', 'w'):4, ('cp', 'b'):4, ('cp', 't'):4, ('cp', 'tc'):4, ('cp', 'o'):1,
@@ -213,19 +247,20 @@ class Commutersurvey(models.Model):
         verbose_name = 'Commuter Survey'
         verbose_name_plural = 'Commuter Surveys'     
 
-    @property
-    def to_work_switch(self):
-        if self.to_work_today is None:
-            self.to_work_today = 'o'
-        if self.to_work_normally is None:
-            self.to_work_normally = 'o'
-        return self.CheckinDict[(self.to_work_normally, self.to_work_today)]
+    # FIXME: migrate to multiple legs if still needed
+    # @property
+    # def to_work_switch(self):
+    #     if self.to_work_today is None:
+    #         self.to_work_today = 'o'
+    #     if self.to_work_normally is None:
+    #         self.to_work_normally = 'o'
+    #     return self.CheckinDict[(self.to_work_normally, self.to_work_today)]
 
-    @property
-    def from_work_switch(self):
-        if self.from_work_today is None:
-            self.from_work_today = 'o'
-        if self.from_work_normally is None:
-            self.from_work_normally = 'o'
-        return self.CheckinDict[(self.from_work_normally, self.from_work_today)]
+    # @property
+    # def from_work_switch(self):
+    #     if self.from_work_today is None:
+    #         self.from_work_today = 'o'
+    #     if self.from_work_normally is None:
+    #         self.from_work_normally = 'o'
+    #     return self.CheckinDict[(self.from_work_normally, self.from_work_today)]
 
