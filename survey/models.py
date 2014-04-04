@@ -18,19 +18,19 @@ except ImportError:
 
 
 COMMUTER_MODES = (
-    ('c', _('Car'), 'car'),
-    ('cp', _('Carpool'), 'car'),
-    ('da', _('Driving alone'), 'car'),
-    ('dalt', _('Driving alone, alternative vehicle'), 'car'),
-    ('w', _('Walk'), 'green'),
-    ('b', _('Bike'), 'green'),
-    ('t', _('Transit (bus, subway, etc.)'), 'green'),
-    ('o', _('Other (skate, canoe, etc.)'), 'green'),
-    ('r', _('Jog/Run'), 'green'),
-    ('tc', _('Telecommuting'), 'green'),
+    ('c', _('Car'),),
+    ('cp', _('Carpool'),),
+    ('da', _('Driving alone'),),
+    ('dalt', _('Driving alone, alternative vehicle'),),
+    ('w', _('Walk'),),
+    ('b', _('Bike'),),
+    ('t', _('Transit (bus, subway, etc.)'),),
+    ('o', _('Other (skate, canoe, etc.)'),),
+    ('r', _('Jog/Run'),),
+    ('tc', _('Telecommuting'),),
 )
 
-GREEN_MODES = [i[0] for i in COMMUTER_MODES if i[2]=='green']
+GREEN_MODES = ['w', 'b', 't', 'o', 'r', 'tc']
 
 LEG_DIRECTIONS = (
     ('tw', _('to work')),
