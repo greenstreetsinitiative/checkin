@@ -18,19 +18,17 @@ except ImportError:
 
 
 COMMUTER_MODES = (
-    ('c', _('Car'), 'car'),
-    ('cp', _('Carpool'), 'car'),
-    ('da', _('Driving alone'), 'car'),
-    ('dalt', _('Driving alone, alternative vehicle'), 'car'),
-    ('w', _('Walk'), 'green'),
-    ('b', _('Bike'), 'green'),
-    ('t', _('Transit (bus, subway, etc.)'), 'green'),
-    ('o', _('Other (skate, canoe, etc.)'), 'green'),
-    ('r', _('Jog/Run'), 'green'),
-    ('tc', _('Telecommuting'), 'green'),
+    ('c', _('Car')),
+    ('cp', _('Carpool')),
+    ('da', _('Driving alone')),
+    ('dalt', _('Driving alone, alternative vehicle')),
+    ('w', _('Walk')),
+    ('b', _('Bike')),
+    ('t', _('Transit (bus, subway, etc.)')),
+    ('o', _('Other (skate, canoe, etc.)')),
+    ('r', _('Jog/Run')),
+    ('tc', _('Telecommuting')),
 )
-
-GREEN_MODES = [i[0] for i in COMMUTER_MODES if i[2]=='green']
 
 LEG_DIRECTIONS = (
     ('tw', _('to work')),
@@ -226,22 +224,42 @@ class Commutersurvey(models.Model):
         return self.leg_set.all()
 
     @property
-    def green_switch_overall(self):
-        green_duration_w = sum([l.duration*15 for l in self.legs if l.duration and l.mode in GREEN_MODES and l.day=='w'])
-        green_duration_n = sum([l.duration*15 for l in self.legs if l.duration and l.mode in GREEN_MODES and l.day=='n'])
-        return green_duration_w > green_duration_n
-
+    def from_work_switch(self):
+        normal_green_legs = 0
+        wr_green_legs = 0
+        for leg in self.legs:
+            if leg.mode != 'c' and leg.mode != 'da' and leg.direction == 'fw' and leg.day == 'w':
+                wr_green_legs += 1
+            if leg.mode != 'c' and leg.mode != 'da' and leg.direction == 'fw' and leg.day == 'n':
+                normal_green_legs += 1
+        
+        if wr_green_legs == 0:
+            return 2 # car commute
+        if wr_green_legs > normal_green_legs:
+            return 4 # green switch
+        if wr_green_legs < normal_green_legs:
+            return 1 # "unhealthy switch"
+        if wr_green_legs > 0:
+            return 3 # green commute
+    
     @property
-    def green_switch_to_work(self):
-        green_duration_w = sum([l.duration*15 for l in self.legs if l.duration and l.mode in GREEN_MODES and l.day=='w' and l.direction=='tw'])
-        green_duration_n = sum([l.duration*15 for l in self.legs if l.duration and l.mode in GREEN_MODES and l.day=='n' and l.direction=='tw'])
-        return green_duration_w > green_duration_n
-
-    @property
-    def green_switch_from_work(self):
-        green_duration_w = sum([l.duration*15 for l in self.legs if l.duration and l.mode in GREEN_MODES and l.day=='w' and l.direction=='fw'])
-        green_duration_n = sum([l.duration*15 for l in self.legs if l.duration and l.mode in GREEN_MODES and l.day=='n' and l.direction=='fw'])
-        return green_duration_w > green_duration_n
+    def to_work_switch(self):
+        normal_green_legs = 0
+        wr_green_legs = 0
+        for leg in self.legs:
+            if leg.mode != 'c' and leg.mode != 'da' and leg.direction == 'tw' and leg.day == 'w':
+                wr_green_legs += 1
+            if leg.mode != 'c' and leg.mode != 'da' and leg.direction == 'tw' and leg.day == 'n':
+                normal_green_legs += 1
+        
+        if wr_green_legs == 0:
+            return 2 # car commute
+        if wr_green_legs > normal_green_legs:
+            return 4 # green switch
+        if wr_green_legs < normal_green_legs:
+            return 1 # "unhealthy switch"
+        if wr_green_legs > 0:
+            return 3 # green commute
 
 
 class Leg(models.Model):
