@@ -18,14 +18,19 @@ except ImportError:
 
 
 COMMUTER_MODES = (
-    ('c', _('Car')),
-    ('w', _('Walk')),
-    ('b', _('Bike')),
-    ('cp', _('Carpool')),
-    ('t', _('Transit (bus, subway, etc.)')),
-    ('o', _('Other (skate, canoe, etc.)')),
-    ('tc', _('Telecommuting')),
+    ('c', _('Car'), 'car'),
+    ('cp', _('Carpool'), 'car'),
+    ('da', _('Driving alone'), 'car'),
+    ('dalt', _('Driving alone, alternative vehicle'), 'car'),
+    ('w', _('Walk'), 'green'),
+    ('b', _('Bike'), 'green'),
+    ('t', _('Transit (bus, subway, etc.)'), 'green'),
+    ('o', _('Other (skate, canoe, etc.)'), 'green'),
+    ('r', _('Jog/Run'), 'green'),
+    ('tc', _('Telecommuting'), 'green'),
 )
+
+GREEN_MODES = [i[0] for i in COMMUTER_MODES if i[2]=='green']
 
 LEG_DIRECTIONS = (
     ('tw', _('to work')),
@@ -209,16 +214,6 @@ class Commutersurvey(models.Model):
 
     objects = models.GeoManager()
 
-    CheckinDict = {
-            ('c', 'c'):2, ('c', 'cp'):4, ('c', 'w'):4, ('c', 'b'):4, ('c', 't'):4, ('c', 'tc'):4, ('c', 'o'):1,
-            ('cp', 'c'):1, ('cp', 'cp'):3, ('cp', 'w'):4, ('cp', 'b'):4, ('cp', 't'):4, ('cp', 'tc'):4, ('cp', 'o'):1,
-            ('w', 'c'):1, ('w', 'cp'):3, ('w', 'w'):3, ('w', 'b'):3, ('w', 't'):3, ('w', 'tc'):3, ('w', 'o'):1,
-            ('b', 'c'):1, ('b', 'cp'):3, ('b', 'w'):3, ('b', 'b'):3, ('b', 't'):3, ('b', 'tc'):3, ('b', 'o'):1,
-            ('t', 'c'):1, ('t', 'cp'):3, ('t', 'w'):4, ('t', 'b'):4, ('t', 't'):3, ('t', 'tc'):4, ('t', 'o'):1,
-            ('tc', 'c'):1, ('tc', 'cp'):3, ('tc', 'w'):3, ('tc', 'b'):3, ('tc', 't'):3, ('tc', 'tc'):3, ('tc', 'o'):1,
-            ('o', 'c'):1, ('o', 'cp'):1, ('o', 'w'):1, ('o', 'b'):1, ('o', 't'):1, ('o', 'tc'):1, ('o', 'o'):1,
-            }
-
     def __unicode__(self): 
         return u'%s' % (self.id)   
 
@@ -230,22 +225,23 @@ class Commutersurvey(models.Model):
     def legs(self):
         return self.leg_set.all()
 
-    # FIXME: migrate to multiple legs if still needed
-    # @property
-    # def to_work_switch(self):
-    #     if self.to_work_today is None:
-    #         self.to_work_today = 'o'
-    #     if self.to_work_normally is None:
-    #         self.to_work_normally = 'o'
-    #     return self.CheckinDict[(self.to_work_normally, self.to_work_today)]
+    @property
+    def green_switch_overall(self):
+        green_duration_w = sum([l.duration*15 for l in self.legs if l.duration and l.mode in GREEN_MODES and l.day=='w'])
+        green_duration_n = sum([l.duration*15 for l in self.legs if l.duration and l.mode in GREEN_MODES and l.day=='n'])
+        return green_duration_w > green_duration_n
 
-    # @property
-    # def from_work_switch(self):
-    #     if self.from_work_today is None:
-    #         self.from_work_today = 'o'
-    #     if self.from_work_normally is None:
-    #         self.from_work_normally = 'o'
-    #     return self.CheckinDict[(self.from_work_normally, self.from_work_today)]
+    @property
+    def green_switch_to_work(self):
+        green_duration_w = sum([l.duration*15 for l in self.legs if l.duration and l.mode in GREEN_MODES and l.day=='w' and l.direction=='tw'])
+        green_duration_n = sum([l.duration*15 for l in self.legs if l.duration and l.mode in GREEN_MODES and l.day=='n' and l.direction=='tw'])
+        return green_duration_w > green_duration_n
+
+    @property
+    def green_switch_from_work(self):
+        green_duration_w = sum([l.duration*15 for l in self.legs if l.duration and l.mode in GREEN_MODES and l.day=='w' and l.direction=='fw'])
+        green_duration_n = sum([l.duration*15 for l in self.legs if l.duration and l.mode in GREEN_MODES and l.day=='n' and l.direction=='fw'])
+        return green_duration_w > green_duration_n
 
 
 class Leg(models.Model):
