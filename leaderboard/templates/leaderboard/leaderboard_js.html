@@ -166,8 +166,8 @@
             <!-- size options -->
 
             <!-- sector options -->
-            <select id="id_sos" name="sos" class="form-control">
-            {% for sector in sectors %}<option value={{ sector.id }}>{{ sector.name }}</option>{% endfor %}
+            <select id="id_sos_new" name="sos" class="form-control">
+            {% for sector in sectors %}<option value="{{ sector.id }}">{{ sector.name }}</option>{% endfor %}
             </select>
 
             <!-- groups with subteam options -->
@@ -177,7 +177,7 @@
     <div class="row clearfix">
         <div class="col-md-12 column">
             <hr>
-            <h2 class="leaderboard">Rankings of companies of (this size, sector, group)</h2>
+            <h2 class="leaderboard">Rankings of companies of {{ emp_sector }}</h2>
             <p class="lead">Click on any company to generate details for that company.</p>
         </div>
     </div>
@@ -208,29 +208,28 @@
                     </h3>
                 </div>
                 <div class="panel-body">
-                    Since April, the (24 companies) of (this size, sector, or group) have made (452 green switches) total!
+                    Since April, the {{ total_companies }} companies of {{ emp_sector }} have made {{ gs_total }} total green switches!
                 </div>
             </div>
         </div>
         <div class="col-md-4 column">
             <h3>Most green switches</h3><p class="ranksubtitle">Total</p>
             <ol>
-                <li><a href="" class="company">Company</a> with (number)</li>
-				{% for company in top_companies %} <li>{{ company.0 }}</li> {% endfor %}
-                <li>Company with number</li>
-                <li>Company with number</li>
-                <li>Company with number</li>
-                <li>Company with number</li>
+				{% for rank in ranks %} 
+				{% if forloop.counter < 11 %}
+				<li>{{ rank.name }}: <b>{{rank.gs}}</b></li> 
+				{% endif %}
+				{% endfor %}
             </ol>
         </div>
         <div class="col-md-4 column">
             <h3>Most green switches</h3><p class="ranksubtitle">As a percentage of commutes</p>
             <ol>
-                <li>Company with percent</li>
-                <li>Company with percent</li>
-                <li>Company with percent</li>
-                <li>Company with percent</li>
-                <li>Company with percent</li>
+				{% for rank in ranks_pct %} 
+				{% if forloop.counter < 11 %}
+				<li>{{ rank.name }}: <b>{{rank.pct|floatformat}}%</b></li> 
+				{% endif %}
+				{% endfor %}
             </ol>
         </div>
     </div>

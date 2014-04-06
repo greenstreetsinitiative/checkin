@@ -16,7 +16,7 @@ urlpatterns = patterns('',
     url(r'^commuterform/complete/$', TemplateView.as_view(template_name='survey/thanks.html'), name='complete'),
 
     # Leaderboard
-    url(r'^leaderboard/$', 'leaderboard.views.leaderboard'),
+    url(r'^leaderboard/$', 'leaderboard.views.new_leaderboard'),
     url(r'^leaderboard-bare/$', 'leaderboard.views.leaderboard_bare'),
     url(r'^test-chart/$', 'leaderboard.views.testchart'),
     url(r'^emplbreakdown/(?P<month>[-\w]+)/$', 'leaderboardlist.views.empBreakDown'),
@@ -36,4 +36,5 @@ urlpatterns = patterns('',
     url(r'^grappelli/', include('grappelli.urls')),
     url(r'^admin/', include(admin.site.urls)),
 	url(r'^leaderboard/([^/]+)/(\d)/$', 'leaderboard.views.new_leaderboard'),
+	url(r'^leaderboard/(\d)/$', 'leaderboard.views.leaderboard_detail'),
 ) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
