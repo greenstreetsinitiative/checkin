@@ -139,6 +139,37 @@
         }
         return formatted;
     };
+
+    //for rotated text header on the matrix
+    $('.matrixWRlabel').css('height', $('.matrixWRlabel').width());
+
+    //toggle the dropdown menu when selecting filters
+    $('#sizeoption,#sectoroption,#groupsoption').hide();
+
+    $('input[name="filter"]').change(function(){   
+        //if size selected
+        if($(this).val() == "size"){
+            //display size dropdown
+            $('#sizeoption').show();
+            $('#sectoroption,#groupsoption').hide();
+        }
+        //if sector selected
+        else if($(this).val() == "sector"){
+            //display sector dropdown
+            $('#sizeoption,#groupsoption').hide();
+            $('#sectoroption').show();
+        }
+
+        //if groups with subteams selected
+        else if($(this).val() == "groups"){
+            //display groups dropdown
+            $('#sizeoption,#sectoroption').hide();
+            $('#groupsoption').show();
+        }
+
+        //if no filter selected
+        else { $('#sizeoption,#sectoroption,#groupsoption').hide(); }
+    });
 </script>
 <script type="text/javascript" src="/static/libs/canvasjs.min.js"></script>
 {% endblock %}
@@ -154,23 +185,32 @@
     <div class="row clearfix filters">
         <div class="col-md-6 column">
             <p class="lead"><strong>Filter by</strong></p>
-            <label><input type="radio" name="color" value="nofilter" checked/> None (show everyone)</label>
-            <label><input type="radio" name="color" value="size"/> Size</label>
-            <label><input type="radio" name="color" value="sector"/> Sector</label>
-            <label><input type="radio" name="color" value ="groups"/> Groups with subteams</label>
+            <label><input type="radio" name="filter" value="nofilter" checked/> None (show everyone)</label>
+            <label><input type="radio" name="filter" value="size"/> Size</label>
+            <label><input type="radio" name="filter" value="sector"/> Sector</label>
+            <label><input type="radio" name="filter" value ="groups"/> Groups with subteams</label>
         </div>
 
         <div class="col-md-6 column filteroptions">
-            <!-- (all hidden until invoked) -->
 
             <!-- size options -->
+            <select id="sizeoption" name="sizes" class="form-control">
+             <option value="small">Small (1-10 employees)</option>
+             <option value="medium">Medium (11-100 employees)</option>
+             <option value="large">Large (101-1000 employees)</option>
+             <option value="largest">Largest (>1000 employees)</option>
+            </select>
 
             <!-- sector options -->
-            <select id="id_sos_new" name="sos" class="form-control">
+            <select id="sectoroption" name="sos" class="form-control">
             {% for sector in sectors %}<option value="{{ sector.id }}">{{ sector.name }}</option>{% endfor %}
             </select>
 
             <!-- groups with subteam options -->
+            <select id="groupsoption" name="groups" class="form-control">
+             <option value="thissubteam">Some group</option>
+             <option value="thatbiggroup">A different group</option>
+            </select>
 
         </div>
     </div>
@@ -466,10 +506,7 @@
 </div>
 
 
-<script>$(document).ready(function () {
-    $('.matrixWRlabel').css('height', $('.matrixWRlabel').width());
-});</script>
-
 
 {% endblock %}
+
 
