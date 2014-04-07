@@ -334,6 +334,11 @@ $(function() {
 
     // clear previous errors
     $('.validation-error').remove();
+    // month
+    if (!$('#month').val()) {
+      addErrorMsg($('#month'), 'Error: Please choose the Walk/Ride Day for your Checkin.');
+      isValid = false;
+    }
     // email
     if (!emailRe.test(surveyData.email)) {
       addErrorMsg($('#email'), 'Error: Please provide a valid email-address.');
@@ -403,9 +408,6 @@ $(function() {
 
     // set local cache
     cache(surveyData); 
-
-    // FIXME: validate month
-    surveyData.month = 'April';
 
     // POST data
     $.ajaxSetup({
