@@ -2,10 +2,6 @@
 
 {% block title %}Successful Walk/Ride Day check-in!{% endblock %}
 
-{% block pageheader %}
-<h1 class="thanks-page">You successfully checked-in for <span class="nowrap">Walk/Ride Day</span> <span class="nowrap">{{ month }}</span></h1>
-{% endblock pageheader %}
-
 {% block socialmedia %}
 <div id="fb-root"></div>
 <script>
@@ -50,7 +46,14 @@
 <section class="thanks-page">
     <div class="row">
       <div class="span12">
+        <h1 class="thanks-page">You successfully checked-in for <span class="nowrap">Walk/Ride Day</span> <span class="nowrap">{{ month }}</span></h1>
         <p class="lead">Thank you for checking in and for traveling sustainably!</p>
+        <a class="btn btn-large btn-primary" href="/commuterform/">Check in another person</a>
+        <a class="btn btn-large btn-success" href="/leaderboard/">View leaderboard</a>
+
+        <!-- Information about retail partners rewards. Personal codes here? -->
+        <p class="lead"><strong>Celebrate with our <a href="http://gogreenstreets.org/retailers">retail partners</a> offering special discounts for Walk/Ride Day participants.</strong></p>
+
       </div>
     </div>
 </section>
