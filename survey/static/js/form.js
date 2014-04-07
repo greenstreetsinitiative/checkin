@@ -378,6 +378,10 @@ $(function() {
     return simpleStorage.set('commutersurvey', cacheData);
   }
 
+  function csrfSafeMethod(method) {
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+  }
+
   // submit formdata
   $('button.btn-form-submit').on('click', function(event) {
     event.preventDefault();
@@ -400,8 +404,18 @@ $(function() {
     // set local cache
     cache(surveyData); 
 
-    // persist
-    surveyData['csrfmiddlewaretoken'] = $('input[name=csrfmiddlewaretoken]').val();
+    // FIXME: validate month
+    surveyData.month = 'April';
+
+    // POST data
+    $.ajaxSetup({
+      crossDomain: false, // obviates need for sameOrigin test
+      beforeSend: function(xhr, settings) {
+        if (!csrfSafeMethod(settings.type)) {
+          xhr.setRequestHeader("X-CSRFToken", $('input[name=csrfmiddlewaretoken]').val());
+        }
+      }
+    });
     $.ajax({
       type: 'POST',
       url: '/api/survey/',
