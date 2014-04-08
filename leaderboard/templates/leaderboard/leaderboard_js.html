@@ -139,6 +139,37 @@
         }
         return formatted;
     };
+
+    //for rotated text header on the matrix
+    $('.matrixWRlabel').css('height', $('.matrixWRlabel').width());
+
+    //toggle the dropdown menu when selecting filters
+    $('#sizeoption,#sectoroption,#groupsoption').hide();
+
+    $('input[name="filter"]').change(function(){   
+        //if size selected
+        if($(this).val() == "size"){
+            //display size dropdown
+            $('#sizeoption').show();
+            $('#sectoroption,#groupsoption').hide();
+        }
+        //if sector selected
+        else if($(this).val() == "sector"){
+            //display sector dropdown
+            $('#sizeoption,#groupsoption').hide();
+            $('#sectoroption').show();
+        }
+
+        //if groups with subteams selected
+        else if($(this).val() == "groups"){
+            //display groups dropdown
+            $('#sizeoption,#sectoroption').hide();
+            $('#groupsoption').show();
+        }
+
+        //if no filter selected
+        else { $('#sizeoption,#sectoroption,#groupsoption').hide(); }
+    });
 </script>
 <script type="text/javascript" src="/static/libs/canvasjs.min.js"></script>
 {% endblock %}
@@ -161,7 +192,6 @@
         </div>
 
         <div class="col-md-6 column filteroptions">
-            <!-- (all hidden until invoked) -->
 
             <!-- size options -->
 			<select id="size_cats" class="form-control" style="display: none">
@@ -172,14 +202,13 @@
 			</select>
 
             <!-- sector options -->
-            <select id="id_sos_new" name="sos" class="form-control">
+            <select class="form-control">
             {% for sector in sectors %}<option value="{{ sector.id }}">{{ sector.name }}</option>{% endfor %}
             </select>
-			<select id="id_sos_new" name="sos" class="form-control" style="display: none">
+			<select class="form-control" style="display: none">
             {% for team in teams %}<option value="{{ team.id }}">{{ team.name }}</option>{% endfor %}
             </select>
 
-            <!-- groups with subteam options -->
 
         </div>
     </div>
@@ -475,10 +504,7 @@
 </div>
 
 
-<script>$(document).ready(function () {
-    $('.matrixWRlabel').css('height', $('.matrixWRlabel').width());
-});</script>
-
 
 {% endblock %}
+
 

@@ -29,7 +29,6 @@ def index(request):
 
 def new_leaderboard(request, filter_by='sector', _filter=0, emp=0):
 #    context = leaderboard_reply_data('perc', 'August 2013', filter_by, _filter);
-    print _filter
     context = {}
     context['sectors'] = sorted(EmplSector.objects.all(), key=getSectorNum)
     context['months'] = Month.objects.filter(active=True).order_by('-id')
