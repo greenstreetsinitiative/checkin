@@ -51,6 +51,7 @@ def leaderboard_detail(request, empid):
     sector = emp.sector
 
     context['sectors'] = sorted(EmplSector.objects.all(), key=getSectorNum)
+    context['chart'] = json.dumps(getCanvasJSChart(emp) )
     context['months'] = Month.objects.filter(active=True).order_by('-id')
     context['ranks'] = green_switch_rankings('sector', sector)
     context['ranks_pct'] = rankings_by_pct('sector', sector)

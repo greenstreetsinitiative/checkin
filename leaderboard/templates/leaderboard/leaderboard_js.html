@@ -9,6 +9,9 @@
 <script type="text/javascript" src="/static/libs/jquery.spin.js"></script>
 <script type="text/javascript">
     $("document").ready(function() {
+		chart_data = {% autoescape off %}{{ chart }}{% endautoescape %}
+		var chart = new CanvasJS.Chart("breakDownGraph", chart_data);
+		chart.render();
         $("#id_vol_v_perc").change(getResults);
         $("#id_month").change(getResults);
         $("#id_svs").change(switchSOS);
