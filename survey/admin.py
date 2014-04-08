@@ -72,7 +72,7 @@ class CommutersurveyAdmin(admin.OSMGeoAdmin):
         (None, 
             {'fields': ['month', 'name', 'email', 'employer']}),
         ('Commute', 
-            {'fields': ['home_address', 'work_address', 'legs', ]}),
+            {'fields': ['home_address', 'work_address', ]}),
         ('Maps',
             {'fields': ['geom', ]}),
         ('Meta',
