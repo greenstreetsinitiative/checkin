@@ -1,6 +1,7 @@
 from django.contrib.gis.db import models
 from django.db.models import permalink
 from django.utils.text import slugify
+
 from leaderboard.models import getMonths, Month
 
 # lazy translation
@@ -218,6 +219,20 @@ class Commutersurvey(models.Model):
     class Meta:
         verbose_name = 'Commuter Survey'
         verbose_name_plural = 'Commuter Surveys'     
+
+    def save_with_legs(self, *args, **kwargs):
+        """
+        Also creates related Commutersurvey legs
+        """
+        legs = kwargs['legs']
+        del kwargs['legs']
+
+        super(Commutersurvey, self).save(*args, **kwargs)
+
+        for l in legs:
+            print l
+            leg = Leg(commutersurvey=self, **l)
+            leg.save()
 
     @property
     def legs(self):

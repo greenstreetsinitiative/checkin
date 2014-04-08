@@ -1,11 +1,12 @@
 from django.template import RequestContext
 from django.shortcuts import render_to_response, get_object_or_404
 from django.http import HttpResponse
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.forms.models import inlineformset_factory
 
 import json
 
-from survey.models import Commutersurvey, Employer
+from survey.models import Commutersurvey, Employer, Leg
 from survey.forms import CommuterForm
 
 
@@ -58,6 +59,13 @@ def commuter(request):
         surveyform = CommuterForm(instance=survey)
         return render_to_response('survey/commuterform.html', locals(), context_instance=RequestContext(request))
 
+def update_existing_survey(survey, survey_id, created, legs):
+    survey.id = survey_id
+    survey.created = created
+    legs = Leg.objects.filter(commutersurvey=survey)
+    for leg in legs:
+        leg.delete()
+    return survey
 
 def api(request):
     """
@@ -67,7 +75,30 @@ def api(request):
     request = process_request(request)
 
     if request.method == 'POST':
-        # TODO: process formdata
+        data = request.POST.dict()
+        # look for survey legs
+        try:
+            legs = json.loads(data['legs'])
+            del data['legs']
+        except KeyError:
+            legs = []
+        
+        survey = Commutersurvey(**data)
+        
+        # check for existing survey
+        try:
+            existing_survey = Commutersurvey.objects.get(month=data['month'], email=data['email'])
+            update_existing_survey(survey, existing_survey.id, existing_survey.created, legs)
+        except ObjectDoesNotExist:
+            pass
+        except MultipleObjectsReturned:
+            # cleanup, keep the most recent one and delete the rest
+            surveys = Commutersurvey.objects.filter(month=data['month'], email=data['email']).order_by('-created')
+            for s in surveys[1:]:
+                s.delete()
+            update_existing_survey(survey, surveys[0].id, surveys[0].created, legs)
+
+        survey.save_with_legs(legs=legs)
         return HttpResponse(status=200)
 
     return HttpResponse(status=500)

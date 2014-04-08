@@ -177,11 +177,11 @@ $(function() {
     var legs = [];
     $('div.leg:visible').each(function() {
       var mode = $('select[name=mode]', this).val(),
-          time = $('select[name=time]', this).val();
-      if (mode && time) {
+          duration = $('select[name=duration]', this).val();
+      if (mode && duration) {
         legs.push({
           mode: mode,
-          time: time,
+          duration: duration,
           day: $('input[name=day]', this).val(),
           direction: $('input[name=direction]', this).val()
         });
@@ -226,26 +226,26 @@ $(function() {
   }
 
   // calculate CO2 for Walk/Ride day
-  // approximation by using time for non-car legs 
+  // approximation by using duration for non-car legs 
   // to estimate proportional non-car distance
   $('#btn-co2').on('click', function(event) {
     event.preventDefault();
     var legs = collectAllLegs(),
         wLegs, distanceNoCar, savedCO2,
-        timeTotal = 0, 
-        timeNoCar = 0;
+        durationTotal = 0, 
+        durationNoCar = 0;
 
     wLegs = $.grep(legs, function(l,i) {
       return l.day === 'w';
     });
     $.each(wLegs, function(i,l) {
-      timeTotal += parseInt(l.time);
-      if (['da', 'dalt', 'cp'].indexOf(l.mode) === -1) timeNoCar += parseInt(l.time);
+      durationTotal += parseInt(l.duration);
+      if (['da', 'dalt', 'cp'].indexOf(l.mode) === -1) durationNoCar += parseInt(l.duration);
     });
-    if (timeNoCar === 0) {
+    if (durationNoCar === 0) {
       $('#saved-co2').text('You didn\'t save CO2 emissions on Walk/Ride Day');
     } else {
-      distanceNoCar = ( parseInt(cs.distance) * 2 / timeTotal ) * timeNoCar;
+      distanceNoCar = ( parseInt(cs.distance) * 2 / durationTotal ) * durationNoCar;
       // EPA standard: 0.41kg CO2 per mile driven 
       // (convert to lbs and meters)
       savedCO2 = 0.41 * 2.20462262 * distanceNoCar / 1609.344;
@@ -272,7 +272,7 @@ $(function() {
       return l.day === 'w';
     });
     $.each(wLegs, function(i,l) {
-      calories += (METS[l.mode] || 0) * ((l.time || 0) * 0.25) * (weight * 0.4536);
+      calories += (METS[l.mode] || 0) * ((l.duration || 0) * 0.25) * (weight * 0.4536);
     });
     if (calories > 0) {
       $('#burned-cal').text('You burned ' + Math.round(calories) + ' extra calories on Walk/Ride Day');
@@ -383,6 +383,18 @@ $(function() {
     return simpleStorage.set('commutersurvey', cacheData);
   }
 
+  // remove empty values (problems with server side validation)
+  // and stringify JSON objects
+  function djangofy(data) {
+    $.each(data, function(k,v) {
+      if (!v) delete data[k];
+      if (typeof v === 'object') {
+        data[k] = JSON.stringify(v);
+      }
+    })
+    return data;
+  }
+
   function csrfSafeMethod(method) {
     return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
   }
@@ -421,7 +433,7 @@ $(function() {
     $.ajax({
       type: 'POST',
       url: '/api/survey/',
-      data: surveyData
+      data: djangofy(surveyData)
     }).done(function() {
       window.location.href = '/commuterform/complete/';
     }).fail(function() {
@@ -453,8 +465,8 @@ $(function() {
         var legContainerId = legContainers[l.day + l.direction];
         addLeg(legContainerId, l);
         // FIXME: detect wtw pattern and compare
-        // array.push(mode+time).reverse.join
-        // combination of mode+time
+        // array.push(mode+duration).reverse.join
+        // combination of mode+duration
         // to only toggle yes/no questions instead of showing everything
         $('#' + legContainerId).parent().show(100);
         $('input.morelegs[name=' + legContainerId + ']').prop('checked', true);
