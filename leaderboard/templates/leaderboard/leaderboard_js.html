@@ -154,20 +154,29 @@
     <div class="row clearfix filters">
         <div class="col-md-6 column">
             <p class="lead"><strong>Filter by</strong></p>
-            <label><input type="radio" name="color" value="nofilter" checked/> None (show everyone)</label>
-            <label><input type="radio" name="color" value="size"/> Size</label>
-            <label><input type="radio" name="color" value="sector"/> Sector</label>
-            <label><input type="radio" name="color" value ="groups"/> Groups with subteams</label>
+            <label><input type="radio" name="color" onclick="setfilter('none')" value="nofilter" checked/> None (show everyone)</label>
+            <label><input type="radio" name="color" onclick="setfilter('size')" value="size"/> Size</label>
+            <label><input type="radio" name="color" onclick="setfilter('sector')" value="sector"/> Sector</label>
+            <label><input type="radio" name="color" onclick="setfilter('team')" value ="groups"/> Groups with subteams</label>
         </div>
 
         <div class="col-md-6 column filteroptions">
             <!-- (all hidden until invoked) -->
 
             <!-- size options -->
+			<select id="size_cats" class="form-control" style="display: none">
+			<option value="1">Small (1-10 Employees)</option>
+			<option value="2">Medium (11-100 Employees)</option>
+			<option value="3">Large (101-1000 Employees)</option>
+			<option value="4">Largest (&gt;1001 Employees)</option>
+			</select>
 
             <!-- sector options -->
             <select id="id_sos_new" name="sos" class="form-control">
             {% for sector in sectors %}<option value="{{ sector.id }}">{{ sector.name }}</option>{% endfor %}
+            </select>
+			<select id="id_sos_new" name="sos" class="form-control" style="display: none">
+            {% for team in teams %}<option value="{{ team.id }}">{{ team.name }}</option>{% endfor %}
             </select>
 
             <!-- groups with subteam options -->
@@ -217,7 +226,7 @@
             <ol>
 				{% for rank in ranks %} 
 				{% if forloop.counter < 11 %}
-				<li>{{ rank.name }}: <b>{{rank.gs}}</b></li> 
+				<li><a href="/leaderboard/{{ rank.id }}/">{{ rank.name }}</a>: <b>{{rank.gs}}</b></li> 
 				{% endif %}
 				{% endfor %}
             </ol>
@@ -227,7 +236,7 @@
             <ol>
 				{% for rank in ranks_pct %} 
 				{% if forloop.counter < 11 %}
-				<li>{{ rank.name }}: <b>{{rank.pct|floatformat}}%</b></li> 
+				<li><a href="/leaderboard/{{rank.id }}/">{{ rank.name }}</a>: <b>{{rank.pct|floatformat}}%</b></li> 
 				{% endif %}
 				{% endfor %}
             </ol>
@@ -243,7 +252,7 @@
     <div class="row clearfix">
         <div class="col-md-12 column">
             <hr>
-            <h2 class="leaderboard">Details for (this company)</h2>
+            <h2 class="leaderboard">Details for {{ employer.name }}</h2>
             <p class="lead">Lots of details!</p>
         </div>
     </div>
@@ -252,18 +261,18 @@
     <div class="row clearfix">
         <div class="col-md-2 column col-md-offset-1 summary participation">
             <h4>Employee Participation</h4>
-            <p>(Number) check ins</p>
-            <p>(Percent) of employees</p>
+            <p>{{ ncommutes }} check ins</p>
+            <p>{{ participation|floatformat }}% of employees</p>
         </div>
         <div class="col-md-2 column summary gcommute">
             <h4>Green Commutes</h4>
-            <p>(Number) commutes</p>
-            <p>(Percent) of all commutes</p>
+            <p>{{ ncommutes }} commutes</p>
+            <p>{{ gs_pct|floatformat }}% of all commutes</p>
         </div>
         <div class="col-md-2 column summary gswitch">
             <h4>Green Switches</h4>
-            <p>(Number) switches</p>
-            <p>(Percent) of all commutes</p>
+            <p>{{ gs_total }} switches</p>
+            <p>{{ gs_pct|floatformat }}% of all commutes</p>
         </div>
         <div class="col-md-2 column summary co2">
             <h4>Carbon Dioxide</h4>
