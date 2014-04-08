@@ -216,20 +216,20 @@
         <div class="col-md-12 column">
             <hr>
             <h2 class="leaderboard">Rankings of companies of {{ emp_sector }}</h2>
-            <p class="lead">Click on any company to generate details for that company.</p>
+            <p class="lead">Choose category.</p>
         </div>
     </div>
     <div class="row clearfix">
-        <div class="col-md-2 col-md-offset-1 column stats"><a href="" class="participation">Participation</a>
+        <div class="col-md-4 column stats"><a href="" class="participation">Participation</a>
         </div>
-        <div class="col-md-2 column stats"><a href="" class="gcommute">Green commutes</a>
+        <div class="col-md-4 column stats"><a href="" class="gcommute">Green commutes</a>
         </div>
-        <div class="col-md-2 column stats"><a href="" class="gswitch selected">Green switches</a>
+        <div class="col-md-4 column stats selected"><a href="" class="gswitch">Green switches</a>
         </div>
-        <div class="col-md-2 column stats"><a href="" class="co2">Carbon dioxide</a>
+<!--         <div class="col-md-2 column stats"><a href="" class="co2">Carbon dioxide</a>
         </div>
         <div class="col-md-2 column stats"><a href="" class="calories">Calories burned</a>
-        </div>
+        </div> -->
     </div>
 
     <!-- participation info -->
@@ -255,7 +255,7 @@
             <ol>
 				{% for rank in ranks %} 
 				{% if forloop.counter < 11 %}
-				<li><a href="/leaderboard/{{ rank.id }}/">{{ rank.name }}</a>: <b>{{rank.gs}}</b></li> 
+				<li><a class="company" href="/leaderboard/{{ rank.id }}/">{{ rank.name }}</a>: <b>{{rank.gs}}</b></li> 
 				{% endif %}
 				{% endfor %}
             </ol>
@@ -265,7 +265,7 @@
             <ol>
 				{% for rank in ranks_pct %} 
 				{% if forloop.counter < 11 %}
-				<li><a href="/leaderboard/{{rank.id }}/">{{ rank.name }}</a>: <b>{{rank.pct|floatformat}}%</b></li> 
+				<li><a class="company" href="/leaderboard/{{rank.id }}/">{{ rank.name }}</a>: <b>{{rank.pct|floatformat}}%</b></li> 
 				{% endif %}
 				{% endfor %}
             </ol>
@@ -288,22 +288,22 @@
 
 
     <div class="row clearfix">
-        <div class="col-md-2 column col-md-offset-1 summary participation">
+        <div class="col-md-4 column summary participation">
             <h4>Employee Participation</h4>
             <p>{{ ncommutes }} check ins</p>
             <p>{{ participation|floatformat }}% of employees</p>
         </div>
-        <div class="col-md-2 column summary gcommute">
+        <div class="col-md-4 column summary gcommute">
             <h4>Green Commutes</h4>
             <p>{{ ncommutes }} commutes</p>
             <p>{{ gs_pct|floatformat }}% of all commutes</p>
         </div>
-        <div class="col-md-2 column summary gswitch">
+        <div class="col-md-4 column summary gswitch">
             <h4>Green Switches</h4>
             <p>{{ gs_total }} switches</p>
             <p>{{ gs_pct|floatformat }}% of all commutes</p>
         </div>
-        <div class="col-md-2 column summary co2">
+       <!--  <div class="col-md-2 column summary co2">
             <h4>Carbon Dioxide</h4>
             <p>(Number) tons saved</p>
             <p>(Number unit) per employee</p>
@@ -312,7 +312,7 @@
             <h4>Calories Burned</h4>
             <p>(Number) burned</p>
             <p>(Number unit) per employee</p>
-        </div>
+        </div> -->
 
     </div>
 
@@ -363,6 +363,7 @@
             <div>
             <h3>Switches made on Walk/Ride Day</h3>
             <div class="table-responsive">
+                <p class="lead">Calculated using the longest legs of each commute.</p>
             <table class="table table-borderless table-hover">
             <tr>
                 <th></th><th></th><th colspan="10"><h4>Modes taken on a normal day</h4></th>

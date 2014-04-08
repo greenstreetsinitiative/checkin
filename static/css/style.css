@@ -57,36 +57,43 @@ h2.leaderboard {
   padding-top:20px;
   padding-bottom:20px;
   margin-bottom:20px;
-  background:#eaeaea;
+  border: 1px solid #eee
 }
 
-a.selected {
-  font-size:16pt;
-  font-weight:bold;
+.top {
+  margin-bottom: 0;
+  padding: 0;
+}
+
+.selected {
+  text-transform: uppercase;
+  font-weight: bold;
+  border-bottom: 10px solid #bbb;
+  background: #eee;
 }
 
 .participation, a:link.participation, a:visited.participation {
- color: orange;
+ color: #b60;
 }
 
 .gcommute, a:link.gcommute, a:visited.gcommute {
- color: green;
+ color: #0c3;
 }
 
 .gswitch, a:link.gswitch, a:visited.gswitch {
- color: blue;
+ color: #04c;
 }
 
 .co2, a:link.co2, a:visited.co2 {
- color: brown;
+ color: #530;
 }
 
 .calories, a:link.calories, a:visited.calories {
- color: purple;
+ color: #b0c;
 }
 
 a.company {
-  color:magenta;
+  color:red;
 }
 
 .ranksubtitle {
@@ -185,11 +192,13 @@ a.company {
 
 }
 
-div.participation {background-color: moccasin;}
-div.gcommute {background-color: lightgreen;}
-div.gswitch {background-color: lightskyblue;}
-div.co2 {background-color: rosybrown;}
-div.calories {background-color: plum;}
+div.participation {background-color: #fec;}
+div.gcommute {background-color: #cfd;}
+div.gswitch {background-color: #cef;}
+div.co2 {background-color: #fdc;}
+div.calories {background-color: #ecf;}
+
+
 
 
 /* Topnav budget numbers
