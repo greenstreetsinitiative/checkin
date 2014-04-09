@@ -5,6 +5,7 @@ from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
 from operator import itemgetter, attrgetter
 import json
+from django.shortcuts import redirect
 
 COLOR_SCHEME = {
         'gs': '#0096FF',
@@ -27,9 +28,20 @@ def index(request):
     context = {'latest_check_ins' : latest_check_ins, 'reply_data' : reply_data }
     return render(request, 'leaderboard/index.html', context)
 
+def lb_redirect(request):
+    if request.GET['color'] == "sector":
+        val = request.GET['sector_filter']
+    elif request.GET['color'] == "size":
+        val = request.GET['size_filter']
+    elif request.GET['color'] == "nofilter":
+        return redirect("/leaderboard/", permanent=True)
+    url = "/leaderboard/"+request.GET['color']+"/"+val+"/"
+    return redirect(url, permanent=True)
+
 def new_leaderboard(request, filter_by='sector', _filter=0, emp=0):
 #    context = leaderboard_reply_data('perc', 'August 2013', filter_by, _filter);
     context = {}
+    context['detail'] = False
     context['sectors'] = sorted(EmplSector.objects.all(), key=getSectorNum)
     context['months'] = Month.objects.filter(active=True).order_by('-id')
     context['ranks'] = green_switch_rankings(filter_by, _filter)
@@ -38,14 +50,19 @@ def new_leaderboard(request, filter_by='sector', _filter=0, emp=0):
     for rank in context['ranks']:
         context['gs_total'] += rank['gs']
     context['total_companies'] = len(context['ranks'])
+    
     if _filter == 0:
         context['emp_sector'] = 'all sectors'
+    elif filter_by == 'sector':
+        sector = EmplSector.objects.filter(id=_filter)
+        context['emp_sector'] = sector[0]
         
     return render(request, 'leaderboard/leaderboard_js.html', context)
 
 def leaderboard_detail(request, empid):
 #    context = leaderboard_reply_data('perc', 'August 2013', filter_by, sector);
     context = {}
+    context['detail'] = True
     res = Employer.objects.filter(id=empid)
     emp = res[0]
     sector = emp.sector
@@ -61,10 +78,11 @@ def leaderboard_detail(request, empid):
     context['total_companies'] = len(context['ranks'])
 
     emp_stats = getBreakDown(emp, 'August 2013')
-    context['participation'] = ( (emp.nr_surveys*1.0) / (emp.nr_employees*1.0) ) * 100
-    context['ncommutes'] = emp.nr_surveys
-    context['gc_pct'] = ( ( emp_stats['gc']*1.0) / (emp.nr_surveys*1.0) ) * 100
-    context['gs_pct'] = ( ( emp_stats['gs']*1.0) / (emp.nr_surveys*1.0) ) * 100
+    nsurveys = emp.get_surveys(month='August 2013').count()
+    context['participation'] = ( float(nsurveys) / float(emp.nr_employees) ) * 100
+    context['ncommutes'] = nsurveys
+    context['gc_pct'] = ( ( emp_stats['gc']*1.0) / (nsurveys*1.0) ) * 100
+    context['gs_pct'] = ( ( emp_stats['gs']*1.0) / (nsurveys*1.0) ) * 100
     context['stats'] = emp_stats
     context['employer'] = emp
     context['emp_sector'] = emp.sector
@@ -137,12 +155,12 @@ def rankings_by_pct(filter_by, _filter=0):
     if _filter == 0 and filter_by == 'sector':
         employers = Employer.objects.filter(active=True)
     elif filter_by == 'sector':
-        employers = Employer.objects.filter(sector=_filter)
+        employers = Employer.objects.filter(sector=_filter, active=True)
 
     if _filter == 0 and filter_by == 'size':
         employers = Employer.objects.filter(active=True)
     elif filter_by == 'size':
-        employers = Employer.objects.filter(size_cat=_filter)
+        employers = Employer.objects.filter(size_cat=_filter, active=True)
 
     for emp in employers:
         breakdown = getBreakDown(emp, 'August 2013')
@@ -162,12 +180,12 @@ def green_switch_rankings(filter_by, _filter=0):
     if filter_by == 'sector' and _filter == 0:
         employers = Employer.objects.filter(active=True)
     elif filter_by == 'sector':
-        employers = Employer.objects.filter(sector=_filter)
+        employers = Employer.objects.filter(sector=_filter, active=True)
     
     if filter_by == 'size' and _filter == 0:
         employers = Employer.objects.filter(active=True)
     elif filter_by == 'size':
-        employers = Employer.objects.filter(size_cat=_filter)
+        employers = Employer.objects.filter(size_cat=_filter, active=True)
 
     for emp in employers:
         breakdown = getBreakDown(emp, 'August 2013')

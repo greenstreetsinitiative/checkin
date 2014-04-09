@@ -173,6 +173,36 @@
         //if no filter selected
         else { $('#sizeoption,#sectoroption,#groupsoption').hide(); }
     });
+
+	
+</script>
+<script type="text/javascript">
+function setfilter(filter) {
+		if(filter == "size") { 
+			$('#size_filter').show();
+			$('#size_filter').removeAttr('disabled');
+			$('#team_filter').hide();
+			$('#team_filter').attr('disabled', "true");
+			$('#sector_filter').hide();
+			$('#sector_filter').attr('disabled', "true");
+		}
+		else if(filter == "team") { 
+			$('#team_filter').show();
+			$('#team_filter').removeAttr('disabled');
+			$('#size_filter').hide();
+			$('#size_filter').attr('disabled', "true");
+			$('#sector_filter').hide();
+			$('#sector_filter').attr('disabled', "true");
+		}
+		else if(filter == "sector") { 
+			$('#sector_filter').show();
+			$('#sector_filter').removeAttr('disabled');
+			$('#size_filter').hide();
+			$('#size_filter').attr('disabled', "true");
+			$('#team_filter').hide();
+			$('#team_filter').attr('disabled', "true");
+		}
+	}
 </script>
 <script type="text/javascript" src="/static/libs/canvasjs.min.js"></script>
 {% endblock %}
@@ -186,9 +216,9 @@
         </div>
     </div>
     <div class="row clearfix filters">
+	<form method="get" action="/leaderboard/redirect" id="filter_form">
         <div class="col-md-6 column">
             <p class="lead"><strong>Filter by</strong></p>
-            <label><input type="radio" name="color" onclick="setfilter('none')" value="nofilter" checked/> None (show everyone)</label>
             <label><input type="radio" name="color" onclick="setfilter('size')" value="size"/> Size</label>
             <label><input type="radio" name="color" onclick="setfilter('sector')" value="sector"/> Sector</label>
             <label><input type="radio" name="color" onclick="setfilter('team')" value ="groups"/> Groups with subteams</label>
@@ -197,7 +227,7 @@
         <div class="col-md-6 column filteroptions">
 
             <!-- size options -->
-			<select id="size_cats" class="form-control" style="display: none">
+			<select id="size_filter" name="size_filter" class="form-control" style="display: none" disabled="true">
 			<option value="1">Small (1-10 Employees)</option>
 			<option value="2">Medium (11-100 Employees)</option>
 			<option value="3">Large (101-1000 Employees)</option>
@@ -205,15 +235,16 @@
 			</select>
 
             <!-- sector options -->
-            <select class="form-control">
+            <select class="form-control" id="sector_filter" name="sector_filter">
             {% for sector in sectors %}<option value="{{ sector.id }}">{{ sector.name }}</option>{% endfor %}
             </select>
-			<select class="form-control" style="display: none">
+			<select class="form-control" id="team_filter" style="display: none" name="sector_filter"  disabled="true">
             {% for team in teams %}<option value="{{ team.id }}">{{ team.name }}</option>{% endfor %}
             </select>
-
-
+			<button type="submit">Submit</button>
+		
         </div>
+		</form>
     </div>
     <div class="row clearfix">
         <div class="col-md-12 column">
@@ -280,7 +311,7 @@
     <!-- calories info -->
 
 
-
+{% if detail %}
     <div class="row clearfix">
         <div class="col-md-12 column">
             <hr>
@@ -497,16 +528,8 @@
         </div>
     </div>
 </div>
-<div class="row">
-	<div class="col-md-8 col-md-offset-2 column">
-		<hr />
-		<p><center>
-			Tip: Do not hit the back button on your browser &rarr; it distorts the data. Please use the dropdown menus instead. <br />
-			If problem persists, refresh the page.
-		</p></center>
-	</div>
-</div>
 
+{% endif %}
 
 
 {% endblock %}
