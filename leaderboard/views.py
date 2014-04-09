@@ -24,7 +24,7 @@ COLOR_SCHEME = {
 
 def index(request):
     latest_check_ins = Commutersurvey.objects.order_by('month')[:5]
-    reply_data = leaderboard_reply_data('perc', 'August 2013', 'sector', '2');
+    reply_data = leaderboard_reply_data('perc', month, 'sector', '2');
     context = {'latest_check_ins' : latest_check_ins, 'reply_data' : reply_data }
     return render(request, 'leaderboard/index.html', context)
 
@@ -43,8 +43,10 @@ def lb_redirect(request):
         url += request.GET['sort']+'/'
     return redirect(url, permanent=True)
 
+month = 'October 2013'
+
 def new_leaderboard(request, empid=0, filter_by='sector', _filter=0, sort='participation'):
-#    context = leaderboard_reply_data('perc', 'August 2013', filter_by, _filter);
+#    context = leaderboard_reply_data('perc', month, filter_by, _filter);
     context = {}
     context['empid'] = empid
     
@@ -61,6 +63,9 @@ def new_leaderboard(request, empid=0, filter_by='sector', _filter=0, sort='parti
     context['sectors'] = sorted(EmplSector.objects.all(), key=getSectorNum)
     context['subteams'] = get_subteams()
     context['months'] = Month.objects.filter(active=True).order_by('-id')
+    global month
+    month = context['months'][0]
+    context['month'] = month
     if sort == 'gs':
         context['ranks'] = green_switch_rankings(filter_by, _filter)
         context['ranks_pct'] = rankings_by_pct(filter_by, _filter)
@@ -83,8 +88,8 @@ def new_leaderboard(request, empid=0, filter_by='sector', _filter=0, sort='parti
         context['emp_sector'] = sector[0]
     if empid != 0:
         context['chart'] = json.dumps(getCanvasJSChart(emp) )
-        emp_stats = getBreakDown(emp, 'August 2013')
-        nsurveys = emp.get_surveys(month='August 2013').count()
+        emp_stats = getBreakDown(emp, month)
+        nsurveys = emp.get_surveys(month=month).count()
         context['participation'] = ( float(nsurveys) / float(emp.nr_employees) ) * 100
         context['ncommutes'] = nsurveys*2
         context['gc'] = emp_stats['gc']
@@ -164,7 +169,6 @@ def getEmpCheckinMatrix(emp):
         if from_work_normally(emp) and from_work_today(emp) and to_work_normally(emp) and to_work_today(emp):
             checkinMatrix[from_work_today(emp)][from_work_normally(emp)] += 1
             checkinMatrix[to_work_today(emp)][to_work_normally(emp)] += 1
-    print checkinMatrix
     return checkinMatrix
 
 def participation_rankings(filter_by, _filter=0):
@@ -182,7 +186,7 @@ def participation_rankings(filter_by, _filter=0):
         employers = Employer.objects.filter(size_cat=_filter, active=True)
 
     for emp in employers:
-        nsurveys = emp.get_surveys(month='August 2013').count()
+        nsurveys = emp.get_surveys(month=month).count()
         rank.append({'val': nsurveys, 'name': emp.name, 'id': emp.id })
     
     return sorted(rank, key=lambda idx: idx['val'], reverse=True);
@@ -202,7 +206,7 @@ def participation_pct(filter_by, _filter=0):
         employers = Employer.objects.filter(size_cat=_filter, active=True)
 
     for emp in employers:
-        nsurveys = emp.get_surveys(month='August 2013').count()
+        nsurveys = emp.get_surveys(month=month).count()
         if not emp.nr_employees:
             continue
         participation = ( (nsurveys*1.0) / (emp.nr_employees*1.0) ) * 100
@@ -225,8 +229,8 @@ def rankings_by_pct(filter_by, _filter=0):
         employers = Employer.objects.filter(size_cat=_filter, active=True)
 
     for emp in employers:
-        breakdown = getBreakDown(emp, 'August 2013')
-        total = Employer.get_nr_surveys(emp, 'August 2013')
+        breakdown = getBreakDown(emp, month)
+        total = Employer.get_nr_surveys(emp, month)
         if total == 0:
             pct = 0
         else:
@@ -250,7 +254,7 @@ def green_switch_rankings(filter_by, _filter=0):
         employers = Employer.objects.filter(size_cat=_filter, active=True)
 
     for emp in employers:
-        breakdown = getBreakDown(emp, 'August 2013')
+        breakdown = getBreakDown(emp, month)
         rank.append({'val' : breakdown['gs'], 'name' : emp.name, 'id' : emp.id })
 
     return sorted(rank, key=lambda idx: idx['val'], reverse=True);
@@ -269,8 +273,8 @@ def gc_by_pct(filter_by, _filter=0):
         employers = Employer.objects.filter(size_cat=_filter, active=True)
 
     for emp in employers:
-        breakdown = getBreakDown(emp, 'August 2013')
-        total = Employer.get_nr_surveys(emp, 'August 2013')
+        breakdown = getBreakDown(emp, month)
+        total = Employer.get_nr_surveys(emp, month)
         if total == 0:
             pct = 0
         else:
@@ -294,7 +298,7 @@ def gc_rankings(filter_by, _filter=0):
         employers = Employer.objects.filter(size_cat=_filter, active=True)
 
     for emp in employers:
-        breakdown = getBreakDown(emp, 'August 2013')
+        breakdown = getBreakDown(emp, month)
         rank.append({'val' : breakdown['gc'], 'name' : emp.name, 'id' : emp.id })
 
     return sorted(rank, key=lambda idx: idx['val'], reverse=True);
