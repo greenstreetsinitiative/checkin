@@ -220,7 +220,7 @@ function setfilter(filter) {
         <div class="col-md-6 column">
             <p class="lead"><strong>Filter by</strong></p>
             <label><input type="radio" name="color" onclick="setfilter('size')" value="size"/> Size</label>
-            <label><input type="radio" name="color" onclick="setfilter('sector')" value="sector"/> Sector</label>
+            <label><input checked="true" type="radio" name="color" onclick="setfilter('sector')" value="sector"/> Sector</label>
             <label><input type="radio" name="color" onclick="setfilter('team')" value ="groups"/> Groups with subteams</label>
         </div>
 
@@ -239,8 +239,9 @@ function setfilter(filter) {
             {% for sector in sectors %}<option value="{{ sector.id }}">{{ sector.name }}</option>{% endfor %}
             </select>
 			<select class="form-control" id="team_filter" style="display: none" name="sector_filter"  disabled="true">
-            {% for team in teams %}<option value="{{ team.id }}">{{ team.name }}</option>{% endfor %}
+            {% for team in subteams %}<option value="{{ team.id }}">{{ team.name }}</option>{% endfor %}
             </select>
+		{% if sort %}<input type="hidden" name="sort" value="{{ sort }}">{% endif %}
 			<button type="submit">Submit</button>
 		
         </div>
@@ -254,11 +255,29 @@ function setfilter(filter) {
         </div>
     </div>
     <div class="row clearfix">
-        <div class="col-md-4 column stats"><a href="" class="participation">Participation</a>
+		{% if not filt and not empid %}
+        <div class="col-md-4 column stats {% if sort == 'participation' %}selected{% endif %}"><a href="/leaderboard/participation" class="participation">Participation</a>
         </div>
-        <div class="col-md-4 column stats"><a href="" class="gcommute">Green commutes</a>
+        <div class="col-md-4 column stats {% if sort == 'gc' %}selected{% endif %}"><a href="/leaderboard/gc" class="gcommute">Green commutes</a>
         </div>
-        <div class="col-md-4 column stats selected"><a href="" class="gswitch">Green switches</a>
+        <div class="col-md-4 column stats {% if sort == 'gs' %}selected{% endif %}"><a href="/leaderboard/gs" class="gswitch">Green switches</a>
+		{% endif %}
+
+		{% if filt and not empid %}
+        <div class="col-md-4 column stats {% if sort == 'participation' %}selected{% endif %}"><a href="/leaderboard/{{ filter_by }}/{{ filt }}/participation" class="participation">Participation</a>
+        </div>
+        <div class="col-md-4 column stats {% if sort == 'gc' %}selected{% endif %}"><a href="/leaderboard/{{ filter_by }}/{{ filt }}/gc" class="gcommute">Green commutes</a>
+        </div>
+        <div class="col-md-4 column stats {% if sort == 'gs' %}selected{% endif %}"><a href="/leaderboard/{{ filter_by }}/{{ filt }}/gs" class="gswitch">Green switches</a>
+		{% endif %}
+		{% if empid %}
+        <div class="col-md-4 column stats {% if sort == 'participation' %}selected{% endif %}"><a href="/leaderboard/{{ empid }}/participation" class="participation">Participation</a>
+        </div>
+        <div class="col-md-4 column stats {% if sort == 'gc' %}selected{% endif %}"><a href="/leaderboard/{{ empid }}/gc" class="gcommute">Green commutes</a>
+        </div>
+        <div class="col-md-4 column stats {% if sort == 'gs' %}selected{% endif %}"><a href="/leaderboard/{{empid }}/gs" class="gswitch">Green switches</a>
+		{% endif %}
+
         </div>
 <!--         <div class="col-md-2 column stats"><a href="" class="co2">Carbon dioxide</a>
         </div>
@@ -280,22 +299,40 @@ function setfilter(filter) {
                     </h3>
                 </div>
                 <div class="panel-body">
-                    Since April, the {{ total_companies }} companies of {{ emp_sector }} have made {{ gs_total }} total green switches!
+                    Since April, the {{ total_companies }} companies of {{ emp_sector }} have made {{ total }} total green switches!
                 </div>
             </div>
         </div>
         <div class="col-md-4 column">
+			{% if sort == 'participation' %}
+            <h3>Most participation</h3><p class="ranksubtitle">Total</p>
+			{% endif %}
+			{% if sort == 'gc' %}
+            <h3>Most green commutes</h3><p class="ranksubtitle">Total</p>
+			{% endif %}
+			{% if sort == 'gs' %}
             <h3>Most green switches</h3><p class="ranksubtitle">Total</p>
+			{% endif %}
+
             <ol>
 				{% for rank in ranks %} 
 				{% if forloop.counter < 11 %}
-				<li><a class="company" href="/leaderboard/{{ rank.id }}/">{{ rank.name }}</a>: <b>{{rank.gs}}</b></li> 
+				<li><a class="company" href="/leaderboard/{{ rank.id }}/">{{ rank.name }}</a>: <b>{{rank.val}}</b></li> 
 				{% endif %}
 				{% endfor %}
             </ol>
         </div>
         <div class="col-md-4 column">
+			{% if sort == 'participation' %}
+			<h3>Most participation</h3><p class="ranksubtitle">As a percentage of employees</p>
+			{% endif %}
+			{% if sort == 'gc' %}
+            <h3>Most green commutes</h3><p class="ranksubtitle">As a percentage of commutes</p>
+			{% endif %}
+			{% if sort == 'gs' %}
             <h3>Most green switches</h3><p class="ranksubtitle">As a percentage of commutes</p>
+			{% endif %}
+
             <ol>
 				{% for rank in ranks_pct %} 
 				{% if forloop.counter < 11 %}
@@ -311,7 +348,7 @@ function setfilter(filter) {
     <!-- calories info -->
 
 
-{% if detail %}
+{% if empid != 0 %}
     <div class="row clearfix">
         <div class="col-md-12 column">
             <hr>
@@ -329,13 +366,13 @@ function setfilter(filter) {
         </div>
         <div class="col-md-4 column summary gcommute">
             <h4>Green Commutes</h4>
-            <p>{{ ncommutes }} commutes</p>
-            <p>{{ gs_pct|floatformat }}% of all commutes</p>
+            <p>{{ gc }} commutes</p>
+            <p>{{ gc_pct|floatformat }}% of all checkins</p>
         </div>
         <div class="col-md-4 column summary gswitch">
             <h4>Green Switches</h4>
-            <p>{{ gs_total }} switches</p>
-            <p>{{ gs_pct|floatformat }}% of all commutes</p>
+            <p>{{ gs }} switches</p>
+            <p>{{ gs_pct|floatformat }}% of all checkins</p>
         </div>
        <!--  <div class="col-md-2 column summary co2">
             <h4>Carbon Dioxide</h4>
@@ -363,23 +400,23 @@ function setfilter(filter) {
                 </tr>
                 <tr>
                     <td><div class="gc text-right">Commutes:</div></td>
-                    <td class="gc" id="total_checkins">0</td>
+                    <td class="gc" id="total_checkins">{{ ncommutes }}</td>
                 </tr>
                 <tr>
                     <td><div class="text-right">Green Switches:</div></td>
-                    <td class="gstd" id="total_gs">0</td>
+                    <td class="gstd" id="total_gs">{{ gs }}</td>
                 </tr>
                 <tr>
                     <td><div class="text-right">Green Commutes:</div></td>
-                    <td class="gctd" id="total_gc">0</td>
+                    <td class="gctd" id="total_gc">{{ gc }}</td>
                 </tr>
                 <tr>
                     <td><div class="text-right">Car Commutes:</div></td>
-                    <td class="cctd" id="total_cc">0</td>
+                    <td class="cctd" id="total_cc">{{ cc }}</td>
                 </tr>
                 <tr>
                     <td><div class="text-right">Other:</div></td>
-                    <td class="ustd" id="total_us">0</td>
+                    <td class="ustd" id="total_us">{{ other }}</td>
                 </tr>
             </table>
             </div>
@@ -417,111 +454,111 @@ function setfilter(filter) {
             <tr>
                 <th rowspan="10"><div class="matrixWRlabel"><h4>Walk/Ride Day</h4></div></th>
                 <td><p class="mode"><img src="/static/img/car-24.png" height="32" width="32" class="img-circle" title="Driving a personal car on Walk-Ride days"></img><br>Car</p></td>
-                <td class='cctd'>0</td>
-                <td class='ustd'>0</td>
-                <td class='ustd'>0</td>
-                <td class='ustd'>0</td>
-                <td class='ustd'>0</td>
-                <td class='ustd'>0</td>
-                <td class='ustd'>0</td>
-                <td class='ustd'>0</td>
-                <td class='ustd'>0</td>
+                <td class='cctd'>{{ m.c.c }}</td>
+                <td class='ustd'>{{ m.c.dalt }}</td>
+                <td class='ustd'>{{ m.c.cp }}</td>
+                <td class='ustd'>{{ m.c.w }}</td>
+                <td class='ustd'>{{ m.c.r }}</td>
+                <td class='ustd'>{{ m.c.b }}</td>
+                <td class='ustd'>{{ m.c.t }}</td>
+                <td class='ustd'>{{ m.c.tc }}</td>
+                <td class='ustd'>{{ m.c.o }}</td>
             </tr>
             <tr>
                 <td><p class="mode"><img src="/static/img/car-24.png" height="32" width="32" class="img-circle" title="Car (alternative vehicle) on Walk-Ride days"></img><br>Car (alt.)</p></td>
-                <td class='gstd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='ustd'>0</td>
+                <td class='gstd'>{{ m.dalt.c }}</td>
+                <td class='gctd'>{{ m.dalt.dalt }}</td>
+                <td class='gctd'>{{ m.dalt.cp }}</td>
+                <td class='gctd'>{{ m.dalt.w }}</td>
+                <td class='gctd'>{{ m.dalt.r }}</td>
+                <td class='gctd'>{{ m.dalt.b }}</td>
+                <td class='gctd'>{{ m.dalt.t }}</td>
+                <td class='gctd'>{{ m.dalt.tc }}</td>
+                <td class='ustd'>{{ m.dalt.o }}</td>
             </tr>
             <tr>
                 <td><p class="mode"><img src="/static/img/car-24.png" height="32" width="32" class="img-circle" title="Carpooling on Walk-Ride days"></img><br>Carpool</p></td>
-                <td class='gstd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='ustd'>0</td>
+                <td class='gstd'>{{ m.cp.c }}</td>
+                <td class='gctd'>{{ m.cp.dalt }}</td>
+                <td class='gctd'>{{ m.cp.cp }}</td>
+                <td class='gctd'>{{ m.cp.w }}</td>
+                <td class='gctd'>{{ m.cp.r }}</td>
+                <td class='gctd'>{{ m.cp.b }}</td>
+                <td class='gctd'>{{ m.cp.t }}</td>
+                <td class='gctd'>{{ m.cp.tc }}</td>
+                <td class='ustd'>{{ m.cp.o }}</td>
             </tr>
             <tr>
                 <td><p class="mode"><img src="/static/img/school-24.png" height="32" width="32" class="img-circle" title="Walking on Walk-Ride days"></img><br>Walk</p></td>
-                <td class='gstd'>0</td>
-                <td class='gstd'>0</td>
-                <td class='gstd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gstd'>0</td>
-                <td class='gstd'>0</td>
-                <td class='ustd'>0</td>
+                <td class='gstd'>{{ m.w.c }}</td>
+                <td class='gstd'>{{ m.w.dalt }}</td>
+                <td class='gstd'>{{ m.w.cp }}</td>
+                <td class='gctd'>{{ m.w.w }}</td>
+                <td class='gctd'>{{ m.w.r }}</td>
+                <td class='gctd'>{{ m.w.b }}</td>
+                <td class='gstd'>{{ m.w.t }}</td>
+                <td class='gstd'>{{ m.w.tc }}</td>
+                <td class='ustd'>{{ m.w.o }}</td>
             </tr>
             <tr>
                 <td><p class="mode"><img src="/static/img/pitch-24.png" height="32" width="32" class="img-circle" title="Running on Walk-Ride days"></img><br>Run</p></td>
-                <td class='gstd'>0</td>
-                <td class='gstd'>0</td>
-                <td class='gstd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gstd'>0</td>
-                <td class='gstd'>0</td>
-                <td class='ustd'>0</td>
+                <td class='gstd'>{{ m.r.c }}</td>
+                <td class='gstd'>{{ m.r.dalt }}</td>
+                <td class='gstd'>{{ m.r.cp }}</td>
+                <td class='gctd'>{{ m.r.w }}</td>
+                <td class='gctd'>{{ m.r.r }}</td>
+                <td class='gctd'>{{ m.r.b }}</td>
+                <td class='gstd'>{{ m.r.t }}</td>
+                <td class='gstd'>{{ m.r.tc }}</td>
+                <td class='ustd'>{{ m.r.o }}</td>
             </tr>
             <tr>
                 <td><p class="mode"><img src="/static/img/bicycle-24.png" height="32" width="32" class="img-circle" title="Biking on Walk-Ride days"></img><br>Bike</p></td>
-                <td class='gstd'>0</td>
-                <td class='gstd'>0</td>
-                <td class='gstd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gstd'>0</td>
-                <td class='gstd'>0</td>
-                <td class='ustd'>0</td>
+                <td class='gstd'>{{ m.b.c }}</td>
+                <td class='gstd'>{{ m.b.dalt }}</td>
+                <td class='gstd'>{{ m.b.cp }}</td>
+                <td class='gctd'>{{ m.b.w }}</td>
+                <td class='gctd'>{{ m.b.r }}</td>
+                <td class='gctd'>{{ m.b.b }}</td>
+                <td class='gstd'>{{ m.b.t }}</td>
+                <td class='gstd'>{{ m.b.tc }}</td>
+                <td class='ustd'>{{ m.b.o }}</td>
             </tr>
             <tr>
                 <td><p class="mode"><img src="/static/img/rail-24.png" height="32" width="32" class="img-circle" title="Taking public transit on Walk-Ride days"></img><br>Transit</p></td>
-                <td class='gstd'>0</td>
-                <td class='gstd'>0</td>
-                <td class='gstd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='ustd'>0</td>
+                <td class='gstd'>{{ m.t.c }}</td>
+                <td class='gstd'>{{ m.t.dalt }}</td>
+                <td class='gstd'>{{ m.t.cp }}</td>
+                <td class='gctd'>{{ m.t.w }}</td>
+                <td class='gctd'>{{ m.t.r }}</td>
+                <td class='gctd'>{{ m.t.b }}</td>
+                <td class='gctd'>{{ m.t.t }}</td>
+                <td class='gctd'>{{ m.t.tc }}</td>
+                <td class='ustd'>{{ m.t.o }}</td>
             </tr>
             <tr>
                 <td><p class="mode"><img src="/static/img/warehouse-24.png" height="32" width="32" class="img-circle" title="Telecommuting on Walk-Ride days"></img><br>Telecommute</p></td>
-                <td class='gstd'>0</td>
-                <td class='gstd'>0</td>
-                <td class='gstd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gstd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='ustd'>0</td>
+                <td class='gstd'>{{ m.tc.c }}</td>
+                <td class='gstd'>{{ m.tc.dalt }}</td>
+                <td class='gstd'>{{ m.tc.cp }}</td>
+                <td class='gctd'>{{ m.tc.w }}</td>
+                <td class='gctd'>{{ m.tc.r }}</td>
+                <td class='gctd'>{{ m.tc.b }}</td>
+                <td class='gstd'>{{ m.tc.t }}</td>
+                <td class='gctd'>{{ m.tc.tc }}</td>
+                <td class='ustd'>{{ m.tc.o }}</td>
             </tr>
             <tr>
                 <td><p class="mode"><img src="/static/img/scooter-24.png" height="32" width="32" class="img-circle" title="Other transportation on Walk-Ride days"></img><br>Other</p></td>
-                <td class='ustd'>0</td>
-                <td class='ustd'>0</td>
-                <td class='ustd'>0</td>
-                <td class='ustd'>0</td>
-                <td class='ustd'>0</td>
-                <td class='ustd'>0</td>
-                <td class='ustd'>0</td>
-                <td class='ustd'>0</td>
-                <td class='ustd'>0</td>
+                <td class='ustd'>{{ m.o.c }}</td>
+                <td class='ustd'>{{ m.o.dalt }}</td>
+                <td class='ustd'>{{ m.o.cp }}</td>
+                <td class='ustd'>{{ m.o.w }}</td>
+                <td class='ustd'>{{ m.o.r }}</td>
+                <td class='ustd'>{{ m.o.b }}</td>
+                <td class='ustd'>{{ m.o.t }}</td>
+                <td class='ustd'>{{ m.o.tc }}</td>
+                <td class='ustd'>{{ m.o.o }}</td>
             </tr>
             </table></div>
             </div>

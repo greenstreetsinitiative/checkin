@@ -36,6 +36,13 @@ urlpatterns = patterns('',
     url(r'^grappelli/', include('grappelli.urls')),
     url(r'^admin/', include(admin.site.urls)),
 	url(r'^leaderboard/redirect', 'leaderboard.views.lb_redirect'),
-	url(r'^leaderboard/([^/]+)/(\d)/$', 'leaderboard.views.new_leaderboard'),
-	url(r'^leaderboard/([^/]+)/$', 'leaderboard.views.leaderboard_detail'),
+
+	url(r'^leaderboard/(\d+)/$', 'leaderboard.views.new_leaderboard'),
+	url(r'^leaderboard/(?P<empid>\d+)/(?P<sort>[^/]+)/$', 'leaderboard.views.new_leaderboard'),
+	url(r'^leaderboard/(\d+)/([^/]+)/(\d+)/$', 'leaderboard.views.new_leaderboard'),
+	url(r'^leaderboard/(\d+)/([^/]+)/(\d+)/([^/]+)/$', 'leaderboard.views.new_leaderboard'),
+
+	url(r'^leaderboard/(?P<sort>[^/]+)/$', 'leaderboard.views.new_leaderboard'),
+	url(r'^leaderboard/(?P<filter_by>[^/]+)/(?P<_filter>\d)/(?P<sort>[^/]+)/$', 'leaderboard.views.new_leaderboard'),
+	url(r'^leaderboard/(?P<filter_by>[^/]+)/(?P<_filter>\d)/$', 'leaderboard.views.new_leaderboard'),
 ) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

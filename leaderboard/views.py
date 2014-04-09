@@ -35,58 +35,69 @@ def lb_redirect(request):
         val = request.GET['size_filter']
     elif request.GET['color'] == "nofilter":
         return redirect("/leaderboard/", permanent=True)
-    url = "/leaderboard/"+request.GET['color']+"/"+val+"/"
+    url = "/leaderboard/"
+    if 'empid' in request.GET:
+        url += request.GET['empid']+'/'
+    url += request.GET['color']+"/"+val+"/"
+    if 'sort' in request.GET:
+        url += request.GET['sort']+'/'
     return redirect(url, permanent=True)
 
-def new_leaderboard(request, filter_by='sector', _filter=0, emp=0):
+def new_leaderboard(request, empid=0, filter_by='sector', _filter=0, sort='participation'):
 #    context = leaderboard_reply_data('perc', 'August 2013', filter_by, _filter);
     context = {}
-    context['detail'] = False
+    context['empid'] = empid
+    
+    if empid != 0:
+        res = Employer.objects.filter(id=empid)
+        emp = res[0]
+        sector = emp.sector
+    if empid != 0 and _filter == 0:
+        _filter = sector
+
+    context['filter_by'] = filter_by
+    context['filt'] = _filter
+    context['sort'] = sort
     context['sectors'] = sorted(EmplSector.objects.all(), key=getSectorNum)
+    context['subteams'] = get_subteams()
     context['months'] = Month.objects.filter(active=True).order_by('-id')
-    context['ranks'] = green_switch_rankings(filter_by, _filter)
-    context['ranks_pct'] = rankings_by_pct(filter_by, _filter)
-    context['gs_total'] = 0
+    if sort == 'gs':
+        context['ranks'] = green_switch_rankings(filter_by, _filter)
+        context['ranks_pct'] = rankings_by_pct(filter_by, _filter)
+    elif sort == 'gc':
+        context['ranks'] = gc_rankings(filter_by, _filter)
+        context['ranks_pct'] = gc_by_pct(filter_by, _filter)
+    else:
+        context['ranks'] = participation_rankings(filter_by, _filter)
+        context['ranks_pct'] = participation_pct(filter_by, _filter)
+
+    context['total_companies'] = len(context['ranks_pct'])
+    context['total'] = 0
     for rank in context['ranks']:
-        context['gs_total'] += rank['gs']
-    context['total_companies'] = len(context['ranks'])
+        context['total'] += rank['val']
     
     if _filter == 0:
         context['emp_sector'] = 'all sectors'
-    elif filter_by == 'sector':
+    elif filter_by == 'sector' and empid == 0:
         sector = EmplSector.objects.filter(id=_filter)
         context['emp_sector'] = sector[0]
-        
-    return render(request, 'leaderboard/leaderboard_js.html', context)
-
-def leaderboard_detail(request, empid):
-#    context = leaderboard_reply_data('perc', 'August 2013', filter_by, sector);
-    context = {}
-    context['detail'] = True
-    res = Employer.objects.filter(id=empid)
-    emp = res[0]
-    sector = emp.sector
-
-    context['sectors'] = sorted(EmplSector.objects.all(), key=getSectorNum)
-    context['chart'] = json.dumps(getCanvasJSChart(emp) )
-    context['months'] = Month.objects.filter(active=True).order_by('-id')
-    context['ranks'] = green_switch_rankings('sector', sector)
-    context['ranks_pct'] = rankings_by_pct('sector', sector)
-    context['gs_total'] = 0
-    for rank in context['ranks']:
-        context['gs_total'] += rank['gs']
-    context['total_companies'] = len(context['ranks'])
-
-    emp_stats = getBreakDown(emp, 'August 2013')
-    nsurveys = emp.get_surveys(month='August 2013').count()
-    context['participation'] = ( float(nsurveys) / float(emp.nr_employees) ) * 100
-    context['ncommutes'] = nsurveys
-    context['gc_pct'] = ( ( emp_stats['gc']*1.0) / (nsurveys*1.0) ) * 100
-    context['gs_pct'] = ( ( emp_stats['gs']*1.0) / (nsurveys*1.0) ) * 100
-    context['stats'] = emp_stats
-    context['employer'] = emp
-    context['emp_sector'] = emp.sector
-
+    if empid != 0:
+        context['chart'] = json.dumps(getCanvasJSChart(emp) )
+        emp_stats = getBreakDown(emp, 'August 2013')
+        nsurveys = emp.get_surveys(month='August 2013').count()
+        context['participation'] = ( float(nsurveys) / float(emp.nr_employees) ) * 100
+        context['ncommutes'] = nsurveys*2
+        context['gc'] = emp_stats['gc']
+        context['gs'] = emp_stats['gs']
+        context['cc'] = emp_stats['cc']
+        context['other'] = emp_stats['us']
+        context['gc_pct'] = ( ( emp_stats['gc']*1.0) / (nsurveys*2.0) ) * 100
+        context['gs_pct'] = ( ( emp_stats['gs']*1.0) / (nsurveys*2.0) ) * 100
+        context['stats'] = emp_stats
+        context['employer'] = emp
+        context['emp_sector'] = emp.sector
+        context['m'] = getEmpCheckinMatrix(emp)
+   
     return render(request, 'leaderboard/leaderboard_js.html', context)
 
 def getSectorNum(sector):
@@ -96,6 +107,16 @@ def getSectorNum(sector):
         return int(sector.name[:2])
     else:
         return int(sector.name[:3])
+
+def get_subteams():
+    sectors = sorted(EmplSector.objects.all(), key=getSectorNum)
+    subteams = []
+    for sector in sectors:
+        words = sector.name.split()
+        if int(words[0]) > 10:
+            subteams.append(sector)
+
+    return subteams
 
 def getTopCompanies(vvp, month, svs, sos):
     emps = Employer.objects.filter(sector__in=EmplSector.objects.filter(parent=None))
@@ -130,24 +151,65 @@ def getTopCompanies(vvp, month, svs, sos):
     return topEmps
 
 def getEmpCheckinMatrix(emp):
-    checkinMatrix = []
+
+    checkinMatrix = {}
+    modes = [ 'c', 'cp', 'dalt', 'w', 'b', 'r', 't', 'o', 'tc' ]
+    for mode in modes:
+        checkinMatrix[mode] = {}
+        for mode2 in modes:
+            checkinMatrix[mode][mode2] = 0
+
     empCommutes = emp.get_surveys('all')
     for emp in empCommutes:
-        if from_work_normally(emp) == 'c':
-            checkinMatrix['c'] += 1
-        if from_work_normally(emp) == 'cp':
-            checkinMatrix['cp'] += 1
-        if from_work_normally(emp) == 'w':
-            checkinMatrix['w'] += 1
-        if from_work_normally(emp) == 'b':
-            checkinMatrix['b'] += 1
-        if from_work_normally(emp) == 't':
-            checkinMatrix['t'] += 1
-        if from_work_normally(emp) == 'tc':
-            checkinMatrix['tc'] += 1
-        if from_work_normally(emp) == 'o':
-            checkinMatrix['o'] += 1
+        if from_work_normally(emp) and from_work_today(emp) and to_work_normally(emp) and to_work_today(emp):
+            checkinMatrix[from_work_today(emp)][from_work_normally(emp)] += 1
+            checkinMatrix[to_work_today(emp)][to_work_normally(emp)] += 1
+    print checkinMatrix
     return checkinMatrix
+
+def participation_rankings(filter_by, _filter=0):
+    rank = []
+    pct = 0.0
+    participation = 0.0
+    if _filter == 0 and filter_by == 'sector':
+        employers = Employer.objects.filter(active=True)
+    elif filter_by == 'sector':
+        employers = Employer.objects.filter(sector=_filter, active=True)
+
+    if _filter == 0 and filter_by == 'size':
+        employers = Employer.objects.filter(active=True)
+    elif filter_by == 'size':
+        employers = Employer.objects.filter(size_cat=_filter, active=True)
+
+    for emp in employers:
+        nsurveys = emp.get_surveys(month='August 2013').count()
+        rank.append({'val': nsurveys, 'name': emp.name, 'id': emp.id })
+    
+    return sorted(rank, key=lambda idx: idx['val'], reverse=True);
+
+def participation_pct(filter_by, _filter=0):
+    rank = []
+    pct = 0.0
+    participation = 0.0
+    if _filter == 0 and filter_by == 'sector':
+        employers = Employer.objects.filter(active=True)
+    elif filter_by == 'sector':
+        employers = Employer.objects.filter(sector=_filter, active=True)
+
+    if _filter == 0 and filter_by == 'size':
+        employers = Employer.objects.filter(active=True)
+    elif filter_by == 'size':
+        employers = Employer.objects.filter(size_cat=_filter, active=True)
+
+    for emp in employers:
+        nsurveys = emp.get_surveys(month='August 2013').count()
+        if not emp.nr_employees:
+            continue
+        participation = ( (nsurveys*1.0) / (emp.nr_employees*1.0) ) * 100
+        rank.append({'pct': participation, 'name': emp.name, 'id': emp.id })
+    
+    return sorted(rank, key=lambda idx: idx['pct'], reverse=True);
+
 
 def rankings_by_pct(filter_by, _filter=0):
     rank = []
@@ -168,7 +230,7 @@ def rankings_by_pct(filter_by, _filter=0):
         if total == 0:
             pct = 0
         else:
-            pct = ( (breakdown['gs']*1.0) / (total*1.0) ) * 100
+            pct = ( (breakdown['gs']*1.0) / (total*2.0) ) * 100
         rank.append({'pct' : pct, 'name' : emp.name, 'id' : emp.id })
 
     return sorted(rank, key=lambda idx: idx['pct'], reverse=True);
@@ -189,14 +251,61 @@ def green_switch_rankings(filter_by, _filter=0):
 
     for emp in employers:
         breakdown = getBreakDown(emp, 'August 2013')
-        rank.append({'gs' : breakdown['gs'], 'name' : emp.name, 'id' : emp.id })
+        rank.append({'val' : breakdown['gs'], 'name' : emp.name, 'id' : emp.id })
 
-    return sorted(rank, key=lambda idx: idx['gs'], reverse=True);
+    return sorted(rank, key=lambda idx: idx['val'], reverse=True);
+
+def gc_by_pct(filter_by, _filter=0):
+    rank = []
+    pct = 0.0
+    if _filter == 0 and filter_by == 'sector':
+        employers = Employer.objects.filter(active=True)
+    elif filter_by == 'sector':
+        employers = Employer.objects.filter(sector=_filter, active=True)
+
+    if _filter == 0 and filter_by == 'size':
+        employers = Employer.objects.filter(active=True)
+    elif filter_by == 'size':
+        employers = Employer.objects.filter(size_cat=_filter, active=True)
+
+    for emp in employers:
+        breakdown = getBreakDown(emp, 'August 2013')
+        total = Employer.get_nr_surveys(emp, 'August 2013')
+        if total == 0:
+            pct = 0
+        else:
+            pct = ( (breakdown['gc']*1.0) / (total*2.0) ) * 100
+        rank.append({'pct' : pct, 'name' : emp.name, 'id' : emp.id })
+
+    return sorted(rank, key=lambda idx: idx['pct'], reverse=True);
 
 
+def gc_rankings(filter_by, _filter=0):
 
+    rank = []
+    if filter_by == 'sector' and _filter == 0:
+        employers = Employer.objects.filter(active=True)
+    elif filter_by == 'sector':
+        employers = Employer.objects.filter(sector=_filter, active=True)
+    
+    if filter_by == 'size' and _filter == 0:
+        employers = Employer.objects.filter(active=True)
+    elif filter_by == 'size':
+        employers = Employer.objects.filter(size_cat=_filter, active=True)
+
+    for emp in employers:
+        breakdown = getBreakDown(emp, 'August 2013')
+        rank.append({'val' : breakdown['gc'], 'name' : emp.name, 'id' : emp.id })
+
+    return sorted(rank, key=lambda idx: idx['val'], reverse=True);
+
+breakdown = {}
 
 def getBreakDown(emp, month):
+    global breakdown
+    if emp.name in breakdown:
+        return breakdown[emp.name]
+
     empSurveys = emp.get_surveys(month)
     unhealthySwitches = 0
     carCommuters = 0
@@ -224,6 +333,9 @@ def getBreakDown(emp, month):
             greenCommuters += 1
         elif survey.from_work_switch == 4:
             greenSwitches += 1
+
+    breakdown[emp.name] = { 'us': unhealthySwitches, 'cc': carCommuters, 'gc': greenCommuters, 'gs': greenSwitches, 'total':(len(empSurveys)*2) }
+
     return { 'us': unhealthySwitches, 'cc': carCommuters, 'gc': greenCommuters, 'gs': greenSwitches, 'total':(len(empSurveys)*2) }
 
 def getNewVOldBD(emp, month):
@@ -471,36 +583,56 @@ def from_work_normally(survey):
     longest_dur = 0
     longest_mode = ''
     for leg in survey.legs:
-        if leg.duration > longest_dur and leg.day == 'n' and leg.direction == 'fw':
+        if not leg.duration and leg.day == 'n' and leg.direction == 'fw':
+            longest_mode = leg.mode
+        elif leg.duration > longest_dur and leg.day == 'n' and leg.direction == 'fw':
             longest_dur = leg.duration
             longest_mode = leg.mode
+    if longest_mode == 'da':
+        longest_mode == 'c'
+
     return longest_mode
 
 def to_work_normally(survey):
     longest_dur = 0
     longest_mode = ''
     for leg in survey.legs:
-        if leg.duration > longest_dur and leg.day == 'n' and leg.direction == 'tw':
+        if not leg.duration and leg.day == 'n' and leg.direction == 'tw':
+            longest_mode = leg.mode
+        elif leg.duration > longest_dur and leg.day == 'n' and leg.direction == 'tw':
             longest_dur = leg.duration
             longest_mode = leg.mode
+    if longest_mode == 'da':
+        longest_mode == 'c'
     return longest_mode
    
 def from_work_today(survey):
     longest_dur = 0
     longest_mode = ''
     for leg in survey.legs:
-        if leg.duration > longest_dur and leg.day == 'w' and leg.direction == 'fw':
+        if not leg.duration and leg.day == 'w' and leg.direction == 'fw':
+            longest_mode = leg.mode
+        elif leg.duration > longest_dur and leg.day == 'w' and leg.direction == 'fw':
             longest_dur = leg.duration
             longest_mode = leg.mode
+    
+    if longest_mode == 'da':
+        longest_mode == 'c'
+
     return longest_mode
 
 def to_work_today(survey):
     longest_dur = 0
     longest_mode = ''
     for leg in survey.legs:
-        if leg.duration > longest_dur and leg.day == 'w' and leg.direction == 'tw':
+        if not leg.duration and leg.day == 'w' and leg.direction == 'tw':
+            longest_mode = leg.mode
+        elif leg.duration > longest_dur and leg.day == 'w' and leg.direction == 'tw':
             longest_dur = leg.duration
             longest_mode = leg.mode
+    if longest_mode == 'da':
+        longest_mode == 'c'
+
     return longest_mode
 
 def numNewCheckins(company, month1, month2):
