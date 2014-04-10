@@ -1,8 +1,7 @@
 # Create your views here.
-from survey.models import Employer, Commutersurvey
-from leaderboard.views import getBreakDown, getMonths
+from survey.models import Employer, Commutersurvey, Month
+from leaderboard.views import getBreakDown
 from django.shortcuts import render
-from leaderboard.models import getMonths, Month
 import json
 
 def getCJSEmplList(month):
@@ -79,6 +78,6 @@ def empBreakDown(request, month):
     return render(request, 'leaderboardlist/leaderboardlist.html', context)
     
 def chooseMonth(request):
-    months = getMonths()
+    months = Month.active_months.values_list('month', flat=True)
     context = { 'months': months }
     return render(request, 'leaderboardlist/chooseMonths.html', context)

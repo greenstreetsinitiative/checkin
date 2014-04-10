@@ -2,8 +2,6 @@ from django.contrib.gis.db import models
 from django.db.models import permalink
 from django.utils.text import slugify
 
-from leaderboard.models import getMonths, Month
-
 # lazy translation
 from django.utils.translation import ugettext_lazy as _
 from collections import namedtuple
@@ -63,6 +61,28 @@ GENDER_CHOICES = (
     ('o', _('Other')),
 )
 
+class ActiveMonthManager(models.Manager):
+    def get_queryset(self):
+        return super(ActiveMonthManager, self).get_queryset().filter(active=True).order_by('-date')
+
+class Month(models.Model):
+    month = models.CharField(max_length=100)
+    active = models.BooleanField()
+    date = models.DateField()
+    url_month = models.CharField(max_length=100)
+    short_name = models.CharField(max_length=50, default='')
+    
+    objects = models.Manager()
+    active_months = ActiveMonthManager()
+
+    def __unicode__(self):
+        return self.month
+    
+    @property
+    def prior_months(self):
+        return self.objects.filter(id__lt=self.id).values_list('month', flat=True)
+
+
 class EmplSizeCategory(models.Model):
     name = models.CharField(max_length=50)
 
@@ -117,12 +137,12 @@ class Employer(models.Model):
             if month != 'all':
                 return Commutersurvey.objects.filter(month=month, employer__in=sectorEmps)
             else:
-                return Commutersurvey.objects.filter(month__in=getMonths(), employer__in=sectorEmps)
+                return Commutersurvey.objects.filter(month__in=Month.active_months.values_list('month', flat=True), employer__in=sectorEmps)
         else:
             if month != 'all':
                 return Commutersurvey.objects.filter(month=month, employer__exact=self.name)
             else:
-                return Commutersurvey.objects.filter(month__in=getMonths(), employer__exact=self.name)
+                return Commutersurvey.objects.filter(month__in=Month.active_months.values_list('month', flat=True), employer__exact=self.name)
 
     def get_nr_surveys(self, month):
         if self.is_parent:
@@ -130,17 +150,17 @@ class Employer(models.Model):
             if month != 'all':
                 return Commutersurvey.objects.filter(month=month, employer__in=sectorEmps).count()
             else:
-                return Commutersurvey.objects.filter(month__in=getMonths(), employer__in=sectorEmps).count()
+                return Commutersurvey.objects.filter(month__in=Month.active_months.values_list('month', flat=True), employer__in=sectorEmps).count()
         else:
             if month != 'all':
                 return Commutersurvey.objects.filter(month=month, employer__exact=self.name).count()
             else:
-                return Commutersurvey.objects.filter(month__in=getMonths(), employer__exact=self.name).count()
+                return Commutersurvey.objects.filter(month__in=Month.active_months.values_list('month', flat=True), employer__exact=self.name).count()
 
     def get_new_surveys(self, month):
         monthObject = Month.objects.get(month=month)
         newSurveys = []
-        previousMonths = monthObject.get_prior_months()
+        previousMonths = monthObject.prior_months
         for survey in Commutersurvey.objects.filter(month=month, employer=self.name):
             if not Commutersurvey.objects.filter(email=survey.email, month__in=previousMonths).exists():
                 newSurveys += [survey,]
@@ -149,7 +169,7 @@ class Employer(models.Model):
     def get_returning_surveys(self, month):
         monthObject = Month.objects.get(month=month)
         returningSurveys = []
-        previousMonths = monthObject.get_prior_months()
+        previousMonths = monthObject.prior_months
         for survey in Commutersurvey.objects.filter(month=month, employer=self.name):
             if Commutersurvey.objects.filter(email=survey.email, month__in=previousMonths).exists():
                 returningSurveys += [survey,]
