@@ -43,6 +43,6 @@ urlpatterns = patterns('',
 	url(r'^leaderboard/(\d+)/([^/]+)/(\d+)/([^/]+)/$', 'leaderboard.views.new_leaderboard'),
 
 	url(r'^leaderboard/(?P<sort>[^/]+)/$', 'leaderboard.views.new_leaderboard'),
-	url(r'^leaderboard/(?P<filter_by>[^/]+)/(?P<_filter>\d)/(?P<sort>[^/]+)/$', 'leaderboard.views.new_leaderboard'),
-	url(r'^leaderboard/(?P<filter_by>[^/]+)/(?P<_filter>\d)/$', 'leaderboard.views.new_leaderboard'),
+	url(r'^leaderboard/(?P<filter_by>[^/]+)/(?P<_filter>\d+)/(?P<sort>[^/]+)/$', 'leaderboard.views.new_leaderboard'),
+	url(r'^leaderboard/(?P<filter_by>[^/]+)/(?P<_filter>\d+)/$', 'leaderboard.views.new_leaderboard'),
 ) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
