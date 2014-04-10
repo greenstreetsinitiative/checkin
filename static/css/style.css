@@ -1,6 +1,11 @@
+p {
+  font-family:aleolight;
+}
+
 h1,h2,legend {
   text-transform: uppercase;
   font-weight:bold;
+  font-family: aleobold;
 }
 
 h3,h4,h5,h6 {
@@ -197,6 +202,14 @@ div.gcommute {background-color: #cfd;}
 div.gswitch {background-color: #cef;}
 div.co2 {background-color: #fdc;}
 div.calories {background-color: #ecf;}
+
+/*Leaderboard controls*/
+
+.lbcontrols {
+  background: #1D4213;
+  color: #9DCB98;
+  font-family: aleoregular;
+}
 
 
 

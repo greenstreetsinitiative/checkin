@@ -215,34 +215,59 @@ function setfilter(filter) {
             <p class="lead">The latest stats from the 2014 Corporate Challenge.</p>
         </div>
     </div>
-    <div class="row clearfix filters">
+    <div class="row clearfix filters lbcontrols">
 	<form method="get" action="/leaderboard/redirect" id="filter_form">
         <div class="col-md-6 column">
-            <p class="lead"><strong>Filter by</strong></p>
+            <p class="lead"><strong>Filter the companies by</strong></p>
             <label><input type="radio" name="color" onclick="setfilter('size')" value="size"/> Size</label>
             <label><input checked="true" type="radio" name="color" onclick="setfilter('sector')" value="sector"/> Sector</label>
             <label><input type="radio" name="color" onclick="setfilter('team')" value ="groups"/> Groups with subteams</label>
-        </div>
-
-        <div class="col-md-6 column filteroptions">
 
             <!-- size options -->
-			<select id="size_filter" name="size_filter" class="form-control" style="display: none" disabled="true">
-			<option value="1">Small (1-10 Employees)</option>
-			<option value="2">Medium (11-100 Employees)</option>
-			<option value="3">Large (101-1000 Employees)</option>
-			<option value="4">Largest (&gt;1001 Employees)</option>
-			</select>
+            <select id="size_filter" name="size_filter" class="form-control" style="display: none" disabled="true">
+            <option value="1">Small (1-10 Employees)</option>
+            <option value="2">Medium (11-100 Employees)</option>
+            <option value="3">Large (101-1000 Employees)</option>
+            <option value="4">Largest (&gt;1001 Employees)</option>
+            </select>
 
             <!-- sector options -->
             <select class="form-control" id="sector_filter" name="sector_filter">
             {% for sector in sectors %}<option value="{{ sector.id }}">{{ sector.name }}</option>{% endfor %}
             </select>
-			<select class="form-control" id="team_filter" style="display: none" name="sector_filter"  disabled="true">
+            <select class="form-control" id="team_filter" style="display: none" name="sector_filter"  disabled="true">
             {% for team in subteams %}<option value="{{ team.id }}">{{ team.name }}</option>{% endfor %}
             </select>
-		{% if sort %}<input type="hidden" name="sort" value="{{ sort }}">{% endif %}
-			<button type="submit">Submit</button>
+        {% if sort %}<input type="hidden" name="sort" value="{{ sort }}">{% endif %}
+            <button type="submit">Submit</button>
+        </div>
+
+        <div class="col-md-6 column filteroptions lbcontrols">
+            <p class="lead"><strong>Choose ranking type</strong></p>
+            {% if not filt and not empid %}
+            <div class="col-md-4 column stats {% if sort == 'participation' %}selected{% endif %}"><a href="/leaderboard/participation" class="participation">Participation</a>
+            </div>
+            <div class="col-md-4 column stats {% if sort == 'gc' %}selected{% endif %}"><a href="/leaderboard/gc" class="gcommute">Green commutes</a>
+            </div>
+            <div class="col-md-4 column stats {% if sort == 'gs' %}selected{% endif %}"><a href="/leaderboard/gs" class="gswitch">Green switches</a></div>
+            {% endif %}
+
+            {% if filt and not empid %}
+            <div class="col-md-4 column stats {% if sort == 'participation' %}selected{% endif %}"><a href="/leaderboard/{{ filter_by }}/{{ filt }}/participation" class="participation">Participation</a>
+            </div>
+            <div class="col-md-4 column stats {% if sort == 'gc' %}selected{% endif %}"><a href="/leaderboard/{{ filter_by }}/{{ filt }}/gc" class="gcommute">Green commutes</a>
+            </div>
+            <div class="col-md-4 column stats {% if sort == 'gs' %}selected{% endif %}"><a href="/leaderboard/{{ filter_by }}/{{ filt }}/gs" class="gswitch">Green switches</a></div>
+            {% endif %}
+            {% if empid %}
+            <div class="col-md-4 column stats {% if sort == 'participation' %}selected{% endif %}"><a href="/leaderboard/{{ empid }}/participation" class="participation">Participation</a>
+            </div>
+            <div class="col-md-4 column stats {% if sort == 'gc' %}selected{% endif %}"><a href="/leaderboard/{{ empid }}/gc" class="gcommute">Green commutes</a>
+            </div>
+            <div class="col-md-4 column stats {% if sort == 'gs' %}selected{% endif %}"><a href="/leaderboard/{{empid }}/gs" class="gswitch">Green switches</a></div>
+            {% endif %}
+
+            
 		
         </div>
 		</form>
@@ -251,46 +276,12 @@ function setfilter(filter) {
         <div class="col-md-12 column">
             <hr>
             <h2 class="leaderboard">Rankings of companies of {{ emp_sector }}</h2>
-            <p class="lead">Choose category.</p>
+            <p class="lead">Choose ranking type.</p>
         </div>
     </div>
+
     <div class="row clearfix">
-		{% if not filt and not empid %}
-        <div class="col-md-4 column stats {% if sort == 'participation' %}selected{% endif %}"><a href="/leaderboard/participation" class="participation">Participation</a>
-        </div>
-        <div class="col-md-4 column stats {% if sort == 'gc' %}selected{% endif %}"><a href="/leaderboard/gc" class="gcommute">Green commutes</a>
-        </div>
-        <div class="col-md-4 column stats {% if sort == 'gs' %}selected{% endif %}"><a href="/leaderboard/gs" class="gswitch">Green switches</a>
-		{% endif %}
 
-		{% if filt and not empid %}
-        <div class="col-md-4 column stats {% if sort == 'participation' %}selected{% endif %}"><a href="/leaderboard/{{ filter_by }}/{{ filt }}/participation" class="participation">Participation</a>
-        </div>
-        <div class="col-md-4 column stats {% if sort == 'gc' %}selected{% endif %}"><a href="/leaderboard/{{ filter_by }}/{{ filt }}/gc" class="gcommute">Green commutes</a>
-        </div>
-        <div class="col-md-4 column stats {% if sort == 'gs' %}selected{% endif %}"><a href="/leaderboard/{{ filter_by }}/{{ filt }}/gs" class="gswitch">Green switches</a>
-		{% endif %}
-		{% if empid %}
-        <div class="col-md-4 column stats {% if sort == 'participation' %}selected{% endif %}"><a href="/leaderboard/{{ empid }}/participation" class="participation">Participation</a>
-        </div>
-        <div class="col-md-4 column stats {% if sort == 'gc' %}selected{% endif %}"><a href="/leaderboard/{{ empid }}/gc" class="gcommute">Green commutes</a>
-        </div>
-        <div class="col-md-4 column stats {% if sort == 'gs' %}selected{% endif %}"><a href="/leaderboard/{{empid }}/gs" class="gswitch">Green switches</a>
-		{% endif %}
-
-        </div>
-<!--         <div class="col-md-2 column stats"><a href="" class="co2">Carbon dioxide</a>
-        </div>
-        <div class="col-md-2 column stats"><a href="" class="calories">Calories burned</a>
-        </div> -->
-    </div>
-
-    <!-- participation info -->
-
-    <!-- green commutes info -->
-
-    <!-- green switches info -->
-    <div class="row clearfix">
         <div class="col-md-4 column">
             {% if sort == 'participation' %}
             <div class="panel panel-default particpationpanel">
