@@ -239,10 +239,10 @@ function setfilter(filter) {
             {% for team in subteams %}<option value="{{ team.id }}">{{ team.name }}</option>{% endfor %}
             </select>
         {% if sort %}<input type="hidden" name="sort" value="{{ sort }}">{% endif %}
-            <button type="submit">Submit</button>
+            <button type="submit" class="btn btn-small btn-success">Submit</button>
         </div>
 
-        <div class="col-md-6 column filteroptions lbcontrols">
+        <div class="col-md-6 column lbcontrols">
             <p class="lead"><strong>Choose ranking type</strong></p>
             {% if not filt and not empid %}
             <div class="col-md-4 column stats {% if sort == 'participation' %}selected{% endif %}"><a href="/leaderboard/participation" class="participation">Participation</a>
@@ -275,8 +275,13 @@ function setfilter(filter) {
     <div class="row clearfix">
         <div class="col-md-12 column">
             <hr>
-            <h2 class="leaderboard">Rankings of companies of {{ emp_sector }}</h2>
-            <p class="lead">Choose ranking type.</p>
+            <h2 class="leaderboard">Rankings within {{ emp_sector }}</h2>
+
+            <h1 class="leaderboard"><span class="
+                {% if sort == 'participation' %}participation{% endif %}{% if sort == 'gc' %}gcommute{% endif %}{% if sort == 'gs' %}gswitch{% endif %}">
+                {% if sort == 'participation' %}Participation{% endif %}{% if sort == 'gc' %}Green commutes{% endif %}{% if sort == 'gs' %}Green switches{% endif %}
+            </span></h1>
+                <hr>
         </div>
     </div>
 

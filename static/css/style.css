@@ -52,29 +52,22 @@ a, a:hover {
 
 h2.leaderboard {
   text-transform: none;
+  text-align: center;
+  letter-spacing: -1px;
+  font-family: aleoitalic;
+  margin-bottom:0px;
 }
 
-.stats {
-  font-size:12pt;
-  font-weight:normal;
-  text-align:center;
-  line-height:1.1;
-  padding-top:20px;
-  padding-bottom:20px;
+h1.leaderboard {
+  margin-top:0px;
   margin-bottom:20px;
-  border: 1px solid #eee
+  text-align: center;
+  font-family: aleobold;
 }
 
 .top {
   margin-bottom: 0;
   padding: 0;
-}
-
-.selected {
-  text-transform: uppercase;
-  font-weight: bold;
-  border-bottom: 10px solid #bbb;
-  background: #eee;
 }
 
 .participation, a:link.participation, a:visited.participation {
@@ -143,18 +136,6 @@ a.company {
   margin:0px;
 }
 
-.filters {
-  background-color:#efde99;
-  padding:10px;
-}
-
-.filteroptions {
-  float: none;
-  height: 65px;
-  display: table-cell !important;
-  vertical-align: bottom;
-}
-
 .matrixWRlabel {
   height:120px;
   width:50px;
@@ -207,11 +188,27 @@ div.calories {background-color: #ecf;}
 
 .lbcontrols {
   background: #1D4213;
-  color: #9DCB98;
+  color: #C1DCBE;
   font-family: aleoregular;
+  padding-bottom:10px;
 }
 
+.stats {
+  text-align:center;
+  font-size:16px;
+  padding-top:10px;
+  padding-bottom:10px;
+  margin-bottom:20px;
+  background:#C1DCBE;
+}
 
+.selected {
+  font-family: aleobold;
+  font-weight: bold;
+  background:#fff;
+  outline: 5px solid #5cb85c;
+  z-index:10;
+}
 
 
 /* Topnav budget numbers
