@@ -225,6 +225,7 @@ function setfilter(filter) {
 
             <!-- size options -->
             <select id="size_filter" name="size_filter" class="form-control" style="display: none" disabled="true">
+                <option value="0" disabled selected>Please select size</option>
             <option value="1">Small (1-10 Employees)</option>
             <option value="2">Medium (11-100 Employees)</option>
             <option value="3">Large (101-1000 Employees)</option>
@@ -233,9 +234,11 @@ function setfilter(filter) {
 
             <!-- sector options -->
             <select class="form-control" id="sector_filter" name="sector_filter">
+                <option value="0" disabled selected>Please select sector</option>
             {% for sector in sectors %}<option value="{{ sector.id }}">{{ sector.name }}</option>{% endfor %}
             </select>
             <select class="form-control" id="team_filter" style="display: none" name="sector_filter"  disabled="true">
+                <option value="0" disabled selected>Please select group</option>
             {% for team in subteams %}<option value="{{ team.id }}">{{ team.name }}</option>{% endfor %}
             </select>
         {% if sort %}<input type="hidden" name="sort" value="{{ sort }}">{% endif %}
