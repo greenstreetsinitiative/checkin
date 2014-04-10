@@ -292,6 +292,31 @@ function setfilter(filter) {
     <!-- green switches info -->
     <div class="row clearfix">
         <div class="col-md-4 column">
+            {% if sort == 'participation' %}
+            <div class="panel panel-default particpationpanel">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        Each checkin counts towards a company's participation! 
+                    </h3>
+                </div>
+                <div class="panel-body">
+                    In {{ month }}, the {{ total_companies }} companies of {{ emp_sector }} have made {{ total }} check ins!
+                </div>
+            </div>
+            {% endif %}
+            {% if sort == 'gc' %}
+            <div class="panel panel-default gcommutepanel">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        Green commutes make use of walking, biking, running, taking transit, or using alternative driving arrangements such as carpooling or carsharing. 
+                    </h3>
+                </div>
+                <div class="panel-body">
+                    In {{ month }}, the {{ total_companies }} companies of {{ emp_sector }} have made {{ total }} total green commutes!
+                </div>
+            </div>
+            {% endif %}
+            {% if sort == 'gs' %}
             <div class="panel panel-default gswitchpanel">
                 <div class="panel-heading">
                     <h3 class="panel-title">
@@ -302,6 +327,7 @@ function setfilter(filter) {
                     In {{ month }}, the {{ total_companies }} companies of {{ emp_sector }} have made {{ total }} total green switches!
                 </div>
             </div>
+            {% endif %}
         </div>
         <div class="col-md-4 column">
 			{% if sort == 'participation' %}
