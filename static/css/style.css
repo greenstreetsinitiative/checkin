@@ -8,6 +8,18 @@ h1,h2,legend {
   font-family: aleobold;
 }
 
+strong {
+  font-family:aleobold;
+}
+
+em {
+  font-family:aleoitalic;
+}
+
+strong > em, em > strong {
+  font-family:aleobolditalic;
+}
+
 h3,h4,h5,h6 {
   font-weight:bold;
 }
@@ -65,6 +77,20 @@ h1.leaderboard {
   font-family: aleobold;
 }
 
+h3.leaderboard {
+  font-family:aleobold;
+}
+
+.panel p {
+  font-size: 16px;
+  line-height: 1.2;
+}
+
+.panel {
+  margin:10px;
+  padding:20px;
+}
+
 .top {
   margin-bottom: 0;
   padding: 0;
@@ -94,10 +120,16 @@ a.company {
   color:red;
 }
 
+.ranktitle {
+  font-family: aleobolditalic;
+  letter-spacing: -1px;
+}
+
 .ranksubtitle {
-  line-height:1.1;
-  font-size: 12pt;
+  line-height:1.0;
+  font-size: 14pt;
   margin-top:-6px;
+  font-family:aleolightitalic;
 }
 
 .labelHeader {
@@ -187,15 +219,15 @@ div.calories {background-color: #ecf;}
 /*Leaderboard controls*/
 
 .lbcontrols {
-  background: #1D4213;
-  color: #C1DCBE;
+  background: #B6C1B2;
   font-family: aleoregular;
-  padding-bottom:10px;
+  padding:10px;
 }
 
 .stats {
   text-align:center;
   font-size:16px;
+  line-height:14px;
   padding-top:10px;
   padding-bottom:10px;
   margin-bottom:20px;

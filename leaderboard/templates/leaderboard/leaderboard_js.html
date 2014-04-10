@@ -242,7 +242,7 @@ function setfilter(filter) {
             <button type="submit" class="btn btn-small btn-success">Submit</button>
         </div>
 
-        <div class="col-md-6 column lbcontrols">
+        <div class="col-md-6 column">
             <p class="lead"><strong>Choose ranking type</strong></p>
             {% if not filt and not empid %}
             <div class="col-md-4 column stats {% if sort == 'participation' %}selected{% endif %}"><a href="/leaderboard/participation" class="participation">Participation</a>
@@ -289,51 +289,33 @@ function setfilter(filter) {
 
         <div class="col-md-4 column">
             {% if sort == 'participation' %}
-            <div class="panel panel-default particpationpanel">
-                <div class="panel-heading">
-                    <h3 class="panel-title">
-                        Each checkin counts towards a company's participation! 
-                    </h3>
-                </div>
-                <div class="panel-body">
-                    In {{ month }}, the {{ total_companies }} companies of {{ emp_sector }} have made {{ total }} check ins!
-                </div>
+            <div class="panel participation">
+                <p>Participation counts! We measure participation both on absolute terms (number of people who check in) but also as a percentage of each company!</p>
+                <p>In <strong>{{ month }}</strong>, the <strong>{{ total_companies }}</strong> companies of <strong>{{ emp_sector }}</strong> have made <strong>{{ total }}  check ins!</strong></p>
             </div>
             {% endif %}
             {% if sort == 'gc' %}
-            <div class="panel panel-default gcommutepanel">
-                <div class="panel-heading">
-                    <h3 class="panel-title">
-                        Green commutes make use of walking, biking, running, taking transit, or using alternative driving arrangements such as carpooling or carsharing. 
-                    </h3>
-                </div>
-                <div class="panel-body">
-                    In {{ month }}, the {{ total_companies }} companies of {{ emp_sector }} have made {{ total }} total green commutes!
-                </div>
+            <div class="panel gcommute">
+                <p>Green commutes make use of walking, biking, running, taking transit, or using alternative driving arrangements such as carpooling or carsharing.</p>
+                <p>In <strong>{{ month }}</strong>, the <strong>{{ total_companies }}</strong> companies of <strong>{{ emp_sector }}</strong> have made <strong>{{ total }} green commutes!</strong></p>
             </div>
             {% endif %}
             {% if sort == 'gs' %}
-            <div class="panel panel-default gswitchpanel">
-                <div class="panel-heading">
-                    <h3 class="panel-title">
-                        Green switches are made by commuters adding at least one new green mode of transportation to their commute. 
-                    </h3>
-                </div>
-                <div class="panel-body">
-                    In {{ month }}, the {{ total_companies }} companies of {{ emp_sector }} have made {{ total }} total green switches!
-                </div>
+            <div class="panel gswitch">
+                <p>Green switches are made by commuters adding at least one new green mode of transportation to their commute.</p>
+                <p>In <strong>{{ month }}</strong>, the <strong>{{ total_companies }}</strong> companies of <strong>{{ emp_sector }}</strong> have made <strong>{{ total }} green switches!</strong></p>
             </div>
             {% endif %}
         </div>
         <div class="col-md-4 column">
 			{% if sort == 'participation' %}
-            <h3>Most participation</h3><p class="ranksubtitle">Total</p>
+            <h3 class="ranktitle">Most participation</h3><p class="ranksubtitle">Total</p>
 			{% endif %}
 			{% if sort == 'gc' %}
-            <h3>Most green commutes</h3><p class="ranksubtitle">Total</p>
+            <h3 class="ranktitle">Most green commutes</h3><p class="ranksubtitle">Total</p>
 			{% endif %}
 			{% if sort == 'gs' %}
-            <h3>Most green switches</h3><p class="ranksubtitle">Total</p>
+            <h3 class="ranktitle">Most green switches</h3><p class="ranksubtitle">Total</p>
 			{% endif %}
 
             <ol>
@@ -346,13 +328,13 @@ function setfilter(filter) {
         </div>
         <div class="col-md-4 column">
 			{% if sort == 'participation' %}
-			<h3>Most participation</h3><p class="ranksubtitle">As a percentage of employees</p>
+			<h3 class="ranktitle">Most participation</h3><p class="ranksubtitle">As a percentage of employees</p>
 			{% endif %}
 			{% if sort == 'gc' %}
-            <h3>Most green commutes</h3><p class="ranksubtitle">As a percentage of commutes</p>
+            <h3 class="ranktitle">Most green commutes</h3><p class="ranksubtitle">As a percentage of commutes</p>
 			{% endif %}
 			{% if sort == 'gs' %}
-            <h3>Most green switches</h3><p class="ranksubtitle">As a percentage of commutes</p>
+            <h3 class="ranktitle">Most green switches</h3><p class="ranksubtitle">As a percentage of commutes</p>
 			{% endif %}
 
             <ol>
