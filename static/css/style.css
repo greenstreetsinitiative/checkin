@@ -1,5 +1,5 @@
 p {
-  font-family:aleolight;
+  font-family:aleoregular;
 }
 
 h1,h2,h3,legend {
@@ -29,6 +29,11 @@ legend {
   padding:4px;
   padding-left:6px;
   border-bottom: 2px solid #5f9aa7;
+}
+
+label {
+  font-family: aleoitalic;
+  font-size: 16px;
 }
 
 .greenimpact {

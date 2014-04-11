@@ -76,9 +76,9 @@ $(document).ready(function() {
 {% block body %}
 
 <section>
-
+  <center>
     <h1>Walk/Ride Day Check-In Form</h1>
-    <p class="lead">Check in on the last Friday of every month. The Corporate Challenge takes place April through October.</p>
+    <p class="lead">Check in on the last Friday of every month. The Corporate Challenge takes place April through October.</p></center>
 
       <form id="surveyform" role="form" class="form-horizontal">
 
@@ -112,14 +112,14 @@ $(document).ready(function() {
           </div>
         </div>
         <div class="form-group">
-          <label class="control-label col-sm-3" for="email">Your email:</label>
+          <label class="control-label col-sm-3" for="email">Your email</label>
           <div class="col-sm-9">
             <input id="email"  class="form-control" maxlength="75" name="email" type="email">
             <span class="help-block"><span class="required">Required: </span>please use your work email if your employer is part of the Walk/Ride Day Challenge</span>
           </div>
         </div>
         <div class="form-group">
-          <label class="control-label col-sm-3">Your employer's name:</label>
+          <label class="control-label col-sm-3">Your employer's name</label>
           <div class="col-sm-9">
             <select class="form-control" id="employer" name="employer">
               <option value="1105" selected>Other employer (not registered in Challenge)</option>
@@ -179,10 +179,10 @@ $(document).ready(function() {
 
         <!-- begin picking modes of transport -->
         <div id="w-to-work-legs">
-            <h4>Commuting TO work</h4>
+            <h4>Commuting from home to work</h4>
           <div class=" form-group leg">
             <div class="col-sm-3">
-              <label><span class="required">Required: </span>how did you commute TO work on Walk/Ride Day?</label>
+              <label><span class="required">Required: </span>How did you commute TO work on Walk/Ride Day?</label>
             </div>
             <div class="col-sm-6">
               <select name="mode" class="form-control" >
@@ -223,10 +223,10 @@ $(document).ready(function() {
         <!-- end picking modes of transport -->
         <hr>
 
-        <h4>Returning FROM work</h4>
+        <h4>Returning to home from work</h4>
         
         <div class="form-group">
-          <div class="col-sm-3">Did you commute the same way away from work on Walk/Ride Day?</div>
+          <div class="col-sm-3"><label>Did you commute the same way away from work on Walk/Ride Day?</label></div>
           <div class="col-sm-6">
             <label class="checkbox">
               <input type="radio" name="w-from-work-legs" class="morelegs yes" checked> Yes
@@ -242,7 +242,7 @@ $(document).ready(function() {
           
             <div class="form-group leg">
               <div class="col-sm-3">
-                <label>How did you commute AWAY FROM work on Walk/Ride Day?</label>
+                <label>How did you commute FROM work on Walk/Ride Day?</label>
               </div>
               <div class="col-sm-6">
                 <select name="mode" class="form-control" >
@@ -294,10 +294,10 @@ $(document).ready(function() {
         
         <legend>Your normal commute</legend>
 
-        <h4>Going TO work</h4>
+        <h4>Commuting from home to work</h4>
         
         <div class="form-group">
-            <div class="col-sm-3">Do you normally commute TO work the same way you did on Walk/Ride Day?</div>
+            <div class="col-sm-3"><label>Do you normally commute TO work the same way you did on Walk/Ride Day?</label></div>
             <div class="col-sm-6">
             <label class="checkbox">
                 <input type="radio" name="n-to-work-legs" class="morelegs yes" checked> Yes
@@ -314,7 +314,7 @@ $(document).ready(function() {
             
                 <div class=" form-group leg">
                     <div class="col-sm-3">
-                      <label>How do you normally commute to work?</label>
+                      <label>How do you normally commute TO work?</label>
                     </div>
                     <div class="col-sm-6">
                       <select name="mode" class="form-control" >
@@ -355,10 +355,10 @@ $(document).ready(function() {
         </div>
         
         <hr> 
-        <h4>Commuting FROM work</h4>
+        <h4>Returning to home from work</h4>
         
         <div class="form-group">
-            <div class="col-sm-3">Do you normally commute FROM work the same way you normally commute TO work?</div>
+            <div class="col-sm-3"><label>Do you normally commute FROM work the same way you normally commute TO work?</label></div>
             <div class="col-sm-6">
             <label class="checkbox">
             <input type="radio" name="n-from-work-legs" class="morelegs yes" checked> Yes
@@ -374,7 +374,7 @@ $(document).ready(function() {
             
                 <div class=" form-group leg">
                     <div class="col-sm-3">
-                      <label>How do you commute AWAY FROM work normally?</label>
+                      <label>How do you commute FROM work normally?</label>
                     </div>
                     <div class="col-sm-6">
                       <select name="mode" class="form-control" >
@@ -465,11 +465,10 @@ $(document).ready(function() {
             <!-- comments etc -->
             <h3>Comments or feedback:</h3>
             <textarea id="comments" class="form-control" rows="3"></textarea>
-
-
-            <hr>
+            <p id="optional" class="lead">We invite you to answer a few optional questions every month about your transportation practices and lifestyle. These questions take approximately <strong>2 minutes</strong> to complete. Your answers will provide valuable detail about how people's commutes change over time, and will be used to improve Walk/Ride Days. Thank you very much for your time.</p>
 
             <!-- begin extra questions -->
+            <hr>
             <fieldset id="optional-questions">
         
             <legend>Additional questions</legend>
@@ -496,29 +495,28 @@ $(document).ready(function() {
                   <label>Optional details about you</label>
                 </div>
                 <div class="col-sm-3">
-                  <p>My weight is: <input id="weight" type="number" class="form-control" placeholder="Weight in lbs"> pounds.</p>
-                </div>
-                <div class="col-sm-3">
-                  <p>My height is: <input id="height" type="number" class="form-control" placeholder="Height in ft"></p>
-                </div>
-                <div class="col-sm-3">
-                  <p>My gender is:</p>
-                  <div class="radio-inline">
+<!--                   <p>My gender is:</p> -->
+                  <div class="radio">
                     <label>
                       <input type="radio" name="gender" value="f" checked> Female
                     </label>
                   </div>
-                  <div class="radio-inline">
+                  <div class="radio">
                     <label>
                       <input type="radio" name="gender" value="m"> Male
                     </label>
                   </div>
-                  <div class="radio-inline">
+                  <div class="radio">
                     <label>
-                      <input type="radio" name="gender" value="o"> Other 
+                      <input type="radio" name="gender" value="o"> Another 
                     </label>
                   </div>
-                  <input type="text" id="gender_other" class="form-control" placeholder="Other">
+                </div>
+                <div class="col-sm-3">
+                  <p>My weight is: <input id="weight" type="number" class="form-control" placeholder="Weight in lbs"></p>
+                </div>
+                <div class="col-sm-3">
+                  <p>My height is: <input id="height" type="number" class="form-control" placeholder="Height in ft"></p>
                 </div>
             </div>
             <hr>
@@ -655,13 +653,13 @@ $(document).ready(function() {
 
             <div class="form-group">
               
-              <div class="col-sm-12"><strong>In the last 7 days, did you make any changes to your normal transportation routine OUTSIDE OF your work commute? If yes, what changes?</strong>
+              <div class="col-sm-12"><p class="lead">In the last 7 days, did you make any changes to your normal transportation routine OUTSIDE OF your work commute? If yes, what changes?</p>
                 <textarea class="form-control" rows="3" id="outsidechanges" placeholder="e.g. biked more, transit more, walked more etc. to shopping, visiting friends/family, picking up kids, etc."></textarea>
               </div>
             </div>
             <hr>
             <div class="form-group">
-              <div class="col-sm-12"><strong>How was Walk/Ride Day affected you? Has it affected your transportation habits? Your health? Your thinking about your commute? Your thinking about environmental, health, or community issues? Any additional notes or thoughts?</strong>
+              <div class="col-sm-12"><p class="lead">How was Walk/Ride Day affected you? Has it affected your transportation habits? Your health? Your thinking about your commute? Your thinking about environmental, health, or community issues? Any additional notes or thoughts?</p>
                 <textarea class="form-control" rows="3" id="affectedyou"></textarea>
               </div>
             </div> 
@@ -678,10 +676,9 @@ $(document).ready(function() {
 
             <!-- submit -->
             <div class="form-actions">
-            
-            <p id="optional" class="lead">We invite you to answer a few optional questions every month about your transportation practices and lifestyle. These questions take approximately <strong>2 minutes</strong> to complete. Your answers will provide valuable detail about how people's commutes change over time, and will be used to improve Walk/Ride Days. Thank you very much for your time.</p>
-                <button type="submit" class="btn btn-large btn-primary btn-form-submit optional">Answer optional questions</button>
-                <button type="submit" class="btn btn-large btn-success btn-form-submit">Check-in my commute and exit</button>
+              <hr>
+                <button type="submit" class="btn btn-large btn-primary btn-form-submit optional" style="font-size:18px;">Answer optional questions</button>
+                <button type="submit" class="btn btn-large btn-success btn-form-submit" style="font-size:18px;">Check-in my commute and exit</button>
             </div>
              
             </form>
