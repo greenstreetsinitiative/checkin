@@ -222,22 +222,12 @@ div.calories {background-color: #ecf;}
   background: #B6C1B2;
   font-family: aleoregular;
   padding:10px;
+  padding-bottom:15px;
 }
-
-/*.stats {
-  text-align:center;
-  font-size:16px;
-  line-height:14px;
-  padding-top:10px;
-  padding-bottom:10px;
-  margin-bottom:20px;
-  background:#C1DCBE;
-}*/
 
 .selected {
   font-family: aleobold;
   font-weight: bold;
-  background:#fff;
   outline: 5px solid #5cb85c;
   z-index:10;
 }
