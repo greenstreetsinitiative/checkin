@@ -247,31 +247,24 @@ function setfilter(filter) {
 
         <div class="col-md-6 column">
             <p class="lead"><strong>Choose ranking type</strong></p>
+            <div class="btn-group">
             {% if not filt and not empid %}
-            <div class="col-md-4 column stats {% if sort == 'participation' %}selected{% endif %}"><a href="/leaderboard/participation" class="participation">Participation</a>
-            </div>
-            <div class="col-md-4 column stats {% if sort == 'gc' %}selected{% endif %}"><a href="/leaderboard/gc" class="gcommute">Green commutes</a>
-            </div>
-            <div class="col-md-4 column stats {% if sort == 'gs' %}selected{% endif %}"><a href="/leaderboard/gs" class="gswitch">Green switches</a></div>
+            <a href="/leaderboard/participation" class="btn btn-default participation {% if sort == 'participation' %}selected{% endif %}">Participation</a>
+            <a href="/leaderboard/gc" class="btn btn-default gcommute {% if sort == 'gc' %}selected{% endif %}">Green commutes</a>
+            <a href="/leaderboard/gs" class="btn btn-default gswitch {% if sort == 'gs' %}selected{% endif %}">Green switches</a>
             {% endif %}
 
             {% if filt and not empid %}
-            <div class="col-md-4 column stats {% if sort == 'participation' %}selected{% endif %}"><a href="/leaderboard/{{ filter_by }}/{{ filt }}/participation" class="participation">Participation</a>
-            </div>
-            <div class="col-md-4 column stats {% if sort == 'gc' %}selected{% endif %}"><a href="/leaderboard/{{ filter_by }}/{{ filt }}/gc" class="gcommute">Green commutes</a>
-            </div>
-            <div class="col-md-4 column stats {% if sort == 'gs' %}selected{% endif %}"><a href="/leaderboard/{{ filter_by }}/{{ filt }}/gs" class="gswitch">Green switches</a></div>
+            <a href="/leaderboard/participation" class="btn btn-default participation {% if sort == 'participation' %}selected{% endif %}">Participation</a>
+            <a href="/leaderboard/gc" class="btn btn-default gcommute {% if sort == 'gc' %}selected{% endif %}">Green commutes</a>
+            <a href="/leaderboard/gs" class="btn btn-default gswitch {% if sort == 'gs' %}selected{% endif %}">Green switches</a>
             {% endif %}
             {% if empid %}
-            <div class="col-md-4 column stats {% if sort == 'participation' %}selected{% endif %}"><a href="/leaderboard/{{ empid }}/participation" class="participation">Participation</a>
-            </div>
-            <div class="col-md-4 column stats {% if sort == 'gc' %}selected{% endif %}"><a href="/leaderboard/{{ empid }}/gc" class="gcommute">Green commutes</a>
-            </div>
-            <div class="col-md-4 column stats {% if sort == 'gs' %}selected{% endif %}"><a href="/leaderboard/{{empid }}/gs" class="gswitch">Green switches</a></div>
+            <a href="/leaderboard/participation" class="btn btn-default participation {% if sort == 'participation' %}selected{% endif %}">Participation</a>
+            <a href="/leaderboard/gc" class="btn btn-default gcommute {% if sort == 'gc' %}selected{% endif %}">Green commutes</a>
+            <a href="/leaderboard/gs" class="btn btn-default gswitch {% if sort == 'gs' %}selected{% endif %}">Green switches</a>
             {% endif %}
-
-            
-		
+            </div>
         </div>
 		</form>
     </div>
