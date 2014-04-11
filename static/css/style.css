@@ -2,7 +2,7 @@ p {
   font-family:aleolight;
 }
 
-h1,h2,legend {
+h1,h2,h3,legend {
   text-transform: uppercase;
   font-weight:bold;
   font-family: aleobold;
