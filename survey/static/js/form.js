@@ -11,12 +11,32 @@ $(function() {
     }
   });
 
+  directionsService2 = new google.maps.DirectionsService();
+  directionsDisplay2 = new google.maps.DirectionsRenderer({
+    markerOptions: {
+      visible: false
+    },
+    polylineOptions: {
+      strokeColor: '#8900FF'
+    }
+  });
+
+  directionsService3 = new google.maps.DirectionsService();
+  directionsDisplay3 = new google.maps.DirectionsRenderer({
+    markerOptions: {
+      visible: false
+    },
+    polylineOptions: {
+      strokeColor: '#FF0000'
+    }
+  });
+
   // read cache
   cs = simpleStorage.get('commutersurvey') || {};
 
   map = new google.maps.Map(document.getElementById('map-canvas'), {
     zoom: 11,
-    mapTypeId: google.maps.MapTypeId.ROADMAP,
+    mapTypeId: google.maps.MapTypeId.TERRAIN,
     center: new google.maps.LatLng(42.357778, -71.061667),
     streetViewControl: false,
     mapTypeControl: false
@@ -50,6 +70,8 @@ $(function() {
         
         if (cs.home_location && cs.work_location) {
           setCommuteGeom(cs.home_location.position, cs.work_location.position);
+          setCommuteGeom2(cs.home_location.position, cs.work_location.position);
+          setCommuteGeom3(cs.home_location.position, cs.work_location.position);
         } else {
           map.panTo(results[0].geometry.location);
         }
@@ -90,13 +112,75 @@ $(function() {
     });
   }
 
+  function setCommuteGeom2(origin, destination) {
+    directionsService2.route({
+      origin: origin,
+      destination: destination,
+      travelMode: google.maps.TravelMode.TRANSIT
+    }, function(response, status) {
+      if (status == google.maps.DirectionsStatus.OK) {
+        directionsDisplay2.setMap(map);
+        directionsDisplay2.setDirections(response);
+        cs.geom = pathToGeoJson(response.routes[0].overview_path);
+        cs.distance = response.routes[0].legs[0].distance.value; // Meters
+        cs.duration = response.routes[0].legs[0].duration.value; // Seconds
+        toggleCommuteDistance2(response.routes[0].legs[0].distance.text + ' (by transit)');
+        toggleCalculator('enable');
+      } else {
+        toggleCommuteDistance2('');
+        toggleCalculator('disable');
+      }
+    });
+  }
+
+  function setCommuteGeom3(origin, destination) {
+    directionsService3.route({
+      origin: origin,
+      destination: destination,
+      travelMode: google.maps.TravelMode.DRIVING
+    }, function(response, status) {
+      if (status == google.maps.DirectionsStatus.OK) {
+        directionsDisplay3.setMap(map);
+        directionsDisplay3.setDirections(response);
+        cs.geom = pathToGeoJson(response.routes[0].overview_path);
+        cs.distance = response.routes[0].legs[0].distance.value; // Meters
+        cs.duration = response.routes[0].legs[0].duration.value; // Seconds
+        toggleCommuteDistance3(response.routes[0].legs[0].distance.text + ' (by car)');
+        toggleCalculator('enable');
+      } else {
+        toggleCommuteDistance3('');
+        toggleCalculator('disable');
+      }
+    });
+  }
+
   function toggleCommuteDistance(text) {
     if (text !== '') {
       $('#commute-distance').text(text);
-      $('#commute-distance').css('background', '#FFEECC');
+      $('#commute-distance').css('background', '#99EEFF');
     } else {
       $('#commute-distance').text('');
       $('#commute-distance').css('background', '#fff');
+    }
+  }
+
+  function toggleCommuteDistance2(text) {
+    if (text !== '') {
+      $('#commute-distance2').text(text);
+      $('#commute-distance2').css('background', '#CDAAFF');
+    } else {
+      $('#commute-distance2').text('');
+      $('#commute-distance2').css('background', '#fff');
+    }
+  }
+
+  function toggleCommuteDistance3(text) {
+    if (text !== '') {
+      $('#commute-distance3').text(text);
+      $('#commute-distance3').css('background', '#FF9966');
+    } else {
+      $('#commute-distance3').text('');
+      $('#commute-distance3').css('background', '#fff');
     }
   }
 
@@ -473,7 +557,11 @@ $(function() {
         $('input.morelegs.yes[name=' + legContainerId + ']').prop('checked', false);
       });
     }
-    if (cs.home_address && cs.work_address) setCommuteGeom(cs.home_address, cs.work_address);
+    if (cs.home_address && cs.work_address) { 
+      setCommuteGeom(cs.home_address, cs.work_address);
+      setCommuteGeom2(cs.home_address, cs.work_address);
+      setCommuteGeom3(cs.home_address, cs.work_address);
+    }
   });
 
   // show extra questions lastweek section

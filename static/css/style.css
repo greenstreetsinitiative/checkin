@@ -342,12 +342,10 @@ fieldset.studentgroup {
   font-size: 1.2em;
 }
 
-#commute-distance {
-  font-size: 24px;
-  font-weight: normal;
-  text-align: center;
+#commute-distance, #commute-distance2, #commute-distance3 {
+  font-weight:normal;
   margin: 10px auto;
-  padding: 8px;
+  padding: 5px;
 }
 
 .leg {
