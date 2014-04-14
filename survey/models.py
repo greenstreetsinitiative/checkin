@@ -69,7 +69,9 @@ class Month(models.Model):
     month = models.CharField(max_length=100)
     active = models.BooleanField()
     date = models.DateField()
-    url_month = models.CharField(max_length=100)
+    open_checkin = models.DateField(null=True)
+    close_checkin = models.DateField(null=True)
+    url_month = models.CharField(max_length=100, default='')
     short_name = models.CharField(max_length=50, default='')
     
     objects = models.Manager()
