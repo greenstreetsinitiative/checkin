@@ -40,15 +40,21 @@ def lb_redirect(request):
     url += request.GET['color']+"/"+val+"/"
     if 'sort' in request.GET:
         url += request.GET['sort']+'/'
+    if 'month' in request.GET:
+        url += 'month_'
+        url += request.GET['month']
     return redirect(url, permanent=True)
 
-month = 'October 2013'
+nmonths = 1
 
-def new_leaderboard(request, empid=0, filter_by='sector', _filter=0, sort='participation'):
+def new_leaderboard(request, empid=0, filter_by='sector', _filter=0, sort='participation', selmonth='all'):
 #    context = leaderboard_reply_data('perc', month, filter_by, _filter);
     context = {}
     context['empid'] = empid
-    
+ 
+    if _filter == '0':
+        _filter = 0
+   
     if empid != 0:
         res = Employer.objects.filter(id=empid)
         emp = res[0]
@@ -58,22 +64,48 @@ def new_leaderboard(request, empid=0, filter_by='sector', _filter=0, sort='parti
 
     context['filter_by'] = filter_by
     context['filt'] = _filter
+    if filter_by == 'sector':
+        context['sectorid'] = _filter
     context['sort'] = sort
     context['sectors'] = sorted(EmplSector.objects.all(), key=getSectorNum)
     context['subteams'] = get_subteams()
-    context['months'] = Month.objects.active_months()
-    global month
-    month = context['months'][0]
-    context['month'] = month
-    if sort == 'gs':
-        context['ranks'] = green_switch_rankings(filter_by, _filter)
-        context['ranks_pct'] = rankings_by_pct(filter_by, _filter)
-    elif sort == 'gc':
-        context['ranks'] = gc_rankings(filter_by, _filter)
-        context['ranks_pct'] = gc_by_pct(filter_by, _filter)
+    months = Month.objects.active_months()
+    context['months'] = months
+    for m in months:
+        if m.url_month == selmonth:
+            month = m
+    if selmonth == 'all':
+        global nmonths
+        month = 'all'
+        nmonths = len(months)
+
+    if filter_by == 'size':
+        if _filter == 0:
+            context['sizecat'] = 'all sizes';
+        if _filter == '1':
+            context['sizecat'] = 'small companies';
+        if _filter == '2':
+            context['sizecat'] = 'medium companies';
+        if _filter == '3':
+            context['sizecat'] = 'large companies';
+        if _filter == '4':
+            context['sizecat'] = 'largest companies';
+
+
+    context['current_month'] = selmonth
+    if selmonth == 'all':
+        context['display_month'] = "all months"
     else:
-        context['ranks'] = participation_rankings(filter_by, _filter)
-        context['ranks_pct'] = participation_pct(filter_by, _filter)
+        context['display_month'] = month
+    if sort == 'gs':
+        context['ranks'] = green_switch_rankings(month, filter_by, _filter)
+        context['ranks_pct'] = rankings_by_pct(month, filter_by, _filter)
+    elif sort == 'gc':
+        context['ranks'] = gc_rankings(month, filter_by, _filter)
+        context['ranks_pct'] = gc_by_pct(month, filter_by, _filter)
+    else:
+        context['ranks'] = participation_rankings(month, filter_by, _filter)
+        context['ranks_pct'] = participation_pct(month, filter_by, _filter)
 
     context['total_companies'] = len(context['ranks_pct'])
     context['total'] = 0
@@ -95,13 +127,18 @@ def new_leaderboard(request, empid=0, filter_by='sector', _filter=0, sort='parti
         context['gs'] = emp_stats['gs']
         context['cc'] = emp_stats['cc']
         context['other'] = emp_stats['us']
-        context['gc_pct'] = ( ( emp_stats['gc']*1.0) / (nsurveys*2.0) ) * 100
-        context['gs_pct'] = ( ( emp_stats['gs']*1.0) / (nsurveys*2.0) ) * 100
+        if nsurveys != 0:
+            context['gc_pct'] = ( ( emp_stats['gc']*1.0) / (nsurveys*2.0) ) * 100
+            context['gs_pct'] = ( ( emp_stats['gs']*1.0) / (nsurveys*2.0) ) * 100
+        else:
+            context['gs_pct'] = 0
+            context['gc_pct'] = 0
         context['stats'] = emp_stats
         context['employer'] = emp
         context['emp_sector'] = emp.sector
+        context['sectorid'] = emp.sector.id
         context['m'] = getEmpCheckinMatrix(emp)
-   
+        
     return render(request, 'leaderboard/leaderboard_js.html', context)
 
 def getSectorNum(sector):
@@ -170,7 +207,7 @@ def getEmpCheckinMatrix(emp):
             checkinMatrix[to_work_today(emp)][to_work_normally(emp)] += 1
     return checkinMatrix
 
-def participation_rankings(filter_by, _filter=0):
+def participation_rankings(month, filter_by, _filter=0):
     rank = []
     pct = 0.0
     participation = 0.0
@@ -190,7 +227,7 @@ def participation_rankings(filter_by, _filter=0):
     
     return sorted(rank, key=lambda idx: idx['val'], reverse=True);
 
-def participation_pct(filter_by, _filter=0):
+def participation_pct(month, filter_by, _filter=0):
     rank = []
     pct = 0.0
     participation = 0.0
@@ -208,13 +245,13 @@ def participation_pct(filter_by, _filter=0):
         nsurveys = emp.get_surveys(month=month).count()
         if not emp.nr_employees:
             continue
-        participation = ( (nsurveys*1.0) / (emp.nr_employees*1.0) ) * 100
+        participation = ( (nsurveys*1.0) / (emp.nr_employees*1.0*nmonths) ) * 100
         rank.append({'pct': participation, 'name': emp.name, 'id': emp.id })
     
     return sorted(rank, key=lambda idx: idx['pct'], reverse=True);
 
 
-def rankings_by_pct(filter_by, _filter=0):
+def rankings_by_pct(month, filter_by, _filter=0):
     rank = []
     pct = 0.0
     if _filter == 0 and filter_by == 'sector':
@@ -239,7 +276,7 @@ def rankings_by_pct(filter_by, _filter=0):
     return sorted(rank, key=lambda idx: idx['pct'], reverse=True);
 
 
-def green_switch_rankings(filter_by, _filter=0):
+def green_switch_rankings(month, filter_by, _filter=0):
 
     rank = []
     if filter_by == 'sector' and _filter == 0:
@@ -258,7 +295,7 @@ def green_switch_rankings(filter_by, _filter=0):
 
     return sorted(rank, key=lambda idx: idx['val'], reverse=True);
 
-def gc_by_pct(filter_by, _filter=0):
+def gc_by_pct(month, filter_by, _filter=0):
     rank = []
     pct = 0.0
     if _filter == 0 and filter_by == 'sector':
@@ -283,7 +320,7 @@ def gc_by_pct(filter_by, _filter=0):
     return sorted(rank, key=lambda idx: idx['pct'], reverse=True);
 
 
-def gc_rankings(filter_by, _filter=0):
+def gc_rankings(month, filter_by, _filter=0):
 
     rank = []
     if filter_by == 'sector' and _filter == 0:
@@ -304,12 +341,12 @@ def gc_rankings(filter_by, _filter=0):
 
 breakdown = {}
 
-def getBreakDown(emp, month):
+def getBreakDown(emp, bd_month):
     global breakdown
     if emp.name in breakdown:
-        return breakdown[emp.name]
+        return breakdown[emp.name, bd_month]
 
-    empSurveys = emp.get_surveys(month)
+    empSurveys = emp.get_surveys(bd_month)
     unhealthySwitches = 0
     carCommuters = 0
     greenCommuters = 0
@@ -320,24 +357,26 @@ def getBreakDown(emp, month):
     newGS = 0
     for survey in empSurveys:
         #if survey.email not i
-        if survey.to_work_switch == 1:
+        to_code = survey.to_work_switch
+        from_code = survey.from_work_switch
+        if to_code == 1:
             unhealthySwitches += 1
-        elif survey.to_work_switch == 2:
+        elif to_code == 2:
             carCommuters += 1
-        elif survey.to_work_switch == 3:
+        elif to_code == 3:
             greenCommuters += 1
-        elif survey.to_work_switch == 4:
+        elif to_code == 4:
             greenSwitches += 1
-        if survey.from_work_switch == 1:
+        if from_code == 1:
             unhealthySwitches += 1
-        elif survey.from_work_switch == 2:
+        elif from_code == 2:
             carCommuters += 1
-        elif survey.from_work_switch == 3:
+        elif from_code == 3:
             greenCommuters += 1
-        elif survey.from_work_switch == 4:
+        elif from_code == 4:
             greenSwitches += 1
 
-    breakdown[emp.name] = { 'us': unhealthySwitches, 'cc': carCommuters, 'gc': greenCommuters, 'gs': greenSwitches, 'total':(len(empSurveys)*2) }
+    breakdown[emp.name, bd_month] = { 'us': unhealthySwitches, 'cc': carCommuters, 'gc': greenCommuters, 'gs': greenSwitches, 'total':(len(empSurveys)*2) }
 
     return { 'us': unhealthySwitches, 'cc': carCommuters, 'gc': greenCommuters, 'gs': greenSwitches, 'total':(len(empSurveys)*2) }
 
@@ -424,10 +463,10 @@ def getCanvasJSChartData(emp):
             ]
     intToModeConversion = ['gs', 'gc', 'cc', 'us']
     iTMSConv = ['Green Switches','Green Commutes', 'Car Commutes', 'Other']
-    for month in Month.objects.active_months():
-        breakDown = getBreakDown(emp, month.month)
+    for m in Month.objects.active_months():
+        breakDown = getBreakDown(emp, m.month)
         for i in range(0, 4):
-            chartData[i]['dataPoints'] += [{ 'label': month.short_name, 'y': breakDown[intToModeConversion[i]], 'name': iTMSConv[i] },]
+            chartData[i]['dataPoints'] += [{ 'label': m.short_name, 'y': breakDown[intToModeConversion[i]], 'name': iTMSConv[i] },]
     return chartData
 
 def getNvRcJSChartData(emp):
