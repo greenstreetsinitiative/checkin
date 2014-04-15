@@ -64,6 +64,9 @@ a, a:hover {
   padding:8px;
 }
 
+#notvalidated {
+  display: none;
+}
 
 /* leaderboard styles */
 
@@ -338,8 +341,9 @@ fieldset.studentgroup {
 }
 
 .validation-error {
-  font-weight: bold;
-  font-size: 1.2em;
+  padding: 5px;
+  margin: 5px;
+  letter-spacing: .5px;
 }
 
 #commute-distance, #commute-distance2, #commute-distance3 {

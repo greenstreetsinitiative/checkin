@@ -405,10 +405,11 @@ $(function() {
   }
 
   function addErrorMsg($element, text) {
-    $errorMsg = $('<span />', {
-      class: 'text-danger validation-error'
+    $errorMsg = $('<div />', {
+      class: 'alert alert-danger alert-dismissable validation-error'
     }).html(text);
     $element.after($errorMsg);
+    $('#notvalidated').show();
   }
 
   function validate(surveyData) {
@@ -418,6 +419,7 @@ $(function() {
 
     // clear previous errors
     $('.validation-error').remove();
+    $('#notvalidated').hide();
     // month
     if (!$('#wr_day_month').val()) {
       addErrorMsg($('#wr_day_month'), 'Error: Please choose the Walk/Ride Day for your Checkin.');

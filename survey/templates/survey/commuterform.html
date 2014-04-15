@@ -237,7 +237,7 @@ $(document).ready(function() {
         <h4>Returning to home from work</h4>
         
         <div class="form-group">
-          <div class="col-sm-3"><label>Did you commute the same way away from work on Walk/Ride Day?</label></div>
+          <div class="col-sm-6"><label>Did you commute the same way away from work on Walk/Ride Day?</label></div>
           <div class="col-sm-6">
             <label class="checkbox">
               <input type="radio" name="w-from-work-legs" class="morelegs yes" checked> Yes
@@ -308,7 +308,7 @@ $(document).ready(function() {
         <h4>Commuting from home to work</h4>
         
         <div class="form-group">
-            <div class="col-sm-3"><label>Do you normally commute TO work the same way you did on Walk/Ride Day?</label></div>
+            <div class="col-sm-6"><label>Do you normally commute TO work the same way you did on Walk/Ride Day?</label></div>
             <div class="col-sm-6">
             <label class="checkbox">
                 <input type="radio" name="n-to-work-legs" class="morelegs yes" checked> Yes
@@ -369,7 +369,7 @@ $(document).ready(function() {
         <h4>Returning to home from work</h4>
         
         <div class="form-group">
-            <div class="col-sm-3"><label>Do you normally commute FROM work the same way you normally commute TO work?</label></div>
+            <div class="col-sm-6"><label>Do you normally commute FROM work the same way you normally commute TO work?</label></div>
             <div class="col-sm-6">
             <label class="checkbox">
             <input type="radio" name="n-from-work-legs" class="morelegs yes" checked> Yes
@@ -687,8 +687,14 @@ $(document).ready(function() {
             </fieldset> <!-- end extra questions -->
 
             <!-- submit -->
+            
             <div class="form-actions">
               <hr>
+                <div id="notvalidated" class="alert alert-danger alert-dismissable">
+                  <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                  <strong>Oops.</strong> Please fill in required information above.
+                </div>
+
                 <button type="submit" class="btn btn-large btn-primary btn-form-submit optional" style="font-size:18px;">Answer optional questions</button>
                 <button type="submit" class="btn btn-large btn-success btn-form-submit" style="font-size:18px;">Check-in my commute and exit</button>
             </div>
