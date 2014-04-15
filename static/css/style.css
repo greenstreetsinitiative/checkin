@@ -68,6 +68,14 @@ a, a:hover {
   display: none;
 }
 
+.commuteexamples {
+  text-align: left;
+  font-size: 0.8em;
+  line-height: 1.1;
+  margin-top: 14px;
+  font-family: aleolight;
+}
+
 /* leaderboard styles */
 
 h2.leaderboard {
