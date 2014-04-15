@@ -63,12 +63,12 @@ GENDER_CHOICES = (
 
 class ActiveMonthManager(models.Manager):
     def get_queryset(self):
-        return super(ActiveMonthManager, self).get_queryset().filter(active=True).order_by('-date')
+        return super(ActiveMonthManager, self).get_queryset().filter(active=True).order_by('-wr_day')
 
 class Month(models.Model):
     month = models.CharField(max_length=100)
     active = models.BooleanField()
-    date = models.DateField()
+    wr_day = models.DateField('W/R Day Date', null=True)
     open_checkin = models.DateField(null=True)
     close_checkin = models.DateField(null=True)
     url_month = models.CharField(max_length=100, default='')
