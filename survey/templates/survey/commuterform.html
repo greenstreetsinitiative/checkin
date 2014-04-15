@@ -78,6 +78,7 @@ $(document).ready(function() {
 <section>
   <center>
     <h1>Walk/Ride Day Check-In Form</h1>
+    <h3>TEST VERSION</h3>
     <p class="lead">Check in on the last Friday of every month. The Corporate Challenge takes place April through October.</p></center>
 
       <form id="surveyform" role="form" class="form-horizontal">
@@ -85,23 +86,22 @@ $(document).ready(function() {
         {% csrf_token %}
 
         <hr>
-        <p>Green Streets Initiative will not share identifying information with any organization, other than with your employer, if your workplace is participating in the Challenge. 
-         <label class="checkbox">
-         <input type="checkbox" id="share">Please do not share my identifying information with my employer</label></p>
-    <hr>
                
          <div class="form-group">
-             
-         
-            <label class="control-label col-sm-3 col-xs-2">Checking in for</label>
-
-            <div class="col-sm-9 col-xs-10">
+            <div class="col-sm-6">
             <!-- FIXME: render from Month model class -->
-
+            <label>Checking in for:</label>
             <select id="wr_day_month" name="wr_day_month" class="form-control"><option value="" selected="">Please verify your check-in date</option><option value="28">April 25, 2014</option><option value="May 2014">May 30, 2014</option><option value="June 2014">June 27, 2014</option><option value="July 2014">July 25, 2014</option><option value="August 2014">August 29, 2014</option><option value="September 2014">September 26, 2014</option><option value="October 2014">October 31, 2014</option></select>
             
             <span class="help-block"><strong>Next Walk/Ride Day: April 25, 2014.</strong> Check ins will be accepted Monday, April 21 through Monday April 28, 2014. Walk/Ride Day is the last Friday of every month. If that Friday is impossible for you, you may substitute another day in the same week.</span>
              </div>
+
+            <div class="col-sm-6">
+            <label class="checkbox">
+            <input type="checkbox" id="share">Please do not share my identifying information with my employer</label>
+
+            <p><br>Green Streets Initiative will not share identifying information with any organization, other than with your employer, if your workplace is participating in the Challenge. 
+            </p></div>
          </div>
             
     <!-- 1 tell us about yourself -->
