@@ -61,7 +61,7 @@ def new_leaderboard(request, empid=0, filter_by='sector', _filter=0, sort='parti
     context['sort'] = sort
     context['sectors'] = sorted(EmplSector.objects.all(), key=getSectorNum)
     context['subteams'] = get_subteams()
-    context['months'] = Month.active_months.all()
+    context['months'] = Month.objects.active_months()
     global month
     month = context['months'][0]
     context['month'] = month
@@ -143,7 +143,7 @@ def getTopCompanies(vvp, month, svs, sos):
             try:
                 percent = (100 * float(company.get_nr_surveys(month))/float(company.nr_employees))
                 if month == 'all':
-                    percent /= Month.active_months.count()
+                    percent /= Month.objects.active_months().count()
                 companyList += [(company.name, percent, ('%.1f' % percent), company.nr_employees),]
             except TypeError:
                 pass
@@ -424,7 +424,7 @@ def getCanvasJSChartData(emp):
             ]
     intToModeConversion = ['gs', 'gc', 'cc', 'us']
     iTMSConv = ['Green Switches','Green Commutes', 'Car Commutes', 'Other']
-    for month in Month.active_months.all():
+    for month in Month.objects.active_months():
         breakDown = getBreakDown(emp, month.month)
         for i in range(0, 4):
             chartData[i]['dataPoints'] += [{ 'label': month.short_name, 'y': breakDown[intToModeConversion[i]], 'name': iTMSConv[i] },]
@@ -507,7 +507,7 @@ def getNvRcJSChartData(emp):
             ]
     intToModeConversion = ['ngs', 'rgs', 'ngc', 'rgc', 'ncc', 'rcc', 'nus', 'rus']
     iTMSConv = ['New Green Switches', 'Returning Green Switches', 'New Green Commutes', 'Returning Green Commutes', 'New Car Commutes', 'Returning Car Commutes', 'New Other', 'Returning Other']
-    for month in reversed(Month.active_months.values_list('month', flat=True)):
+    for month in reversed(Month.objects.active_months_list()):
         breakDown = getNewVOldBD(emp, month)
         for i in range(0, 8):
             chartData[i]['dataPoints'] += [{ 'label': str(month), 'y': breakDown[intToModeConversion[i]], 'name': str(iTMSConv[i]) },]

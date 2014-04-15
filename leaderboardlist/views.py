@@ -78,6 +78,6 @@ def empBreakDown(request, month):
     return render(request, 'leaderboardlist/leaderboardlist.html', context)
     
 def chooseMonth(request):
-    months = Month.active_months.values_list('month', flat=True)
+    months = Month.objects.active_months_list()
     context = { 'months': months }
     return render(request, 'leaderboardlist/chooseMonths.html', context)

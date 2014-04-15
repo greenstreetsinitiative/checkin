@@ -61,18 +61,22 @@ GENDER_CHOICES = (
     ('o', _('Other')),
 )
 
-class ActiveMonthManager(models.Manager):
-    def get_queryset(self):
-        return super(ActiveMonthManager, self).get_queryset().filter(active=True).order_by('-wr_day')
+
+class MonthManager(models.Manager):
+    def active_months(self):
+        return super(MonthManager, self).get_queryset().filter(active=True).order_by('-wr_day')
+
+    def active_months_list(self):
+        qs = self.active_months()
+        return [am.month for am in self.active_months()]
 
 class Month(models.Model):
     active = models.BooleanField()
     wr_day = models.DateField('W/R Day Date', null=True)
     open_checkin = models.DateField(null=True)
     close_checkin = models.DateField(null=True)
-    
-    objects = models.Manager()
-    active_months = ActiveMonthManager()
+        
+    objects = MonthManager()
 
     def __unicode__(self):
         return self.wr_day.strftime('%B %Y')
@@ -144,12 +148,12 @@ class Employer(models.Model):
             if month != 'all':
                 return Commutersurvey.objects.filter(month=month, employer__in=sectorEmps)
             else:
-                return Commutersurvey.objects.filter(month__in=Month.active_months.values_list('month', flat=True), employer__in=sectorEmps)
+                return Commutersurvey.objects.filter(month__in=Month.objects.active_months_list(), employer__in=sectorEmps)
         else:
             if month != 'all':
                 return Commutersurvey.objects.filter(month=month, employer__exact=self.name)
             else:
-                return Commutersurvey.objects.filter(month__in=Month.active_months.values_list('month', flat=True), employer__exact=self.name)
+                return Commutersurvey.objects.filter(month__in=Month.objects.active_months_list(), employer__exact=self.name)
 
     def get_nr_surveys(self, month):
         if self.is_parent:
@@ -157,12 +161,12 @@ class Employer(models.Model):
             if month != 'all':
                 return Commutersurvey.objects.filter(month=month, employer__in=sectorEmps).count()
             else:
-                return Commutersurvey.objects.filter(month__in=Month.active_months.values_list('month', flat=True), employer__in=sectorEmps).count()
+                return Commutersurvey.objects.filter(month__in=Month.objects.active_months_list(), employer__in=sectorEmps).count()
         else:
             if month != 'all':
                 return Commutersurvey.objects.filter(month=month, employer__exact=self.name).count()
             else:
-                return Commutersurvey.objects.filter(month__in=Month.active_months.values_list('month', flat=True), employer__exact=self.name).count()
+                return Commutersurvey.objects.filter(month__in=Month.objects.active_months_list(), employer__exact=self.name).count()
 
     def get_new_surveys(self, month):
         monthObject = Month.objects.get(month=month)
