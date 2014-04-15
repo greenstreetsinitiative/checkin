@@ -260,6 +260,11 @@ class Commutersurvey(models.Model):
         verbose_name = 'Commuter Survey'
         verbose_name_plural = 'Commuter Surveys'   
 
+    def save(self, *args, **kwargs):
+        # backward compatibility
+        self.month = self.wr_day_month.month
+        super(Commutersurvey, self).save(*args, **kwargs)
+
     def save_with_legs(self, *args, **kwargs):
         """
         Also creates related Commutersurvey legs

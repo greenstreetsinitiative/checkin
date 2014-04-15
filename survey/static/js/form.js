@@ -386,7 +386,7 @@ $(function() {
   }
 
   function collectFormData() {
-    var fields = ['month', 'share', 'name', 'email', 'employer', 'home_address', 'work_address', 'comments', 'health', 'weight', 'height', 'gender', 'gender_other', 'cdays', 'caltdays', 'cpdays', 'tdays', 'bdays', 'rdays', 'wdays', 'odays', 'tcdays', 'lastweek', 'cdaysaway', 'caltdaysaway', 'cpdaysaway', 'tdaysaway', 'bdaysaway', 'rdaysaway', 'wdaysaway', 'odaysaway', 'tcdaysaway', 'outsidechanges', 'affectedyou', 'contact', 'volunteer'],
+    var fields = ['wr_day_month', 'share', 'name', 'email', 'employer', 'home_address', 'work_address', 'comments', 'health', 'weight', 'height', 'gender', 'gender_other', 'cdays', 'caltdays', 'cpdays', 'tdays', 'bdays', 'rdays', 'wdays', 'odays', 'tcdays', 'lastweek', 'cdaysaway', 'caltdaysaway', 'cpdaysaway', 'tdaysaway', 'bdaysaway', 'rdaysaway', 'wdaysaway', 'odaysaway', 'tcdaysaway', 'outsidechanges', 'affectedyou', 'contact', 'volunteer'],
         formData = {};
 
     $.each(fields, function(i,f) {
@@ -419,8 +419,8 @@ $(function() {
     // clear previous errors
     $('.validation-error').remove();
     // month
-    if (!$('#month').val()) {
-      addErrorMsg($('#month'), 'Error: Please choose the Walk/Ride Day for your Checkin.');
+    if (!$('#wr_day_month').val()) {
+      addErrorMsg($('#wr_day_month'), 'Error: Please choose the Walk/Ride Day for your Checkin.');
       isValid = false;
     }
     // email
