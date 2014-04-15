@@ -36,6 +36,11 @@ label {
   font-size: 16px;
 }
 
+hr.lite {
+  border: 0;
+  border-bottom: 1px dashed #eee;
+}
+
 .greenimpact {
   background:#cff6cf;
   border-bottom: 2px solid #5f9a87;
