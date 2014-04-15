@@ -96,6 +96,10 @@ class Month(models.Model):
     def short_name(self):
         return self.wr_day.strftime(u'%b\' %y'.encode('utf-8')).decode('utf-8')
     
+    @property
+    def wr_day_humanized(self):
+        return self.wr_day.strftime('%A, %B %d, %Y')
+    
 
 class EmplSizeCategory(models.Model):
     name = models.CharField(max_length=50)
@@ -254,7 +258,7 @@ class Commutersurvey(models.Model):
 
     class Meta:
         verbose_name = 'Commuter Survey'
-        verbose_name_plural = 'Commuter Surveys'     
+        verbose_name_plural = 'Commuter Surveys'   
 
     def save_with_legs(self, *args, **kwargs):
         """
