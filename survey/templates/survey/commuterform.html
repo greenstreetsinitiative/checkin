@@ -92,12 +92,15 @@ $(document).ready(function() {
                
          <div class="form-group">
              
-             <div class="col-sm-12">
-             
+         
+            <label class="control-label col-sm-3 col-xs-2">Checking in for</label>
+
+            <div class="col-sm-9 col-xs-10">
             <!-- FIXME: render from Month model class -->
 
-             <select id="wr_day_month" name="wr_day_month" class="form-control"><option value="" selected="">Please verify your check-in date</option><option value="28">April 25, 2014</option><option value="May 2014">May 30, 2014</option><option value="June 2014">June 27, 2014</option><option value="July 2014">July 25, 2014</option><option value="August 2014">August 29, 2014</option><option value="September 2014">September 26, 2014</option><option value="October 2014">October 31, 2014</option></select>
-             <span class="help-block"><strong>Next Walk/Ride Day: April 25, 2014.</strong> Check ins will be accepted Monday, April 21 through Monday April 28, 2014. Walk/Ride Day is the last Friday of every month. If that Friday is impossible for you, you may substitute another day in the same week.</span>
+            <select id="wr_day_month" name="wr_day_month" class="form-control"><option value="" selected="">Please verify your check-in date</option><option value="28">April 25, 2014</option><option value="May 2014">May 30, 2014</option><option value="June 2014">June 27, 2014</option><option value="July 2014">July 25, 2014</option><option value="August 2014">August 29, 2014</option><option value="September 2014">September 26, 2014</option><option value="October 2014">October 31, 2014</option></select>
+            
+            <span class="help-block"><strong>Next Walk/Ride Day: April 25, 2014.</strong> Check ins will be accepted Monday, April 21 through Monday April 28, 2014. Walk/Ride Day is the last Friday of every month. If that Friday is impossible for you, you may substitute another day in the same week.</span>
              </div>
          </div>
             
@@ -108,21 +111,21 @@ $(document).ready(function() {
         <legend>About you</legend>
         
         <div class="form-group">
-          <label class="control-label col-sm-3" for="name">Your name</label>
-          <div class="col-sm-9">
+          <label class="control-label col-sm-3 col-xs-2" for="name">Your name</label>
+          <div class="col-sm-9 col-xs-10">
             <input id="name"  class="form-control" maxlength="50" name="name" type="text" >
           </div>
         </div>
         <div class="form-group">
-          <label class="control-label col-sm-3" for="email">Your email</label>
-          <div class="col-sm-9">
+          <label class="control-label col-sm-3 col-xs-2" for="email">Your email</label>
+          <div class="col-sm-9 col-xs-10">
             <input id="email"  class="form-control" maxlength="75" name="email" type="email">
             <span class="help-block"><span class="required">Required: </span>please use your work email if your employer is part of the Walk/Ride Day Challenge</span>
           </div>
         </div>
         <div class="form-group">
-          <label class="control-label col-sm-3">Your employer's name</label>
-          <div class="col-sm-9">
+          <label class="control-label col-sm-3 col-xs-2">Your employer's name</label>
+          <div class="col-sm-9 col-xs-10">
             <select class="form-control" id="employer" name="employer">
               <option value="1105" selected>Other employer (not registered in Challenge)</option>
               <option value="1155">Self</option>
@@ -141,7 +144,7 @@ $(document).ready(function() {
 
         <div class="form-group">
           <label class="control-label col-sm-3" for="home_address">Starting location</label>
-          <div class="col-sm-7">
+          <div class="col-sm-7 col-xs-10">
             <input type="text" class="form-control address" id="home_address" name="home_address" placeholder="1 Main St, Boston, MA 02111">
             <span class="help-block"><span class="required">Required: </span> where does your commute to work begin?</span>
           </div>
@@ -152,7 +155,7 @@ $(document).ready(function() {
         
         <div class="form-group">
           <label class="control-label col-sm-3" for="work_address">Work location</label>
-          <div class="col-sm-7">
+          <div class="col-sm-7 col-xs-10">
             <input type="text" class="form-control address" id="work_address" name="work_address" placeholder="100 Main St, Boston, MA 02111">
             <span class="help-block"><span class="required">Required: </span>what is the address where you work/worked today? If you telecommuted today, please enter the work address where you most often work when you don't telecommute.</span>
           </div>
@@ -161,13 +164,19 @@ $(document).ready(function() {
           </div>
         </div>
        
-        <label class="control-label col-sm-3">Your Commute (examples) <div id="commute-distance"></div><div id="commute-distance2"></div><div id="commute-distance3"></div></label>
+        <div class="form-group">       
+          <label class="control-label  col-sm-3 col-xs-12">Your Commute (examples) 
+            <div id="commute-distance" class="col-sm-12 col-xs-3"></div>
+            <div id="commute-distance2" class="col-sm-12 col-xs-3"></div>
+            <div id="commute-distance3" class="col-sm-12 col-xs-3"></div>
+          </label>
+          
         <div id="map-canvas" class="col-sm-9"></div>
-                
-        {{ surveyform.home_location }}
-        {{ surveyform.work_location }}
-        {{ surveyform.distance }}
-        {{ surveyform.duration }}  
+          </div>          
+          {{ surveyform.home_location }}
+          {{ surveyform.work_location }}
+          {{ surveyform.distance }}
+          {{ surveyform.duration }}  
 
       </fieldset>
         

@@ -346,6 +346,7 @@ fieldset.studentgroup {
   font-weight:normal;
   margin: 10px auto;
   padding: 5px;
+  float:left;
 }
 
 .leg {
