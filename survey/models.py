@@ -66,24 +66,29 @@ class ActiveMonthManager(models.Manager):
         return super(ActiveMonthManager, self).get_queryset().filter(active=True).order_by('-wr_day')
 
 class Month(models.Model):
-    month = models.CharField(max_length=100)
     active = models.BooleanField()
     wr_day = models.DateField('W/R Day Date', null=True)
     open_checkin = models.DateField(null=True)
     close_checkin = models.DateField(null=True)
-    url_month = models.CharField(max_length=100, default='')
-    short_name = models.CharField(max_length=50, default='')
     
     objects = models.Manager()
     active_months = ActiveMonthManager()
 
     def __unicode__(self):
-        return self.month
+        return self.wr_day.strftime('%B %Y')
     
     @property
-    def prior_months(self):
-        return self.objects.filter(id__lt=self.id).values_list('month', flat=True)
+    def month(self):
+        return self.wr_day.strftime(u'%B %Y'.encode('utf-8')).decode('utf-8')
 
+    @property
+    def url_month(self):
+        return slugify(self.month)
+
+    @property
+    def short_name(self):
+        return self.wr_day.strftime(u'%b\' %y'.encode('utf-8')).decode('utf-8')
+    
 
 class EmplSizeCategory(models.Model):
     name = models.CharField(max_length=50)

@@ -85,10 +85,8 @@ class CommutersurveyAdmin(admin.OSMGeoAdmin):
     actions = [export_as_csv]
 
 class MonthsAdmin(admin.ModelAdmin):
-    search_fields = ['month']
-    list_display_links = ['id']
-    list_display = ['id', 'month', 'wr_day', 'url_month', 'short_name', 'active']
-    list_editable = ['month', 'wr_day', 'url_month', 'short_name', 'active']
+    list_display = ['id', 'wr_day', 'open_checkin', 'close_checkin', 'active', 'url_month', 'short_name']
+    list_editable = ['wr_day', 'open_checkin', 'close_checkin', 'active']
     actions = [export_as_csv]
 
 
