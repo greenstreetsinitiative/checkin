@@ -80,6 +80,9 @@ class Month(models.Model):
 
     def __unicode__(self):
         return self.wr_day.strftime('%B %Y')
+
+    class Meta:
+        ordering = ['wr_day']
     
     @property
     def month(self):
@@ -193,7 +196,9 @@ class Commutersurvey(models.Model):
     and Green Streets interest.
     """
 
+    # TODO: legacy field, remove it, requires leaderboard refactoring
     month = models.CharField('Walk/Ride Day Month', max_length=50)
+    wr_day_month = models.ForeignKey(Month)
 
     home_address = models.CharField(max_length=200)
     work_address = models.CharField(max_length=200)
