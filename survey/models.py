@@ -1,7 +1,6 @@
 from django.contrib.gis.db import models
 from django.db.models import permalink
 from django.utils.text import slugify
-from leaderboard.models import getMonths, Month
 
 # lazy translation
 from django.utils.translation import ugettext_lazy as _
@@ -19,11 +18,14 @@ except ImportError:
 
 COMMUTER_MODES = (
     ('c', _('Car')),
+    ('cp', _('Carpool')),
+    ('da', _('Driving alone')),
+    ('dalt', _('Driving alone, alternative vehicle')),
     ('w', _('Walk')),
     ('b', _('Bike')),
-    ('cp', _('Carpool')),
     ('t', _('Transit (bus, subway, etc.)')),
     ('o', _('Other (skate, canoe, etc.)')),
+    ('r', _('Jog/Run')),
     ('tc', _('Telecommuting')),
 )
 
@@ -45,6 +47,59 @@ LEG_DURATIONS = (
     (5, _('More than an hour')),
 )
 
+HEALTH_CHOICES = (
+    (5, _('Excellent')),
+    (4, _('Very Good')),
+    (3, _('Good')),
+    (2, _('Fair')),
+    (1, _('Poor')),
+)
+
+GENDER_CHOICES = (
+    ('m', _('Male')),
+    ('f', _('Female')),
+    ('o', _('Other')),
+)
+
+
+class MonthManager(models.Manager):
+    def active_months(self):
+        return super(MonthManager, self).get_queryset().filter(active=True).order_by('-wr_day')
+
+    def active_months_list(self):
+        qs = self.active_months()
+        return [am.month for am in self.active_months()]
+
+class Month(models.Model):
+    active = models.BooleanField()
+    wr_day = models.DateField('W/R Day Date', null=True)
+    open_checkin = models.DateField(null=True)
+    close_checkin = models.DateField(null=True)
+        
+    objects = MonthManager()
+
+    def __unicode__(self):
+        return self.wr_day.strftime('%B %Y')
+
+    class Meta:
+        ordering = ['wr_day']
+    
+    @property
+    def month(self):
+        return self.wr_day.strftime(u'%B %Y'.encode('utf-8')).decode('utf-8')
+
+    @property
+    def url_month(self):
+        return slugify(self.month)
+
+    @property
+    def short_name(self):
+        return self.wr_day.strftime(u'%b\' %y'.encode('utf-8')).decode('utf-8')
+    
+    @property
+    def wr_day_humanized(self):
+        return self.wr_day.strftime('%A, %B %d, %Y')
+    
 
 class EmplSizeCategory(models.Model):
     name = models.CharField(max_length=50)
@@ -100,12 +155,12 @@ class Employer(models.Model):
             if month != 'all':
                 return Commutersurvey.objects.filter(month=month, employer__in=sectorEmps)
             else:
-                return Commutersurvey.objects.filter(month__in=getMonths(), employer__in=sectorEmps)
+                return Commutersurvey.objects.filter(month__in=Month.objects.active_months_list(), employer__in=sectorEmps)
         else:
             if month != 'all':
                 return Commutersurvey.objects.filter(month=month, employer__exact=self.name)
             else:
-                return Commutersurvey.objects.filter(month__in=getMonths(), employer__exact=self.name)
+                return Commutersurvey.objects.filter(month__in=Month.objects.active_months_list(), employer__exact=self.name)
 
     def get_nr_surveys(self, month):
         if self.is_parent:
@@ -113,17 +168,17 @@ class Employer(models.Model):
             if month != 'all':
                 return Commutersurvey.objects.filter(month=month, employer__in=sectorEmps).count()
             else:
-                return Commutersurvey.objects.filter(month__in=getMonths(), employer__in=sectorEmps).count()
+                return Commutersurvey.objects.filter(month__in=Month.objects.active_months_list(), employer__in=sectorEmps).count()
         else:
             if month != 'all':
                 return Commutersurvey.objects.filter(month=month, employer__exact=self.name).count()
             else:
-                return Commutersurvey.objects.filter(month__in=getMonths(), employer__exact=self.name).count()
+                return Commutersurvey.objects.filter(month__in=Month.objects.active_months_list(), employer__exact=self.name).count()
 
     def get_new_surveys(self, month):
         monthObject = Month.objects.get(month=month)
         newSurveys = []
-        previousMonths = monthObject.get_prior_months()
+        previousMonths = monthObject.prior_months
         for survey in Commutersurvey.objects.filter(month=month, employer=self.name):
             if not Commutersurvey.objects.filter(email=survey.email, month__in=previousMonths).exists():
                 newSurveys += [survey,]
@@ -132,11 +187,139 @@ class Employer(models.Model):
     def get_returning_surveys(self, month):
         monthObject = Month.objects.get(month=month)
         returningSurveys = []
-        previousMonths = monthObject.get_prior_months()
+        previousMonths = monthObject.prior_months
         for survey in Commutersurvey.objects.filter(month=month, employer=self.name):
             if Commutersurvey.objects.filter(email=survey.email, month__in=previousMonths).exists():
                 returningSurveys += [survey,]
         return returningSurveys
+
+
+class Commutersurvey(models.Model):
+    """
+    Questions for adults about their commute work
+    and Green Streets interest.
+    """
+
+    # TODO: legacy field, remove it, requires leaderboard refactoring
+    month = models.CharField('Walk/Ride Day Month', max_length=50)
+    wr_day_month = models.ForeignKey(Month)
+
+    home_address = models.CharField(max_length=200)
+    work_address = models.CharField(max_length=200)
+
+    geom = models.MultiLineStringField('Commute', geography=True, blank=True, null=True)
+
+    distance = models.DecimalField(max_digits=10, decimal_places=1, blank=True, null=True)
+    duration = models.DecimalField(max_digits=10, decimal_places=1, blank=True, null=True)
+
+    name = models.CharField(max_length=50, blank=True, null=True)
+    email = models.EmailField(blank=True, null=True)
+    share = models.BooleanField(default=False)
+    employer = models.CharField('Employer', max_length=100, blank=False, null=True)
+    comments = models.TextField(null=True, blank=True)
+
+    ip = models.IPAddressField('IP Address', blank=True, null=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    # optional survey questions
+    health = models.IntegerField(null=True, blank=True, choices=HEALTH_CHOICES)
+    weight = models.CharField(null=True, blank=True, max_length=20)
+    height = models.CharField(null=True, blank=True, max_length=20)
+    gender = models.CharField(null=True, blank=True, max_length=1, choices=GENDER_CHOICES)
+    gender_other = models.CharField(null=True, blank=True, max_length=50)
+    cdays = models.IntegerField(null=True, blank=True)
+    caltdays = models.IntegerField(null=True, blank=True)
+    cpdays = models.IntegerField(null=True, blank=True)
+    tdays = models.IntegerField(null=True, blank=True)
+    bdays = models.IntegerField(null=True, blank=True)
+    rdays = models.IntegerField(null=True, blank=True)
+    wdays = models.IntegerField(null=True, blank=True)
+    odays = models.IntegerField(null=True, blank=True)
+    tcdays = models.IntegerField(null=True, blank=True)
+    lastweek = models.BooleanField(default=True)
+    cdaysaway = models.IntegerField(null=True, blank=True)
+    caltdaysaway = models.IntegerField(null=True, blank=True)
+    cpdaysaway = models.IntegerField(null=True, blank=True)
+    tdaysaway = models.IntegerField(null=True, blank=True)
+    bdaysaway = models.IntegerField(null=True, blank=True)
+    rdaysaway = models.IntegerField(null=True, blank=True)
+    wdaysaway = models.IntegerField(null=True, blank=True)
+    odaysaway = models.IntegerField(null=True, blank=True)
+    tcdaysaway = models.IntegerField(null=True, blank=True)
+    outsidechanges = models.TextField(null=True, blank=True)
+    affectedyou = models.TextField(null=True, blank=True)
+    contact = models.BooleanField(default=False)
+    volunteer = models.BooleanField(default=False)
+
+    objects = models.GeoManager()
+
+    def __unicode__(self): 
+        return u'%s' % (self.id)   
+
+    class Meta:
+        verbose_name = 'Commuter Survey'
+        verbose_name_plural = 'Commuter Surveys'   
+
+    def save(self, *args, **kwargs):
+        # backward compatibility
+        self.month = self.wr_day_month.month
+        super(Commutersurvey, self).save(*args, **kwargs)
+
+    def save_with_legs(self, *args, **kwargs):
+        """
+        Also creates related Commutersurvey legs
+        """
+        legs = kwargs['legs']
+        del kwargs['legs']
+
+        super(Commutersurvey, self).save(*args, **kwargs)
+
+        for l in legs:
+            print l
+            leg = Leg(commutersurvey=self, **l)
+            leg.save()
+
+    @property
+    def legs(self):
+        return self.leg_set.all()
+
+    @property
+    def from_work_switch(self):
+        normal_green_legs = 0
+        wr_green_legs = 0
+        for leg in self.legs:
+            if leg.mode != 'c' and leg.mode != 'da' and leg.direction == 'fw' and leg.day == 'w':
+                wr_green_legs += 1
+            if leg.mode != 'c' and leg.mode != 'da' and leg.direction == 'fw' and leg.day == 'n':
+                normal_green_legs += 1
+        
+        if wr_green_legs == 0:
+            return 2 # car commute
+        if wr_green_legs > normal_green_legs:
+            return 4 # green switch
+        if wr_green_legs < normal_green_legs:
+            return 1 # "unhealthy switch"
+        if wr_green_legs > 0:
+            return 3 # green commute
+    
+    @property
+    def to_work_switch(self):
+        normal_green_legs = 0
+        wr_green_legs = 0
+        for leg in self.legs:
+            if leg.mode != 'c' and leg.mode != 'da' and leg.direction == 'tw' and leg.day == 'w':
+                wr_green_legs += 1
+            if leg.mode != 'c' and leg.mode != 'da' and leg.direction == 'tw' and leg.day == 'n':
+                normal_green_legs += 1
+        
+        if wr_green_legs == 0:
+            return 2 # car commute
+        if wr_green_legs > normal_green_legs:
+            return 4 # green switch
+        if wr_green_legs < normal_green_legs:
+            return 1 # "unhealthy switch"
+        if wr_green_legs > 0:
+            return 3 # green commute
 
 
 class Leg(models.Model):
@@ -149,6 +332,7 @@ class Leg(models.Model):
     direction = models.CharField(blank=True, null=True, max_length=2, choices=LEG_DIRECTIONS)
     duration = models.IntegerField(blank=True, null=True, choices=LEG_DURATIONS)
     day = models.CharField(blank=True, null=True, max_length=1, choices=LEG_DAYS)
+    commutersurvey = models.ForeignKey(Commutersurvey)
 
     class Meta:
         verbose_name = _('Leg')
@@ -156,78 +340,3 @@ class Leg(models.Model):
 
     def __unicode__(self):
         return u'%s' % (self.mode) 
-    
-
-class Commutersurvey(models.Model):
-    """
-    Questions for adults about their commute work
-    and Green Streets interest.
-    """
-
-    month = models.CharField('Walk/Ride Day Month', max_length=50)
-
-    home_location = models.PointField(geography=True, blank=True, null=True, default='POINT(0 0)') # default SRS 4326
-    home_address = models.CharField(max_length=200)
-    work_location = models.PointField(geography=True, blank=True, null=True, default='POINT(0 0)')
-    work_address = models.CharField(max_length=200)
-
-    # commute line string
-    geom = models.MultiLineStringField('Commute', geography=True, blank=True, null=True)
-
-    distance = models.DecimalField(max_digits=10, decimal_places=1, blank=True, null=True)
-    duration = models.DecimalField(max_digits=10, decimal_places=1, blank=True, null=True)
-
-    to_work_today = models.CharField(max_length=2, blank=False, null=True, choices=COMMUTER_MODES)
-    from_work_today = models.CharField(max_length=2, blank=False, null=True, choices=COMMUTER_MODES)  
-    to_work_normally = models.CharField(max_length=2, blank=False, null=True, choices=COMMUTER_MODES)
-    from_work_normally = models.CharField(max_length=2, blank=False, null=True, choices=COMMUTER_MODES) 
-
-    other_greentravel = models.BooleanField(default=False)
-
-    legs = models.ManyToManyField(Leg)
-
-    name = models.CharField(max_length=50, blank=True, null=True)
-    email = models.EmailField(blank=True, null=True)
-    share = models.BooleanField(default=False)
-    newsletter = models.BooleanField(default=True)
-    employer = models.CharField('Employer', max_length=100, blank=False, null=True)
-    weight = models.DecimalField(max_digits=5, decimal_places=1, blank=True, null=True)
-    comments = models.TextField(null=True, blank=True)
-
-    ip = models.IPAddressField('IP Address', blank=True, null=True)
-    created = models.DateTimeField(auto_now_add=True)
-
-    objects = models.GeoManager()
-    CheckinDict = {
-            ('c', 'c'):2, ('c', 'cp'):4, ('c', 'w'):4, ('c', 'b'):4, ('c', 't'):4, ('c', 'tc'):4, ('c', 'o'):1,
-            ('cp', 'c'):1, ('cp', 'cp'):3, ('cp', 'w'):4, ('cp', 'b'):4, ('cp', 't'):4, ('cp', 'tc'):4, ('cp', 'o'):1,
-            ('w', 'c'):1, ('w', 'cp'):3, ('w', 'w'):3, ('w', 'b'):3, ('w', 't'):3, ('w', 'tc'):3, ('w', 'o'):1,
-            ('b', 'c'):1, ('b', 'cp'):3, ('b', 'w'):3, ('b', 'b'):3, ('b', 't'):3, ('b', 'tc'):3, ('b', 'o'):1,
-            ('t', 'c'):1, ('t', 'cp'):3, ('t', 'w'):4, ('t', 'b'):4, ('t', 't'):3, ('t', 'tc'):4, ('t', 'o'):1,
-            ('tc', 'c'):1, ('tc', 'cp'):3, ('tc', 'w'):3, ('tc', 'b'):3, ('tc', 't'):3, ('tc', 'tc'):3, ('tc', 'o'):1,
-            ('o', 'c'):1, ('o', 'cp'):1, ('o', 'w'):1, ('o', 'b'):1, ('o', 't'):1, ('o', 'tc'):1, ('o', 'o'):1,
-            }
-
-    def __unicode__(self): 
-        return u'%s' % (self.id)   
-
-    class Meta:
-        verbose_name = 'Commuter Survey'
-        verbose_name_plural = 'Commuter Surveys'     
-
-    @property
-    def to_work_switch(self):
-        if self.to_work_today is None:
-            self.to_work_today = 'o'
-        if self.to_work_normally is None:
-            self.to_work_normally = 'o'
-        return self.CheckinDict[(self.to_work_normally, self.to_work_today)]
-
-    @property
-    def from_work_switch(self):
-        if self.from_work_today is None:
-            self.from_work_today = 'o'
-        if self.from_work_normally is None:
-            self.from_work_normally = 'o'
-        return self.CheckinDict[(self.from_work_normally, self.from_work_today)]
-

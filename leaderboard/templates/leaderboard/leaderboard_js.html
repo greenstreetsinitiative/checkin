@@ -9,14 +9,9 @@
 <script type="text/javascript" src="/static/libs/jquery.spin.js"></script>
 <script type="text/javascript">
     $("document").ready(function() {
-        $("#id_vol_v_perc").change(getResults);
-        $("#id_month").change(getResults);
-        $("#id_svs").change(switchSOS);
-        $("#id_sos").change(getResults);
-        $("#id_companies").change(function() {
-            getNewEmp($("#id_companies").val());
-            });
-        getResults();
+		chart_data = {% autoescape off %}{{ chart }}{% endautoescape %}
+		var chart = new CanvasJS.Chart("breakDownGraph", chart_data);
+		chart.render();
     });
     function getResults() {
         $("#spinner").spin("small");
@@ -139,6 +134,67 @@
         }
         return formatted;
     };
+
+    //for rotated text header on the matrix
+    $('.matrixWRlabel').css('height', $('.matrixWRlabel').width());
+
+    //toggle the dropdown menu when selecting filters
+    $('#sizeoption,#sectoroption,#groupsoption').hide();
+
+    $('input[name="filter"]').change(function(){   
+        //if size selected
+        if($(this).val() == "size"){
+            //display size dropdown
+            $('#sizeoption').show();
+            $('#sectoroption,#groupsoption').hide();
+        }
+        //if sector selected
+        else if($(this).val() == "sector"){
+            //display sector dropdown
+            $('#sizeoption,#groupsoption').hide();
+            $('#sectoroption').show();
+        }
+
+        //if groups with subteams selected
+        else if($(this).val() == "groups"){
+            //display groups dropdown
+            $('#sizeoption,#sectoroption').hide();
+            $('#groupsoption').show();
+        }
+
+        //if no filter selected
+        else { $('#sizeoption,#sectoroption,#groupsoption').hide(); }
+    });
+
+	
+</script>
+<script type="text/javascript">
+function setfilter(filter) {
+		if(filter == "size") { 
+			$('#size_filter').show();
+			$('#size_filter').removeAttr('disabled');
+			$('#team_filter').hide();
+			$('#team_filter').attr('disabled', "true");
+			$('#sector_filter').hide();
+			$('#sector_filter').attr('disabled', "true");
+		}
+		else if(filter == "team") { 
+			$('#team_filter').show();
+			$('#team_filter').removeAttr('disabled');
+			$('#size_filter').hide();
+			$('#size_filter').attr('disabled', "true");
+			$('#sector_filter').hide();
+			$('#sector_filter').attr('disabled', "true");
+		}
+		else if(filter == "sector") { 
+			$('#sector_filter').show();
+			$('#sector_filter').removeAttr('disabled');
+			$('#size_filter').hide();
+			$('#size_filter').attr('disabled', "true");
+			$('#team_filter').hide();
+			$('#team_filter').attr('disabled', "true");
+		}
+	}
 </script>
 <script type="text/javascript" src="/static/libs/canvasjs.min.js"></script>
 {% endblock %}
@@ -151,85 +207,130 @@
             <p class="lead">The latest stats from the 2014 Corporate Challenge.</p>
         </div>
     </div>
-    <div class="row clearfix filters">
+    <div class="row clearfix filters lbcontrols">
+	<form method="get" action="/leaderboard/redirect" id="filter_form">
         <div class="col-md-6 column">
-            <p class="lead"><strong>Filter by</strong></p>
-            <label><input type="radio" name="color" value="nofilter" checked/> None (show everyone)</label>
-            <label><input type="radio" name="color" value="size"/> Size</label>
-            <label><input type="radio" name="color" value="sector"/> Sector</label>
-            <label><input type="radio" name="color" value ="groups"/> Groups with subteams</label>
-        </div>
-
-        <div class="col-md-6 column filteroptions">
-            <!-- (all hidden until invoked) -->
+            <p class="lead"><strong>Filter the companies by</strong></p>
+            <label><input type="radio" name="color" onclick="setfilter('size')" value="size"/> Size</label>
+            <label><input checked="true" type="radio" name="color" onclick="setfilter('sector')" value="sector"/> Sector</label>
+            <label><input type="radio" name="color" onclick="setfilter('team')" value ="groups"/> Groups with subteams</label>
 
             <!-- size options -->
-
-            <!-- sector options -->
-            <select id="id_sos" name="sos" class="form-control">
-            {% for sector in sectors %}<option value={{ sector.id }}>{{ sector.name }}</option>{% endfor %}
+            <select id="size_filter" name="size_filter" class="form-control" style="display: none" disabled="true">
+                <option value="0" disabled selected>Please select size</option>
+            <option value="1">Small (1-10 Employees)</option>
+            <option value="2">Medium (11-100 Employees)</option>
+            <option value="3">Large (101-1000 Employees)</option>
+            <option value="4">Largest (&gt;1001 Employees)</option>
             </select>
 
-            <!-- groups with subteam options -->
-
+            <!-- sector options -->
+            <select class="form-control" id="sector_filter" name="sector_filter">
+                <option value="0" disabled selected>Please select sector</option>
+            {% for sector in sectors %}<option value="{{ sector.id }}">{{ sector.name }}</option>{% endfor %}
+            </select>
+            <select class="form-control" id="team_filter" style="display: none" name="sector_filter"  disabled="true">
+                <option value="0" disabled selected>Please select group</option>
+            {% for team in subteams %}<option value="{{ team.id }}">{{ team.name }}</option>{% endfor %}
+            </select>
+        {% if sort %}<input type="hidden" name="sort" value="{{ sort }}">{% endif %}
+            <button type="submit" class="btn btn-small btn-success">Submit</button>
         </div>
+
+        <div class="col-md-6 column">
+            <p class="lead"><strong>Please choose ranking type</strong></p>
+            <div class="btn-group">
+            {% if not filt and not empid %}
+            <a href="/leaderboard/participation" class="btn btn-default participation {% if sort == 'participation' %}selected{% endif %}">Participation</a>
+            <a href="/leaderboard/gc" class="btn btn-default gcommute {% if sort == 'gc' %}selected{% endif %}">Green commutes</a>
+            <a href="/leaderboard/gs" class="btn btn-default gswitch {% if sort == 'gs' %}selected{% endif %}">Green switches</a>
+            {% endif %}
+
+            {% if filt and not empid %}
+            <a href="/leaderboard/participation" class="btn btn-default participation {% if sort == 'participation' %}selected{% endif %}">Participation</a>
+            <a href="/leaderboard/gc" class="btn btn-default gcommute {% if sort == 'gc' %}selected{% endif %}">Green commutes</a>
+            <a href="/leaderboard/gs" class="btn btn-default gswitch {% if sort == 'gs' %}selected{% endif %}">Green switches</a>
+            {% endif %}
+            {% if empid %}
+            <a href="/leaderboard/participation" class="btn btn-default participation {% if sort == 'participation' %}selected{% endif %}">Participation</a>
+            <a href="/leaderboard/gc" class="btn btn-default gcommute {% if sort == 'gc' %}selected{% endif %}">Green commutes</a>
+            <a href="/leaderboard/gs" class="btn btn-default gswitch {% if sort == 'gs' %}selected{% endif %}">Green switches</a>
+            {% endif %}
+            </div>
+        </div>
+		</form>
     </div>
     <div class="row clearfix">
         <div class="col-md-12 column">
             <hr>
-            <h2 class="leaderboard">Rankings of companies of (this size, sector, group)</h2>
-            <p class="lead">Click on any company to generate details for that company.</p>
-        </div>
-    </div>
-    <div class="row clearfix">
-        <div class="col-md-2 col-md-offset-1 column stats"><a href="" class="participation">Participation</a>
-        </div>
-        <div class="col-md-2 column stats"><a href="" class="gcommute">Green commutes</a>
-        </div>
-        <div class="col-md-2 column stats"><a href="" class="gswitch selected">Green switches</a>
-        </div>
-        <div class="col-md-2 column stats"><a href="" class="co2">Carbon dioxide</a>
-        </div>
-        <div class="col-md-2 column stats"><a href="" class="calories">Calories burned</a>
+            <h2 class="leaderboard">Rankings within {{ emp_sector }}</h2>
+
+            <h1 class="leaderboard"><span class="
+                {% if sort == 'participation' %}participation{% endif %}{% if sort == 'gc' %}gcommute{% endif %}{% if sort == 'gs' %}gswitch{% endif %}">
+                {% if sort == 'participation' %}Participation{% endif %}{% if sort == 'gc' %}Green commutes{% endif %}{% if sort == 'gs' %}Green switches{% endif %}
+            </span></h1>
+                <hr>
         </div>
     </div>
 
-    <!-- participation info -->
-
-    <!-- green commutes info -->
-
-    <!-- green switches info -->
     <div class="row clearfix">
+
         <div class="col-md-4 column">
-            <div class="panel panel-default gswitchpanel">
-                <div class="panel-heading">
-                    <h3 class="panel-title">
-                        Green switches are made by commuters adding at least one new green mode of transportation to their commute. 
-                    </h3>
-                </div>
-                <div class="panel-body">
-                    Since April, the (24 companies) of (this size, sector, or group) have made (452 green switches) total!
-                </div>
+            {% if sort == 'participation' %}
+            <div class="panel participation">
+                <p>Participation counts! We measure participation both on absolute terms (number of people who check in) but also as a percentage of each company!</p>
+                <p>In <strong>{{ month }}</strong>, the <strong>{{ total_companies }}</strong> companies of <strong>{{ emp_sector }}</strong> have made <strong>{{ total }}  check ins!</strong></p>
             </div>
+            {% endif %}
+            {% if sort == 'gc' %}
+            <div class="panel gcommute">
+                <p>Green commutes make use of walking, biking, running, taking transit, or using alternative driving arrangements such as carpooling or carsharing.</p>
+                <p>In <strong>{{ month }}</strong>, the <strong>{{ total_companies }}</strong> companies of <strong>{{ emp_sector }}</strong> have made <strong>{{ total }} green commutes!</strong></p>
+            </div>
+            {% endif %}
+            {% if sort == 'gs' %}
+            <div class="panel gswitch">
+                <p>Green switches are made by commuters adding at least one new green mode of transportation to their commute.</p>
+                <p>In <strong>{{ month }}</strong>, the <strong>{{ total_companies }}</strong> companies of <strong>{{ emp_sector }}</strong> have made <strong>{{ total }} green switches!</strong></p>
+            </div>
+            {% endif %}
         </div>
         <div class="col-md-4 column">
-            <h3>Most green switches</h3><p class="ranksubtitle">Total</p>
+			{% if sort == 'participation' %}
+            <h3 class="ranktitle">Most participation</h3><p class="ranksubtitle">Total</p>
+			{% endif %}
+			{% if sort == 'gc' %}
+            <h3 class="ranktitle">Most green commutes</h3><p class="ranksubtitle">Total</p>
+			{% endif %}
+			{% if sort == 'gs' %}
+            <h3 class="ranktitle">Most green switches</h3><p class="ranksubtitle">Total</p>
+			{% endif %}
+
             <ol>
-                <li><a href="" class="company">Company</a> with (number)</li>
-                <li>Company with number</li>
-                <li>Company with number</li>
-                <li>Company with number</li>
-                <li>Company with number</li>
+				{% for rank in ranks %} 
+				{% if forloop.counter < 11 %}
+				<li><a class="company" href="/leaderboard/{{ rank.id }}/">{{ rank.name }}</a>: <b>{{rank.val}}</b></li> 
+				{% endif %}
+				{% endfor %}
             </ol>
         </div>
         <div class="col-md-4 column">
-            <h3>Most green switches</h3><p class="ranksubtitle">As a percentage of commutes</p>
+			{% if sort == 'participation' %}
+			<h3 class="ranktitle">Most participation</h3><p class="ranksubtitle">As a percentage of employees</p>
+			{% endif %}
+			{% if sort == 'gc' %}
+            <h3 class="ranktitle">Most green commutes</h3><p class="ranksubtitle">As a percentage of commutes</p>
+			{% endif %}
+			{% if sort == 'gs' %}
+            <h3 class="ranktitle">Most green switches</h3><p class="ranksubtitle">As a percentage of commutes</p>
+			{% endif %}
+
             <ol>
-                <li>Company with percent</li>
-                <li>Company with percent</li>
-                <li>Company with percent</li>
-                <li>Company with percent</li>
-                <li>Company with percent</li>
+				{% for rank in ranks_pct %} 
+				{% if forloop.counter < 11 %}
+				<li><a class="company" href="/leaderboard/{{rank.id }}/">{{ rank.name }}</a>: <b>{{rank.pct|floatformat}}%</b></li> 
+				{% endif %}
+				{% endfor %}
             </ol>
         </div>
     </div>
@@ -239,33 +340,33 @@
     <!-- calories info -->
 
 
-
+{% if empid != 0 %}
     <div class="row clearfix">
         <div class="col-md-12 column">
             <hr>
-            <h2 class="leaderboard">Details for (this company)</h2>
+            <h2 class="leaderboard">Details for {{ employer.name }}</h2>
             <p class="lead">Lots of details!</p>
         </div>
     </div>
 
 
     <div class="row clearfix">
-        <div class="col-md-2 column col-md-offset-1 summary participation">
+        <div class="col-md-4 column summary participation">
             <h4>Employee Participation</h4>
-            <p>(Number) check ins</p>
-            <p>(Percent) of employees</p>
+            <p>{{ ncommutes }} check ins</p>
+            <p>{{ participation|floatformat }}% of employees</p>
         </div>
-        <div class="col-md-2 column summary gcommute">
+        <div class="col-md-4 column summary gcommute">
             <h4>Green Commutes</h4>
-            <p>(Number) commutes</p>
-            <p>(Percent) of all commutes</p>
+            <p>{{ gc }} commutes</p>
+            <p>{{ gc_pct|floatformat }}% of all checkins</p>
         </div>
-        <div class="col-md-2 column summary gswitch">
+        <div class="col-md-4 column summary gswitch">
             <h4>Green Switches</h4>
-            <p>(Number) switches</p>
-            <p>(Percent) of all commutes</p>
+            <p>{{ gs }} switches</p>
+            <p>{{ gs_pct|floatformat }}% of all checkins</p>
         </div>
-        <div class="col-md-2 column summary co2">
+       <!--  <div class="col-md-2 column summary co2">
             <h4>Carbon Dioxide</h4>
             <p>(Number) tons saved</p>
             <p>(Number unit) per employee</p>
@@ -274,7 +375,7 @@
             <h4>Calories Burned</h4>
             <p>(Number) burned</p>
             <p>(Number unit) per employee</p>
-        </div>
+        </div> -->
 
     </div>
 
@@ -291,23 +392,23 @@
                 </tr>
                 <tr>
                     <td><div class="gc text-right">Commutes:</div></td>
-                    <td class="gc" id="total_checkins">0</td>
+                    <td class="gc" id="total_checkins">{{ ncommutes }}</td>
                 </tr>
                 <tr>
                     <td><div class="text-right">Green Switches:</div></td>
-                    <td class="gstd" id="total_gs">0</td>
+                    <td class="gstd" id="total_gs">{{ gs }}</td>
                 </tr>
                 <tr>
                     <td><div class="text-right">Green Commutes:</div></td>
-                    <td class="gctd" id="total_gc">0</td>
+                    <td class="gctd" id="total_gc">{{ gc }}</td>
                 </tr>
                 <tr>
                     <td><div class="text-right">Car Commutes:</div></td>
-                    <td class="cctd" id="total_cc">0</td>
+                    <td class="cctd" id="total_cc">{{ cc }}</td>
                 </tr>
                 <tr>
                     <td><div class="text-right">Other:</div></td>
-                    <td class="ustd" id="total_us">0</td>
+                    <td class="ustd" id="total_us">{{ other }}</td>
                 </tr>
             </table>
             </div>
@@ -325,6 +426,7 @@
             <div>
             <h3>Switches made on Walk/Ride Day</h3>
             <div class="table-responsive">
+                <p class="lead">Calculated using the longest legs of each commute.</p>
             <table class="table table-borderless table-hover">
             <tr>
                 <th></th><th></th><th colspan="10"><h4>Modes taken on a normal day</h4></th>
@@ -344,132 +446,121 @@
             <tr>
                 <th rowspan="10"><div class="matrixWRlabel"><h4>Walk/Ride Day</h4></div></th>
                 <td><p class="mode"><img src="/static/img/car-24.png" height="32" width="32" class="img-circle" title="Driving a personal car on Walk-Ride days"></img><br>Car</p></td>
-                <td class='cctd'>0</td>
-                <td class='ustd'>0</td>
-                <td class='ustd'>0</td>
-                <td class='ustd'>0</td>
-                <td class='ustd'>0</td>
-                <td class='ustd'>0</td>
-                <td class='ustd'>0</td>
-                <td class='ustd'>0</td>
-                <td class='ustd'>0</td>
+                <td class='cctd'>{{ m.c.c }}</td>
+                <td class='ustd'>{{ m.c.dalt }}</td>
+                <td class='ustd'>{{ m.c.cp }}</td>
+                <td class='ustd'>{{ m.c.w }}</td>
+                <td class='ustd'>{{ m.c.r }}</td>
+                <td class='ustd'>{{ m.c.b }}</td>
+                <td class='ustd'>{{ m.c.t }}</td>
+                <td class='ustd'>{{ m.c.tc }}</td>
+                <td class='ustd'>{{ m.c.o }}</td>
             </tr>
             <tr>
                 <td><p class="mode"><img src="/static/img/car-24.png" height="32" width="32" class="img-circle" title="Car (alternative vehicle) on Walk-Ride days"></img><br>Car (alt.)</p></td>
-                <td class='gstd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='ustd'>0</td>
+                <td class='gstd'>{{ m.dalt.c }}</td>
+                <td class='gctd'>{{ m.dalt.dalt }}</td>
+                <td class='gctd'>{{ m.dalt.cp }}</td>
+                <td class='gctd'>{{ m.dalt.w }}</td>
+                <td class='gctd'>{{ m.dalt.r }}</td>
+                <td class='gctd'>{{ m.dalt.b }}</td>
+                <td class='gctd'>{{ m.dalt.t }}</td>
+                <td class='gctd'>{{ m.dalt.tc }}</td>
+                <td class='ustd'>{{ m.dalt.o }}</td>
             </tr>
             <tr>
                 <td><p class="mode"><img src="/static/img/car-24.png" height="32" width="32" class="img-circle" title="Carpooling on Walk-Ride days"></img><br>Carpool</p></td>
-                <td class='gstd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='ustd'>0</td>
+                <td class='gstd'>{{ m.cp.c }}</td>
+                <td class='gctd'>{{ m.cp.dalt }}</td>
+                <td class='gctd'>{{ m.cp.cp }}</td>
+                <td class='gctd'>{{ m.cp.w }}</td>
+                <td class='gctd'>{{ m.cp.r }}</td>
+                <td class='gctd'>{{ m.cp.b }}</td>
+                <td class='gctd'>{{ m.cp.t }}</td>
+                <td class='gctd'>{{ m.cp.tc }}</td>
+                <td class='ustd'>{{ m.cp.o }}</td>
             </tr>
             <tr>
                 <td><p class="mode"><img src="/static/img/school-24.png" height="32" width="32" class="img-circle" title="Walking on Walk-Ride days"></img><br>Walk</p></td>
-                <td class='gstd'>0</td>
-                <td class='gstd'>0</td>
-                <td class='gstd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gstd'>0</td>
-                <td class='gstd'>0</td>
-                <td class='ustd'>0</td>
+                <td class='gstd'>{{ m.w.c }}</td>
+                <td class='gstd'>{{ m.w.dalt }}</td>
+                <td class='gstd'>{{ m.w.cp }}</td>
+                <td class='gctd'>{{ m.w.w }}</td>
+                <td class='gctd'>{{ m.w.r }}</td>
+                <td class='gctd'>{{ m.w.b }}</td>
+                <td class='gstd'>{{ m.w.t }}</td>
+                <td class='gstd'>{{ m.w.tc }}</td>
+                <td class='ustd'>{{ m.w.o }}</td>
             </tr>
             <tr>
                 <td><p class="mode"><img src="/static/img/pitch-24.png" height="32" width="32" class="img-circle" title="Running on Walk-Ride days"></img><br>Run</p></td>
-                <td class='gstd'>0</td>
-                <td class='gstd'>0</td>
-                <td class='gstd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gstd'>0</td>
-                <td class='gstd'>0</td>
-                <td class='ustd'>0</td>
+                <td class='gstd'>{{ m.r.c }}</td>
+                <td class='gstd'>{{ m.r.dalt }}</td>
+                <td class='gstd'>{{ m.r.cp }}</td>
+                <td class='gctd'>{{ m.r.w }}</td>
+                <td class='gctd'>{{ m.r.r }}</td>
+                <td class='gctd'>{{ m.r.b }}</td>
+                <td class='gstd'>{{ m.r.t }}</td>
+                <td class='gstd'>{{ m.r.tc }}</td>
+                <td class='ustd'>{{ m.r.o }}</td>
             </tr>
             <tr>
                 <td><p class="mode"><img src="/static/img/bicycle-24.png" height="32" width="32" class="img-circle" title="Biking on Walk-Ride days"></img><br>Bike</p></td>
-                <td class='gstd'>0</td>
-                <td class='gstd'>0</td>
-                <td class='gstd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gstd'>0</td>
-                <td class='gstd'>0</td>
-                <td class='ustd'>0</td>
+                <td class='gstd'>{{ m.b.c }}</td>
+                <td class='gstd'>{{ m.b.dalt }}</td>
+                <td class='gstd'>{{ m.b.cp }}</td>
+                <td class='gctd'>{{ m.b.w }}</td>
+                <td class='gctd'>{{ m.b.r }}</td>
+                <td class='gctd'>{{ m.b.b }}</td>
+                <td class='gstd'>{{ m.b.t }}</td>
+                <td class='gstd'>{{ m.b.tc }}</td>
+                <td class='ustd'>{{ m.b.o }}</td>
             </tr>
             <tr>
                 <td><p class="mode"><img src="/static/img/rail-24.png" height="32" width="32" class="img-circle" title="Taking public transit on Walk-Ride days"></img><br>Transit</p></td>
-                <td class='gstd'>0</td>
-                <td class='gstd'>0</td>
-                <td class='gstd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='ustd'>0</td>
+                <td class='gstd'>{{ m.t.c }}</td>
+                <td class='gstd'>{{ m.t.dalt }}</td>
+                <td class='gstd'>{{ m.t.cp }}</td>
+                <td class='gctd'>{{ m.t.w }}</td>
+                <td class='gctd'>{{ m.t.r }}</td>
+                <td class='gctd'>{{ m.t.b }}</td>
+                <td class='gctd'>{{ m.t.t }}</td>
+                <td class='gctd'>{{ m.t.tc }}</td>
+                <td class='ustd'>{{ m.t.o }}</td>
             </tr>
             <tr>
                 <td><p class="mode"><img src="/static/img/warehouse-24.png" height="32" width="32" class="img-circle" title="Telecommuting on Walk-Ride days"></img><br>Telecommute</p></td>
-                <td class='gstd'>0</td>
-                <td class='gstd'>0</td>
-                <td class='gstd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='gstd'>0</td>
-                <td class='gctd'>0</td>
-                <td class='ustd'>0</td>
+                <td class='gstd'>{{ m.tc.c }}</td>
+                <td class='gstd'>{{ m.tc.dalt }}</td>
+                <td class='gstd'>{{ m.tc.cp }}</td>
+                <td class='gctd'>{{ m.tc.w }}</td>
+                <td class='gctd'>{{ m.tc.r }}</td>
+                <td class='gctd'>{{ m.tc.b }}</td>
+                <td class='gstd'>{{ m.tc.t }}</td>
+                <td class='gctd'>{{ m.tc.tc }}</td>
+                <td class='ustd'>{{ m.tc.o }}</td>
             </tr>
             <tr>
                 <td><p class="mode"><img src="/static/img/scooter-24.png" height="32" width="32" class="img-circle" title="Other transportation on Walk-Ride days"></img><br>Other</p></td>
-                <td class='ustd'>0</td>
-                <td class='ustd'>0</td>
-                <td class='ustd'>0</td>
-                <td class='ustd'>0</td>
-                <td class='ustd'>0</td>
-                <td class='ustd'>0</td>
-                <td class='ustd'>0</td>
-                <td class='ustd'>0</td>
-                <td class='ustd'>0</td>
+                <td class='ustd'>{{ m.o.c }}</td>
+                <td class='ustd'>{{ m.o.dalt }}</td>
+                <td class='ustd'>{{ m.o.cp }}</td>
+                <td class='ustd'>{{ m.o.w }}</td>
+                <td class='ustd'>{{ m.o.r }}</td>
+                <td class='ustd'>{{ m.o.b }}</td>
+                <td class='ustd'>{{ m.o.t }}</td>
+                <td class='ustd'>{{ m.o.tc }}</td>
+                <td class='ustd'>{{ m.o.o }}</td>
             </tr>
             </table></div>
             </div>
         </div>
     </div>
 </div>
-<div class="row">
-	<div class="col-md-8 col-md-offset-2 column">
-		<hr />
-		<p><center>
-			Tip: Do not hit the back button on your browser &rarr; it distorts the data. Please use the dropdown menus instead. <br />
-			If problem persists, refresh the page.
-		</p></center>
-	</div>
-</div>
 
-
-<script>$(document).ready(function () {
-    $('.matrixWRlabel').css('height', $('.matrixWRlabel').width());
-});</script>
+{% endif %}
 
 
 {% endblock %}
+
 

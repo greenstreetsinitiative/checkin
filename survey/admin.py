@@ -7,8 +7,7 @@ from django.db.models import Sum, Count
 
 from django.forms import ModelForm
 
-from survey.models import Commutersurvey, Employer, EmplSector, EmplSizeCategory, Leg
-from leaderboard.models import Month
+from survey.models import Commutersurvey, Employer, EmplSector, EmplSizeCategory, Leg, Month
 # from django.contrib import admin
 from django.contrib.gis import admin
 
@@ -70,26 +69,24 @@ class EmployerSectorAdmin(admin.ModelAdmin):
 class CommutersurveyAdmin(admin.OSMGeoAdmin):
     fieldsets = [
         (None, 
-            {'fields': ['month', 'name', 'email', 'employer', 'newsletter']}),
+            {'fields': ['month', 'name', 'email', 'employer']}),
         ('Commute', 
-            {'fields': ['home_address', 'work_address', 'legs', ]}),
+            {'fields': ['home_address', 'work_address', ]}),
         ('Maps',
             {'fields': ['geom', ]}),
         ('Meta',
             {'fields': ['ip']}),
     ]
-    list_display = ('month', 'email', 'employer', 'home_address', 'work_address', 'to_work_switch', 'from_work_switch', 'to_work_today', 'from_work_today', 'to_work_normally', 'from_work_normally')
+    list_display = ('month', 'email', 'employer', 'home_address', 'work_address', )
     list_display_links = ['email']
     list_editable = ['employer']
-    list_filter = ['month', 'to_work_today', 'from_work_today', 'to_work_normally', 'from_work_normally']
+    list_filter = ['month', ]
     search_fields = ['name', 'employer']
     actions = [export_as_csv]
 
 class MonthsAdmin(admin.ModelAdmin):
-    search_fields = ['month']
-    list_display_links = ['id']
-    list_display = ['id', 'month', 'url_month', 'short_name', 'active']
-    list_editable = ['month', 'url_month', 'short_name', 'active']
+    list_display = ['id', 'wr_day', 'open_checkin', 'close_checkin', 'active', 'url_month', 'short_name']
+    list_editable = ['wr_day', 'open_checkin', 'close_checkin', 'active']
     actions = [export_as_csv]
 
 

@@ -1,6 +1,23 @@
-h1,h2,legend {
+p {
+  font-family:aleoregular;
+}
+
+h1,h2,h3,legend {
   text-transform: uppercase;
   font-weight:bold;
+  font-family: aleobold;
+}
+
+strong {
+  font-family:aleobold;
+}
+
+em {
+  font-family:aleoitalic;
+}
+
+strong > em, em > strong {
+  font-family:aleobolditalic;
 }
 
 h3,h4,h5,h6 {
@@ -12,6 +29,11 @@ legend {
   padding:4px;
   padding-left:6px;
   border-bottom: 2px solid #5f9aa7;
+}
+
+label {
+  font-family: aleoitalic;
+  font-size: 16px;
 }
 
 .greenimpact {
@@ -47,52 +69,73 @@ a, a:hover {
 
 h2.leaderboard {
   text-transform: none;
+  text-align: center;
+  letter-spacing: -1px;
+  font-family: aleoitalic;
+  margin-bottom:0px;
 }
 
-.stats {
-  font-size:12pt;
-  font-weight:normal;
-  text-align:center;
-  line-height:1.1;
-  padding-top:20px;
-  padding-bottom:20px;
+h1.leaderboard {
+  margin-top:0px;
   margin-bottom:20px;
-  background:#eaeaea;
+  text-align: center;
+  font-family: aleobold;
 }
 
-a.selected {
-  font-size:16pt;
-  font-weight:bold;
+h3.leaderboard {
+  font-family:aleobold;
+}
+
+.panel p {
+  font-size: 16px;
+  line-height: 1.2;
+  font-family:aleolight;
+}
+
+.panel {
+  margin:10px;
+  padding:20px;
+}
+
+.top {
+  margin-bottom: 0;
+  padding: 0;
 }
 
 .participation, a:link.participation, a:visited.participation {
- color: orange;
+ color: #b60;
 }
 
 .gcommute, a:link.gcommute, a:visited.gcommute {
- color: green;
+ color: #0c3;
 }
 
 .gswitch, a:link.gswitch, a:visited.gswitch {
- color: blue;
+ color: #04c;
 }
 
 .co2, a:link.co2, a:visited.co2 {
- color: brown;
+ color: #530;
 }
 
 .calories, a:link.calories, a:visited.calories {
- color: purple;
+ color: #b0c;
 }
 
 a.company {
-  color:magenta;
+  color:red;
+}
+
+.ranktitle {
+  font-family: aleobolditalic;
+  letter-spacing: -1px;
 }
 
 .ranksubtitle {
-  line-height:1.1;
-  font-size: 12pt;
+  line-height:1.0;
+  font-size: 14pt;
   margin-top:-6px;
+  font-family:aleolightitalic;
 }
 
 .labelHeader {
@@ -129,18 +172,6 @@ a.company {
   text-align:center;
   line-height:1;
   margin:0px;
-}
-
-.filters {
-  background-color:#efde99;
-  padding:10px;
-}
-
-.filteroptions {
-  float: none;
-  height: 65px;
-  display: table-cell !important;
-  vertical-align: bottom;
 }
 
 .matrixWRlabel {
@@ -185,11 +216,27 @@ a.company {
 
 }
 
-div.participation {background-color: moccasin;}
-div.gcommute {background-color: lightgreen;}
-div.gswitch {background-color: lightskyblue;}
-div.co2 {background-color: rosybrown;}
-div.calories {background-color: plum;}
+div.participation {background-color: #fec;}
+div.gcommute {background-color: #cfd;}
+div.gswitch {background-color: #cef;}
+div.co2 {background-color: #fdc;}
+div.calories {background-color: #ecf;}
+
+/*Leaderboard controls*/
+
+.lbcontrols {
+  background: #B6C1B2;
+  font-family: aleoregular;
+  padding:10px;
+  padding-bottom:15px;
+}
+
+.selected {
+  font-family: aleobold;
+  font-weight: bold;
+  outline: 5px solid #5cb85c;
+  z-index:10;
+}
 
 
 /* Topnav budget numbers
@@ -295,12 +342,10 @@ fieldset.studentgroup {
   font-size: 1.2em;
 }
 
-#commute-distance {
-  font-size: 24px;
-  font-weight: normal;
-  text-align: center;
+#commute-distance, #commute-distance2, #commute-distance3 {
+  font-weight:normal;
   margin: 10px auto;
-  padding: 8px;
+  padding: 5px;
 }
 
 .leg {

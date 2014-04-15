@@ -30,6 +30,9 @@ else:
     DB_HOST = os. environ['DB_HOST']
     DB_PORT = os.environ['DB_PORT']
 
+# Mandrill (https://mandrillapp.com/) is used to email checkin confirmations
+MANDRILL_API_KEY = os.environ['MANDRILL_API_KEY']
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
 
