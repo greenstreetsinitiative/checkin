@@ -82,6 +82,17 @@
     <!-- JavaScripts -->
     <script src="/static/libs/jquery-1.11.0.min.js" type="text/javascript"></script>
 
+    <script type="text/javascript">
+      var today = new Date();
+      var checkinDay = new Date(2014, 3, 21); //April 21, 2014
+      var trailtext = '';
+      var testelement = document.getElementById('test');
+      if(today < checkinDay) {
+        trailtext = "This is a test version. Check ins submitted before April 21 will not count towards the Challenge.";
+        testelement.innerHTML = trailtext;
+        testelement.className = "alert alert-warning"; }
+    </script>
+
     {% block javascript %}{% endblock %}
 
 </body></html>

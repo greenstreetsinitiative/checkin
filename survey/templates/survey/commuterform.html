@@ -15,6 +15,15 @@
 
 <script src="{% static 'js/form.js' %}" type="text/javascript"></script>
 
+<script type="text/javascript">
+  var today = new Date();
+  var checkinDay = new Date(2014, 3, 21); //April 21, 2014
+  var trailtext = '';
+  if(today < checkinDay) 
+    trailtext = "This is a test version. Check ins submitted before April 21 will not count towards the Challenge.";
+    $('.test').append(trailtext);
+</script>
+
 {% endblock %}
 
 {% block body %}
@@ -22,6 +31,7 @@
 <section>
   <center>
     <h1>Walk/Ride Day Check-In</h1>
+    <div id="test"></div>
     <h2>{{ wr_day }}</h2>
     <p class="lead">Check in on the last Friday of every month. The Corporate Challenge takes place April through October.</p></center>
 
