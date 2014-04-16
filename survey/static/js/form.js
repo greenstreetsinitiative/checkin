@@ -472,6 +472,9 @@ $(function() {
   // remove empty values (problems with server side validation)
   // and stringify JSON objects
   function djangofy(data) {
+    // FIXME: add better cleanup function
+    delete data['home_location'];
+    delete data['work_location'];
     $.each(data, function(k,v) {
       if (!v) delete data[k];
       if (typeof v === 'object') {
