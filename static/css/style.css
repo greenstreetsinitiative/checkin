@@ -2,6 +2,11 @@ p {
   font-family:aleoregular;
 }
 
+p.wrday {
+  margin: 30px;
+  font-size:26px;
+}
+
 h1,h2,h3,legend {
   text-transform: uppercase;
   font-weight:bold;
