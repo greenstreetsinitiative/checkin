@@ -15,90 +15,31 @@
 
 <script src="{% static 'js/form.js' %}" type="text/javascript"></script>
 
-<script type="text/javascript">
-function getLastFriday(someDate) {
-    var curMonth = someDate.month();
-    someDate.date(1);
-    while (someDate.month() == curMonth) {
-        someDate.day(12);
-    }
-    someDate.day(-2);
-    return someDate;
-}
-$(document).ready(function() {
-
-    
-    var work = new google.maps.LatLng(42.37, -71.08);
-    var home = new google.maps.LatLng(42.36, -71.10);
-
-    // dropdown for current +2 months selectable W/R Days
-	/*
-	 *THIS NEXT VARIABLE DETERMINES THE DAY OF THE WEEK FOR THE DEADLINE
-	 *IT MUST BE AN INTEGER FROM 1 TO 7 CORRESPONDING TO THE DAYS OF THE WEEK FROM MONDAY TO SUNDAY
-	 *THIS IS THE NUMBER TO CHANGE
-     *		                |
-     *					   \ /   */
-	var deadlineDayOfWeek = 1;
-	/*
-	 * DO NOT CHANGE THE NEXT PART
-	 */
-    
-    var prevDeadline = getLastFriday(moment().subtract('months', 1)).day(deadlineDayOfWeek + 7); //gets the monday after the walk ride day of last month
-    var curDeadline = getLastFriday(moment()).day(deadlineDayOfWeek + 7);
-    var nextDeadline = getLastFriday(moment().add('months', 1)).day(deadlineDayOfWeek + 7);
-    if (moment().unix() <= prevDeadline.unix()) { //if today is before the deadline for last month's walk-ride
-        startPos = -1;    
-    }
-    else if (moment().unix() <= curDeadline.unix()) { //if today is before the deadline for this month's walk-ride
-        startPos = 0;
-    }
-    else if (moment().unix() <= nextDeadline.unix()) {
-        startPos = 1;
-    }
-    for (var i=startPos; i<(startPos + 3); i++) {
-        var month = moment().add('months', i);
-        var friday = getLastFriday(month).format('MMMM DD, YYYY');
-        $("#id_month").append("<option value='" + month.format('MMMM YYYY') + "'>" + friday + "</option>");
-    }
-
-
-});
-
-</script>
-
-
 {% endblock %}
-
-
-    
-
 
 {% block body %}
 
 <section>
   <center>
-    <h1>Walk/Ride Day Check-In Form</h1>
+    <h1>Walk/Ride Day {{ wr_day }} Checkin</h1>
     <p class="lead">Check in on the last Friday of every month. The Corporate Challenge takes place April through October.</p></center>
 
       <form id="surveyform" role="form" class="form-horizontal">
 
         {% csrf_token %}
 
+        <input type="hidden" id="wr_day_month" name="wr_day_month" value="{{ wr_day.id }}">
+
         <hr>
+               
+         <div class="form-group">
+            <div class="col-sm-12">
+
         <p>Green Streets Initiative will not share identifying information with any organization, other than with your employer, if your workplace is participating in the Challenge. 
          <label class="checkbox">
          <input type="checkbox" id="share">Please do not share my identifying information with my employer</label></p>
-    <hr>
-               
-         <div class="form-group">
-             
-             <div class="col-sm-12">
-             
-            <!-- FIXME: render from Month model class -->
 
-             <select id="wr_day_month" name="wr_day_month" class="form-control"><option value="" selected="">Please verify your check-in date</option><option value="28">April 25, 2014</option><option value="May 2014">May 30, 2014</option><option value="June 2014">June 27, 2014</option><option value="July 2014">July 25, 2014</option><option value="August 2014">August 29, 2014</option><option value="September 2014">September 26, 2014</option><option value="October 2014">October 31, 2014</option></select>
-             <span class="help-block"><strong>Next Walk/Ride Day: April 25, 2014.</strong> Check ins will be accepted Monday, April 21 through Monday April 28, 2014. Walk/Ride Day is the last Friday of every month. If that Friday is impossible for you, you may substitute another day in the same week.</span>
-             </div>
+            </div>
          </div>
             
     <!-- 1 tell us about yourself -->
@@ -108,21 +49,21 @@ $(document).ready(function() {
         <legend>About you</legend>
         
         <div class="form-group">
-          <label class="control-label col-sm-3" for="name">Your name</label>
-          <div class="col-sm-9">
+          <label class="control-label col-sm-3 col-xs-2" for="name">Your name</label>
+          <div class="col-sm-9 col-xs-10">
             <input id="name"  class="form-control" maxlength="50" name="name" type="text" >
           </div>
         </div>
         <div class="form-group">
-          <label class="control-label col-sm-3" for="email">Your email</label>
-          <div class="col-sm-9">
+          <label class="control-label col-sm-3 col-xs-2" for="email">Your email</label>
+          <div class="col-sm-9 col-xs-10">
             <input id="email"  class="form-control" maxlength="75" name="email" type="email">
             <span class="help-block"><span class="required">Required: </span>please use your work email if your employer is part of the Walk/Ride Day Challenge</span>
           </div>
         </div>
         <div class="form-group">
-          <label class="control-label col-sm-3">Your employer's name</label>
-          <div class="col-sm-9">
+          <label class="control-label col-sm-3 col-xs-2">Your employer's name</label>
+          <div class="col-sm-9 col-xs-10">
             <select class="form-control" id="employer" name="employer">
               <option value="1105" selected>Other employer (not registered in Challenge)</option>
               <option value="1155">Self</option>
@@ -141,7 +82,7 @@ $(document).ready(function() {
 
         <div class="form-group">
           <label class="control-label col-sm-3" for="home_address">Starting location</label>
-          <div class="col-sm-7">
+          <div class="col-sm-7 col-xs-10">
             <input type="text" class="form-control address" id="home_address" name="home_address" placeholder="1 Main St, Boston, MA 02111">
             <span class="help-block"><span class="required">Required: </span> where does your commute to work begin?</span>
           </div>
@@ -152,7 +93,7 @@ $(document).ready(function() {
         
         <div class="form-group">
           <label class="control-label col-sm-3" for="work_address">Work location</label>
-          <div class="col-sm-7">
+          <div class="col-sm-7 col-xs-10">
             <input type="text" class="form-control address" id="work_address" name="work_address" placeholder="100 Main St, Boston, MA 02111">
             <span class="help-block"><span class="required">Required: </span>what is the address where you work/worked today? If you telecommuted today, please enter the work address where you most often work when you don't telecommute.</span>
           </div>
@@ -161,13 +102,20 @@ $(document).ready(function() {
           </div>
         </div>
        
-        <label class="control-label col-sm-3">Your Commute (examples) <div id="commute-distance"></div><div id="commute-distance2"></div><div id="commute-distance3"></div></label>
+        <div class="form-group">       
+          <label class="control-label  col-sm-3 col-xs-12">Your Commute (examples)
+          <p class="commuteexamples"><strong>For illustrative purposes only.</strong> These routes are automatically generated from your locations using Google after you click 'Locate'.</p> 
+            <div id="commute-distance" class="col-sm-12 col-xs-3"></div>
+            <div id="commute-distance3" class="col-sm-12 col-xs-3"></div>
+            <div id="commute-distance2" class="col-sm-12 col-xs-3"></div>
+          </label>
+          
         <div id="map-canvas" class="col-sm-9"></div>
-                
-        {{ surveyform.home_location }}
-        {{ surveyform.work_location }}
-        {{ surveyform.distance }}
-        {{ surveyform.duration }}  
+          </div>          
+          {{ surveyform.home_location }}
+          {{ surveyform.work_location }}
+          {{ surveyform.distance }}
+          {{ surveyform.duration }}  
 
       </fieldset>
         
@@ -223,23 +171,24 @@ $(document).ready(function() {
         </div>
         
         <!-- end picking modes of transport -->
-        <hr>
+        <hr class="lite">
 
         <h4>Returning to home from work</h4>
         
         <div class="form-group">
-          <div class="col-sm-3"><label>Did you commute the same way away from work on Walk/Ride Day?</label></div>
+          <div class="col-sm-6"><label>Did you commute the same way away from work on Walk/Ride Day?</label></div>
           <div class="col-sm-6">
-            <label class="checkbox">
+            <label class="checkbox-inline">
               <input type="radio" name="w-from-work-legs" class="morelegs yes" checked> Yes
             </label>
-            <label class="checkbox">
+            <label class="checkbox-inline">
               <input type="radio" name="w-from-work-legs" class="morelegs"> No
             </label>
           </div>
         </div>
-        
+
         <div class="hidden-legs">
+          <hr class="lite">
           <div id="w-from-work-legs">
           
             <div class="form-group leg">
@@ -297,21 +246,21 @@ $(document).ready(function() {
         <legend>Your normal commute</legend>
 
         <h4>Commuting from home to work</h4>
-        
+
         <div class="form-group">
-            <div class="col-sm-3"><label>Do you normally commute TO work the same way you did on Walk/Ride Day?</label></div>
+            <div class="col-sm-6"><label>Do you normally commute TO work the same way you did on Walk/Ride Day?</label><span class="help-block">Imagine 'normally' to refer to how you would commute this day if it were not Walk/Ride Day.</span></div>
             <div class="col-sm-6">
-            <label class="checkbox">
+            <label class="checkbox-inline">
                 <input type="radio" name="n-to-work-legs" class="morelegs yes" checked> Yes
             </label>
-            <label class="checkbox">
+            <label class="checkbox-inline">
                 <input type="radio" name="n-to-work-legs" class="morelegs"> No
             </label></div>
         </div>
 
-
+        
         <div class="hidden-legs">
-
+          <hr class="lite">
             <div id="n-to-work-legs">
             
                 <div class=" form-group leg">
@@ -360,18 +309,19 @@ $(document).ready(function() {
         <h4>Returning to home from work</h4>
         
         <div class="form-group">
-            <div class="col-sm-3"><label>Do you normally commute FROM work the same way you normally commute TO work?</label></div>
+            <div class="col-sm-6"><label>Do you normally commute FROM work the same way you normally commute TO work?</label></div>
             <div class="col-sm-6">
-            <label class="checkbox">
+            <label class="checkbox-inline">
             <input type="radio" name="n-from-work-legs" class="morelegs yes" checked> Yes
             </label>
-            <label class="checkbox">
+            <label class="checkbox-inline">
             <input type="radio" name="n-from-work-legs" class="morelegs"> No
             </label></div>
         </div>
 
 
         <div class="hidden-legs">
+          <hr class="lite">
         <div id="n-from-work-legs">
             
                 <div class=" form-group leg">
@@ -426,7 +376,7 @@ $(document).ready(function() {
             <legend class="greenimpact">Optional: See the impact you had today</legend>
            
             <p class="lead">These calculators are conceptual only, and refer only to the longest leg of your commute. Please ignore them if they don't reflect your situation or provide appropriate information.</p>
-            <hr>
+            <hr class="lite">
 
         
             <div class="form-group">
@@ -439,7 +389,7 @@ $(document).ready(function() {
 
             </div>
 
-       <hr>
+            <hr class="lite">
         
             <div class="form-group">
             
@@ -472,11 +422,10 @@ $(document).ready(function() {
             <!-- begin extra questions -->
             <hr>
             <fieldset id="optional-questions">
-        
             <legend>Additional questions</legend>
 
             <p>We are committed to ensuring your privacy. We will never share the information you gave us during the check-in above with anyone other than your employer, if you chose to allow this. We will not share your individual answers to the optional questions below with anyone, including your employer. We may publish reports or send data to your employer on the cumulative data that we collect below, however we will never share your name or any characteristics which might be used to identify you.</p>
-            <hr>
+            <hr class="lite">
             <div class="form-group">
               <div class="col-sm-3">
                 <label>In general, how would you describe your health?</label>
@@ -492,12 +441,12 @@ $(document).ready(function() {
               </div> 
             </div>
 
-            <hr>
+            <hr class="lite">
             <div class="form-group">
                 <div class="col-sm-3">
                   <label>Optional details about you</label>
                 </div>
-                <div class="col-sm-3">
+                <div class="col-sm-3 col-xs-4">
 <!--                   <p>My gender is:</p> -->
                   <div class="radio">
                     <label>
@@ -515,14 +464,14 @@ $(document).ready(function() {
                     </label>
                   </div>
                 </div>
-                <div class="col-sm-3">
+                <div class="col-sm-3 col-xs-4">
                   <p>My weight is: <input id="weight" type="number" class="form-control" placeholder="Weight in lbs"></p>
                 </div>
-                <div class="col-sm-3">
+                <div class="col-sm-3 col-xs-4">
                   <p>My height is: <input id="height" type="number" class="form-control" placeholder="Height in ft"></p>
                 </div>
             </div>
-            <hr>
+            <hr class="lite">
             <div class="form-group">
                 <div class="col-sm-3">
                   <label>INCLUDING Walk/Ride Day, how many days in the last week did you commute TO work via:</label>
@@ -531,54 +480,54 @@ $(document).ready(function() {
                 <div class="col-sm-9">
 
                 <div class="col-sm-9">
-                  <div class="col-sm-3"><input type="number" id="cdays" class="form-control" placeholder="0"></div>
+                  <div class="col-sm-3 col-xs-3"><input type="number" id="cdays" class="form-control" placeholder="0"></div>
                   <div><p>Driving alone</p></div>
                 </div>
                 
                 <div class="col-sm-9">
-                  <div class="col-sm-3"><input type="number" id="caltdays" class="form-control" placeholder="0"></div>
+                  <div class="col-sm-3 col-xs-3"><input type="number" id="caltdays" class="form-control" placeholder="0"></div>
                   <div><p>Driving alone, alternative vehicle (including taxi, hybrid, car share, motorcycle, etc)</p></div>
                 </div>
                 
                 <div class="col-sm-9">
-                  <div class="col-sm-3"><input type="number" id="cpdays" class="form-control" placeholder="0"></div>
+                  <div class="col-sm-3 col-xs-3"><input type="number" id="cpdays" class="form-control" placeholder="0"></div>
                   <div><p>Carpool</p></div>
                 </div>
                 
                 <div class="col-sm-9">
-                  <div class="col-sm-3"><input type="number" id="tdays" class="form-control" placeholder="0"> </div>
+                  <div class="col-sm-3 col-xs-3"><input type="number" id="tdays" class="form-control" placeholder="0"> </div>
                   <div><p>Transit</p></div>
                 </div>
                 
                 <div class="col-sm-9">
-                  <div class="col-sm-3"><input type="number" id="bdays" class="form-control" placeholder="0"> </div>
+                  <div class="col-sm-3 col-xs-3"><input type="number" id="bdays" class="form-control" placeholder="0"> </div>
                   <div><p>Bike</p></div>
                 </div>
                 
                 <div class="col-sm-9">
-                  <div class="col-sm-3"><input type="number" id="rdays" class="form-control" placeholder="0"> </div>
+                  <div class="col-sm-3 col-xs-3"><input type="number" id="rdays" class="form-control" placeholder="0"> </div>
                   <div><p>Jog/Run</p></div>
                 </div>
                 
                 <div class="col-sm-9">
-                  <div class="col-sm-3"><input type="number" id="wdays" class="form-control" placeholder="0"> </div>
+                  <div class="col-sm-3 col-xs-3"><input type="number" id="wdays" class="form-control" placeholder="0"> </div>
                   <div><p>Walk</p></div>
                 </div>
                 
                 <div class="col-sm-9">  
-                  <div class="col-sm-3"><input type="number" id="odays" class="form-control" placeholder="0"> </div>
+                  <div class="col-sm-3 col-xs-3"><input type="number" id="odays" class="form-control" placeholder="0"> </div>
                   <div><p>Other (roller blade, scooter, kayak, etc.)</p></div>
                 </div>
                 
                 <div class="col-sm-9">
-                  <div class="col-sm-3"><input type="number" id="tcdays" class="form-control" placeholder="0"></div>
+                  <div class="col-sm-3 col-xs-3"><input type="number" id="tcdays" class="form-control" placeholder="0"></div>
                   <div><p>Telecommute</p></div>
                 </div>
 
               </div>
             </div>
             
-            <hr>
+            <hr class="lite">
             
             <div class="form-group">
               <div class="col-sm-3">
@@ -606,53 +555,53 @@ $(document).ready(function() {
                 <div class="col-sm-9">
 
                 <div class="col-sm-9">
-                  <div class="col-sm-3"><input type="number" id="cdaysaway" class="form-control" placeholder="0"></div>
+                  <div class="col-sm-3 col-xs-3"><input type="number" id="cdaysaway" class="form-control" placeholder="0"></div>
                   <div><p>Driving alone</p></div>
                 </div>
                 
                 <div class="col-sm-9">
-                  <div class="col-sm-3"><input type="number" id="caltdaysaway" class="form-control" placeholder="0"></div>
+                  <div class="col-sm-3 col-xs-3"><input type="number" id="caltdaysaway" class="form-control" placeholder="0"></div>
                   <div><p>Driving alone, alternative vehicle (including taxi, hybrid, car share, motorcycle, etc)</p></div>
                 </div>
                 
                 <div class="col-sm-9">
-                  <div class="col-sm-3"><input type="number" id="cpdaysaway" class="form-control" placeholder="0"></div>
+                  <div class="col-sm-3 col-xs-3"><input type="number" id="cpdaysaway" class="form-control" placeholder="0"></div>
                   <div><p>Carpool</p></div>
                 </div>
                 
                 <div class="col-sm-9">
-                  <div class="col-sm-3"><input type="number" id="tdaysaway" class="form-control" placeholder="0"> </div>
+                  <div class="col-sm-3 col-xs-3"><input type="number" id="tdaysaway" class="form-control" placeholder="0"> </div>
                   <div><p>Transit</p></div>
                 </div>
                 
                 <div class="col-sm-9">
-                  <div class="col-sm-3"><input type="number" id="bdaysaway" class="form-control" placeholder="0"> </div>
+                  <div class="col-sm-3 col-xs-3"><input type="number" id="bdaysaway" class="form-control" placeholder="0"> </div>
                   <div><p>Bike</p></div>
                 </div>
                 
                 <div class="col-sm-9">
-                  <div class="col-sm-3"><input type="number" id="rdaysaway" class="form-control" placeholder="0"> </div>
+                  <div class="col-sm-3 col-xs-3"><input type="number" id="rdaysaway" class="form-control" placeholder="0"> </div>
                   <div><p>Jog/Run</p></div>
                 </div>
                 
                 <div class="col-sm-9">
-                  <div class="col-sm-3"><input type="number" id="wdaysaway" class="form-control" placeholder="0"> </div>
+                  <div class="col-sm-3 col-xs-3"><input type="number" id="wdaysaway" class="form-control" placeholder="0"> </div>
                   <div><p>Walk</p></div>
                 </div>
                 
                 <div class="col-sm-9">  
-                  <div class="col-sm-3"><input type="number" id="odaysaway" class="form-control" placeholder="0"> </div>
+                  <div class="col-sm-3 col-xs-3"><input type="number" id="odaysaway" class="form-control" placeholder="0"> </div>
                   <div><p>Other (roller blade, scooter, kayak, etc.)</p></div>
                 </div>
                 
                 <div class="col-sm-9">
-                  <div class="col-sm-3"><input type="number" id="tcdaysaway" class="form-control" placeholder="0"></div>
+                  <div class="col-sm-3 col-xs-3"><input type="number" id="tcdaysaway" class="form-control" placeholder="0"></div>
                   <div><p>Telecommute</p></div>
                 </div>
 </div>
             </div>
             
-            <hr>
+            <hr class="lite">
 
             <div class="form-group">
               
@@ -660,26 +609,31 @@ $(document).ready(function() {
                 <textarea class="form-control" rows="3" id="outsidechanges" placeholder="e.g. biked more, transit more, walked more etc. to shopping, visiting friends/family, picking up kids, etc."></textarea>
               </div>
             </div>
-            <hr>
+            <hr class="lite">
             <div class="form-group">
               <div class="col-sm-12"><p class="lead">How was Walk/Ride Day affected you? Has it affected your transportation habits? Your health? Your thinking about your commute? Your thinking about environmental, health, or community issues? Any additional notes or thoughts?</p>
                 <textarea class="form-control" rows="3" id="affectedyou"></textarea>
               </div>
             </div> 
 
-            <hr>
+            <hr class="lite">
             <div class="form-group">
             <div class="col-sm-12">
             <label class="checkbox">
             <input type="checkbox" id="volunteer"> I would like to volunteer to help support Green Streets' efforts.
             </label>
             </div>
-            </div>                     
+            </div>  <hr>                   
             </fieldset> <!-- end extra questions -->
 
             <!-- submit -->
+            
             <div class="form-actions">
-              <hr>
+                <div id="notvalidated" class="alert alert-danger alert-dismissable">
+                  <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                  <strong>Oops.</strong> Please fill in required information above.
+                </div>
+
                 <button type="submit" class="btn btn-large btn-primary btn-form-submit optional" style="font-size:18px;">Answer optional questions</button>
                 <button type="submit" class="btn btn-large btn-success btn-form-submit" style="font-size:18px;">Check-in my commute and exit</button>
             </div>

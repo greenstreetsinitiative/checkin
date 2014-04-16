@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.template import RequestContext
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.http import HttpResponse
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.forms.models import inlineformset_factory
@@ -10,6 +10,7 @@ from survey.forms import CommuterForm
 
 import json
 import mandrill
+from datetime import date
 
 
 def process_request(request):
@@ -29,37 +30,15 @@ def commuter(request):
 
     request = process_request(request)
 
-    survey = Commutersurvey()
+    try:
+        wr_day = Month.objects.get(open_checkin__lte=date.today(), close_checkin__gte=date.today())
+    except Month.DoesNotExist:
+        return redirect('/')
 
+    survey = Commutersurvey()
     employers = Employer.objects.filter(active=True)
 
-    if request.method == 'POST':
-        surveyform = CommuterForm(request.POST, instance=survey)
-        survey.ip = request.META['REMOTE_ADDR']
-        
-        # check if user already checked in this month
-        month = request.POST['month']
-        email = request.POST['email']
-        if Commutersurvey.objects.filter(month__iexact=month, email__iexact=email).exists():
-            existing_survey = Commutersurvey.objects.filter(month__iexact=month, email__iexact=email).order_by('-created')[0]
-            # addding existing id forces update
-            survey.id = existing_survey.id
-            survey.created = existing_survey.created
-
-        # add new employer to GSI Employer list
-        employer = request.POST['employer']
-        if employer != "" and not Employer.objects.filter(name__exact=employer):
-            new_employer = Employer(name=employer)
-            new_employer.save()
-
-        if surveyform.is_valid():
-            surveyform.save() 
-            return render_to_response('survey/thanks.html', locals(), context_instance=RequestContext(request))
-        else:
-            return render_to_response('survey/commuterform.html', locals(), context_instance=RequestContext(request))
-    else:
-        surveyform = CommuterForm(instance=survey)
-        return render_to_response('survey/commuterform.html', locals(), context_instance=RequestContext(request))
+    return render_to_response('survey/commuterform.html', locals(), context_instance=RequestContext(request))
 
 def update_existing_survey(survey, survey_id, created, legs):
     survey.id = survey_id
@@ -116,7 +95,7 @@ def api(request):
             survey.save_with_legs(legs=legs)
             
             try:
-                next_wr_day = 'Remember to check-in for next month\'s Walk/Ride Day on %s.' % Month.objects.filter(wr_day__gt=survey.wr_day_month.wr_day)[0].wr_day_humanized
+                next_wr_day = 'Remember to check-in for next month\'s Walk/Ride Day on %s.' % Month.objects.active_months().filter(wr_day__gt=survey.wr_day_month.wr_day).reverse()[0].wr_day_humanized
             except IndexError:
                 next_wr_day = 'Remember to check-in again next season.'
             

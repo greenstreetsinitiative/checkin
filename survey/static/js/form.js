@@ -17,7 +17,7 @@ $(function() {
       visible: false
     },
     polylineOptions: {
-      strokeColor: '#8900FF'
+      strokeColor: '#CDAAFF'
     }
   });
 
@@ -27,7 +27,7 @@ $(function() {
       visible: false
     },
     polylineOptions: {
-      strokeColor: '#FF0000'
+      strokeColor: '#FF9966'
     }
   });
 
@@ -137,7 +137,7 @@ $(function() {
     directionsService3.route({
       origin: origin,
       destination: destination,
-      travelMode: google.maps.TravelMode.DRIVING
+      travelMode: google.maps.TravelMode.WALKING
     }, function(response, status) {
       if (status == google.maps.DirectionsStatus.OK) {
         directionsDisplay3.setMap(map);
@@ -145,7 +145,7 @@ $(function() {
         cs.geom = pathToGeoJson(response.routes[0].overview_path);
         cs.distance = response.routes[0].legs[0].distance.value; // Meters
         cs.duration = response.routes[0].legs[0].duration.value; // Seconds
-        toggleCommuteDistance3(response.routes[0].legs[0].distance.text + ' (by car)');
+        toggleCommuteDistance3(response.routes[0].legs[0].distance.text + ' (by foot)');
         toggleCalculator('enable');
       } else {
         toggleCommuteDistance3('');
@@ -157,7 +157,7 @@ $(function() {
   function toggleCommuteDistance(text) {
     if (text !== '') {
       $('#commute-distance').text(text);
-      $('#commute-distance').css('background', '#99EEFF');
+      $('#commute-distance').css('background', '#77C5F1');
     } else {
       $('#commute-distance').text('');
       $('#commute-distance').css('background', '#fff');
@@ -405,10 +405,11 @@ $(function() {
   }
 
   function addErrorMsg($element, text) {
-    $errorMsg = $('<span />', {
-      class: 'text-danger validation-error'
+    $errorMsg = $('<div />', {
+      class: 'alert alert-danger alert-dismissable validation-error'
     }).html(text);
     $element.after($errorMsg);
+    $('#notvalidated').show();
   }
 
   function validate(surveyData) {
@@ -418,6 +419,7 @@ $(function() {
 
     // clear previous errors
     $('.validation-error').remove();
+    $('#notvalidated').hide();
     // month
     if (!$('#wr_day_month').val()) {
       addErrorMsg($('#wr_day_month'), 'Error: Please choose the Walk/Ride Day for your Checkin.');

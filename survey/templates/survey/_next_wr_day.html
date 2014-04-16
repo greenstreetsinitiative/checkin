@@ -1,0 +1,14 @@
+{% if type == 'current_wr_day' %}
+
+<p><a style="font-size:20px;" href="{% url 'commuterform' %}" class="btn btn-large btn-success" tabindex="3">Check-in your Walk/Ride Day commute!</a></p>
+<strong>Next Walk/Ride Day: {{ date }}</strong> Checkins will be accepted from {{ open }} through {{ close }}. Walk/Ride Day is the last Friday of every month. If that Friday is impossible for you, you may substitute another day in the same week.
+
+{% elif  type == 'next_wr_day' %}
+
+<strong>Next Walk/Ride Day: {{ date }}</strong> Checkins will be accepted from {{ open }} through {{ close }}. Walk/Ride Day is the last Friday of every month. If that Friday is impossible for you, you may substitute another day in the same week.
+
+{% elif type == 'end_of_season' %}
+
+See you next year!
+
+{% endif %}

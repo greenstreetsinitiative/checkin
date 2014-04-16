@@ -36,6 +36,11 @@ label {
   font-size: 16px;
 }
 
+hr.lite {
+  border: 0;
+  border-bottom: 1px dashed #eee;
+}
+
 .greenimpact {
   background:#cff6cf;
   border-bottom: 2px solid #5f9a87;
@@ -64,6 +69,17 @@ a, a:hover {
   padding:8px;
 }
 
+#notvalidated {
+  display: none;
+}
+
+.commuteexamples {
+  text-align: left;
+  font-size: 0.8em;
+  line-height: 1.1;
+  margin-top: 14px;
+  font-family: aleolight;
+}
 
 /* leaderboard styles */
 
@@ -338,14 +354,16 @@ fieldset.studentgroup {
 }
 
 .validation-error {
-  font-weight: bold;
-  font-size: 1.2em;
+  padding: 5px;
+  margin: 5px;
+  letter-spacing: .5px;
 }
 
 #commute-distance, #commute-distance2, #commute-distance3 {
   font-weight:normal;
   margin: 10px auto;
   padding: 5px;
+  float:left;
 }
 
 .leg {
