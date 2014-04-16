@@ -15,93 +15,31 @@
 
 <script src="{% static 'js/form.js' %}" type="text/javascript"></script>
 
-<script type="text/javascript">
-function getLastFriday(someDate) {
-    var curMonth = someDate.month();
-    someDate.date(1);
-    while (someDate.month() == curMonth) {
-        someDate.day(12);
-    }
-    someDate.day(-2);
-    return someDate;
-}
-$(document).ready(function() {
-
-    
-    var work = new google.maps.LatLng(42.37, -71.08);
-    var home = new google.maps.LatLng(42.36, -71.10);
-
-    // dropdown for current +2 months selectable W/R Days
-	/*
-	 *THIS NEXT VARIABLE DETERMINES THE DAY OF THE WEEK FOR THE DEADLINE
-	 *IT MUST BE AN INTEGER FROM 1 TO 7 CORRESPONDING TO THE DAYS OF THE WEEK FROM MONDAY TO SUNDAY
-	 *THIS IS THE NUMBER TO CHANGE
-     *		                |
-     *					   \ /   */
-	var deadlineDayOfWeek = 1;
-	/*
-	 * DO NOT CHANGE THE NEXT PART
-	 */
-    
-    var prevDeadline = getLastFriday(moment().subtract('months', 1)).day(deadlineDayOfWeek + 7); //gets the monday after the walk ride day of last month
-    var curDeadline = getLastFriday(moment()).day(deadlineDayOfWeek + 7);
-    var nextDeadline = getLastFriday(moment().add('months', 1)).day(deadlineDayOfWeek + 7);
-    if (moment().unix() <= prevDeadline.unix()) { //if today is before the deadline for last month's walk-ride
-        startPos = -1;    
-    }
-    else if (moment().unix() <= curDeadline.unix()) { //if today is before the deadline for this month's walk-ride
-        startPos = 0;
-    }
-    else if (moment().unix() <= nextDeadline.unix()) {
-        startPos = 1;
-    }
-    for (var i=startPos; i<(startPos + 3); i++) {
-        var month = moment().add('months', i);
-        var friday = getLastFriday(month).format('MMMM DD, YYYY');
-        $("#id_month").append("<option value='" + month.format('MMMM YYYY') + "'>" + friday + "</option>");
-    }
-
-
-});
-
-</script>
-
-
 {% endblock %}
-
-
-    
-
 
 {% block body %}
 
 <section>
   <center>
-    <h1>Walk/Ride Day Check-In Form</h1>
-    <h3>TEST VERSION</h3>
+    <h1>Walk/Ride Day {{ wr_day }} Checkin</h1>
     <p class="lead">Check in on the last Friday of every month. The Corporate Challenge takes place April through October.</p></center>
 
       <form id="surveyform" role="form" class="form-horizontal">
 
         {% csrf_token %}
 
+        <input type="hidden" id="wr_day_month" name="wr_day_month" value="{{ wr_day.id }}">
+
         <hr>
                
          <div class="form-group">
-            <div class="col-sm-6">
-            <!-- FIXME: render from Month model class -->
-            <label>Checking in for:</label>
-            <select id="wr_day_month" name="wr_day_month" class="form-control"><option value="" selected="">Please verify your check-in date</option><option value="28">April 25, 2014</option><option value="May 2014">May 30, 2014</option><option value="June 2014">June 27, 2014</option><option value="July 2014">July 25, 2014</option><option value="August 2014">August 29, 2014</option><option value="September 2014">September 26, 2014</option><option value="October 2014">October 31, 2014</option></select>
-            
-            <span class="help-block"><strong>Next Walk/Ride Day: April 25, 2014.</strong> Check ins will be accepted Monday, April 21 through Monday April 28, 2014. Walk/Ride Day is the last Friday of every month. If that Friday is impossible for you, you may substitute another day in the same week.</span>
-             </div>
+            <div class="col-sm-12">
 
-            <div class="col-sm-6">
-            <label class="checkbox">
-            <input type="checkbox" id="share">Please do not share my identifying information with my employer</label>
+        <p>Green Streets Initiative will not share identifying information with any organization, other than with your employer, if your workplace is participating in the Challenge. 
+         <label class="checkbox">
+         <input type="checkbox" id="share">Please do not share my identifying information with my employer</label></p>
 
-            <p><br>Green Streets Initiative will not share identifying information with any organization, other than with your employer, if your workplace is participating in the Challenge. 
-            </p></div>
+            </div>
          </div>
             
     <!-- 1 tell us about yourself -->
