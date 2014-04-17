@@ -238,6 +238,7 @@ $(function() {
 
     $newLeg = $lastLeg
     .clone()
+    .toggleClass('legB');
     .appendTo($container);
 
     if (legData) {

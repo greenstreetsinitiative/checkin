@@ -3,6 +3,11 @@ ul.unstyled > li {
   vertical-align: top; 
 }
 
+.legB {
+  background: #E5F7E5;
+  padding: 5px 0px;
+}
+
 p {
   font-family:aleoregular;
 }
