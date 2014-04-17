@@ -1,13 +1,14 @@
 {% if type == 'current_wr_day' %}
 
 <a style="font-size:20px;" href="{% url 'commuterform' %}" class="btn btn-large btn-success" tabindex="3">Check-in your Walk/Ride Day commute!</a>
-<p><strong>Current Walk/Ride Day: {{ date }}.</strong> Check-ins will be accepted from {{ open }} through {{ close }}. Walk/Ride Day is the last Friday of every month. If that Friday is impossible for you, you may substitute another day within that week.</p>
+<div id="test"></div>
+<p><strong>Current Walk/Ride Day: {{ date }}.</strong> Check-ins will be accepted from {{ open }} through {{ close }}. Walk/Ride Day is the last Friday of every month. If that Friday is impossible for you, you may substitute another day within the week.</p>
 <hr class="lite">
 
 {% elif  type == 'next_wr_day' %}
 
 <font style="font-family: aleolight;">Please come back later to check in.</font>
-<p><strong>Next Walk/Ride Day: {{ date }}.</strong> Check-ins will be accepted from {{ open }} through {{ close }}. Walk/Ride Day is the last Friday of every month. If that Friday is impossible for you, you may substitute another day within that week.</p>
+<p><strong>Next Walk/Ride Day: {{ date }}.</strong> Check-ins will be accepted from {{ open }} through {{ close }}. Walk/Ride Day is the last Friday of every month. If that Friday is impossible for you, you may substitute another day within the week.</p>
 <hr class="lite">
 
 {% elif type == 'end_of_season' %}
