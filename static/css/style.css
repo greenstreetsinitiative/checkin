@@ -1,3 +1,7 @@
+ul.unstyled > li {
+  height: 25px;
+  vertical-align: top; 
+}
 
 p {
   font-family:aleoregular;
