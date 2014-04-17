@@ -206,24 +206,41 @@ function setfilter(filter) {
             <h1>Walk/Ride Day Leaderboard</h1>
             <div id="test"></div>
             <p class="lead">The latest stats from the 2014 Corporate Challenge.</p>
-			{% if current_month == 'all' %}<b>{{ current_month }}</b>{% endif %}
+            <!-- <hr class="lite"> -->
+			<!-- {% if current_month == 'all' %}<span class="lbmonth">{{ current_month }}</span>{% endif %}
 			{% if current_month != 'all' %}
-			<a href="/leaderboard/{% if empid %}{{ empid }}/{% endif %}{% if filter_by and sectorid %}{{ filter_by }}/{% endif %}{% if sectorid and filter_by == 'sector' %}{{ sectorid }}/{% endif %}{% if filt and filter_by == 'size' %}{{ filt }}/{% endif %}{% if sort %}{{ sort }}/{% endif %}month_all">all</a>
+			<a href="/leaderboard/{% if empid %}{{ empid }}/{% endif %}{% if filter_by and sectorid %}{{ filter_by }}/{% endif %}{% if sectorid and filter_by == 'sector' %}{{ sectorid }}/{% endif %}{% if filt and filter_by == 'size' %}{{ filt }}/{% endif %}{% if sort %}{{ sort }}/{% endif %}month_all" class="lbmonth">all</a>
 			{% endif %}
 			{% for month in months %}			
 			{% if month.url_month != current_month %}
-			<a href="/leaderboard/{% if empid %}{{ empid }}/{% endif %}{% if filter_by and sectorid %}{{ filter_by }}/{% endif %}{% if sectorid and filter_by == 'sector' %}{{ sectorid }}/{% endif %}{% if filt and filter_by == 'size' %}{{ filt }}/{% endif %}{% if sort %}{{ sort }}/{% endif %}month_{{ month.url_month }}">{{ month }}</a>
+			<a href="/leaderboard/{% if empid %}{{ empid }}/{% endif %}{% if filter_by and sectorid %}{{ filter_by }}/{% endif %}{% if sectorid and filter_by == 'sector' %}{{ sectorid }}/{% endif %}{% if filt and filter_by == 'size' %}{{ filt }}/{% endif %}{% if sort %}{{ sort }}/{% endif %}month_{{ month.url_month }}" class="lbmonth">{{ month }}</a>
 			{% endif %} 
 			
 			{% if month.url_month == current_month %}
-			<b>{{ month }}</b>
+			<span class="lbmonth">{{ month }}</span>
 			{% endif %} 
 
-			{% endfor %}
+			{% endfor %} -->
         </div>
     </div>
     <div class="row clearfix filters lbcontrols">
 	<form method="get" action="/leaderboard/redirect" id="filter_form">
+        <div class="col-md-12 column">
+            {% if current_month == 'all' %}<span class="lbmonth">{{ current_month }}</span>{% endif %}
+            {% if current_month != 'all' %}
+            <a href="/leaderboard/{% if empid %}{{ empid }}/{% endif %}{% if filter_by and sectorid %}{{ filter_by }}/{% endif %}{% if sectorid and filter_by == 'sector' %}{{ sectorid }}/{% endif %}{% if filt and filter_by == 'size' %}{{ filt }}/{% endif %}{% if sort %}{{ sort }}/{% endif %}month_all" class="lbmonth">all</a>
+            {% endif %}
+            {% for month in months %}           
+            {% if month.url_month != current_month %}
+            <a href="/leaderboard/{% if empid %}{{ empid }}/{% endif %}{% if filter_by and sectorid %}{{ filter_by }}/{% endif %}{% if sectorid and filter_by == 'sector' %}{{ sectorid }}/{% endif %}{% if filt and filter_by == 'size' %}{{ filt }}/{% endif %}{% if sort %}{{ sort }}/{% endif %}month_{{ month.url_month }}" class="lbmonth">{{ month }}</a>
+            {% endif %} 
+            
+            {% if month.url_month == current_month %}
+            <span class="lbmonth">{{ month }}</span>
+            {% endif %} 
+
+            {% endfor %}
+        </div>
         <div class="col-md-6 column">
             <p class="lead"><strong>Filter the companies by</strong></p>
             <label><input type="radio" name="color" onclick="setfilter('size')" value="size"/> Size</label>

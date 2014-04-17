@@ -259,6 +259,20 @@ div.calories {background-color: #ecf;}
   z-index:10;
 }
 
+a.lbmonth, span.lbmonth {
+  background: #E1F0DC;
+  padding: 5px;
+  margin: 5px;
+  color: black;
+  color: #383;
+  display: inline-block;
+}
+
+span.lbmonth {
+  color: black;
+  outline: 5px green solid;
+  z-index:11;
+}
 
 /* Topnav budget numbers
 -------------------------------------------------- */
