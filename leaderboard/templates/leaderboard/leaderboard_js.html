@@ -4,9 +4,7 @@
 
 {% block title %}Leaderboard{% endblock %}
 {% block javascript %}
-<script type="text/javascript" src"/static/libs/bootstrap/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="/static/libs/spin.min.js"></script>
-<script type="text/javascript" src="/static/libs/jquery.spin.js"></script>
+<script type="text/javascript" src="{% static 'libs/bootstrap/js/bootstrap.min.js' %}"></script>
 <script type="text/javascript">
     $("document").ready(function() {
 		chart_data = {% autoescape off %}{{ chart }}{% endautoescape %}
@@ -14,8 +12,6 @@
 		chart.render();
     });
     function getResults() {
-        $("#spinner").spin("small");
-        $("#spinnerLabel").removeClass("hidden");
         var hostname = top.location.host.toString();
         $.post("http://"+hostname+"/leaderboard/",
             {
@@ -28,8 +24,6 @@
             makeChange, 'json');
     }
     function getNewEmp(emp) {
-        $("#spinner").spin("small");
-        $("#spinnerLabel").removeClass("hidden");
         var hostname = top.location.host.toString();
         $("#comanyName").text(emp);
         $.post("http://"+hostname+"/leaderboard/",
@@ -94,8 +88,6 @@
                 $(tableString.format((i+1).toString(), (j+1).toString())).text(data.checkin_matrix[i][j]);
             }
         }
-        $("#spinner").spin(false);
-        $("#spinnerLabel").addClass("hidden");
     }
     function switchSOS() {
         newSOS = $("#id_svs").val();
@@ -196,7 +188,7 @@ function setfilter(filter) {
 		}
 	}
 </script>
-<script type="text/javascript" src="/static/libs/canvasjs.min.js"></script>
+<script type="text/javascript" src="{% static 'libs/canvasjs.min.js' %}"></script>
 {% endblock %}
 
 
