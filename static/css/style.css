@@ -241,9 +241,8 @@ a.company {
 }
 
 .summary {
-  font-size: 12px;
   line-height:1.1;
-  padding: 14px;
+  padding: 5px;
   text-align: center;
   margin-top:20px;
   margin-bottom:20px;
