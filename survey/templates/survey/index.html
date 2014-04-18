@@ -7,25 +7,12 @@
 {% block title %}Welcome!{% endblock %}
 
 
-{% block socialmedia %}
-<div id="fb-root"></div>
-<script>(function(d, s, id) {
-  var js, fjs = d.getElementsByTagName(s)[0];
-  if (d.getElementById(id)) return;
-  js = d.createElement(s); js.id = id;
-  js.src = "//connect.facebook.net/en_US/all.js#xfbml=1";
-  fjs.parentNode.insertBefore(js, fjs);
-}(document, 'script', 'facebook-jssdk'));</script>
-{% endblock %}
-
-
-
 {% block body %}
 <section class="front-page">
     <div class="row">
       <div class="col-md-8 col-md-offset-2">
         <h1>Walk/Ride Day 2014<br>Check-In</h1>
-        <!-- <div id="test"></div> -->
+
         <p class="wrday">{% wr_day %}</p>
         
         <p class="lead"><img src="/static/img/car-24.png" height="32" width="32"><img src="/static/img/school-24.png" height="32" width="32"><img src="/static/img/pitch-24.png" height="32" width="32"><img src="/static/img/bicycle-24.png" height="32" width="32"><img src="/static/img/rail-24.png" height="32" width="32"><img src="/static/img/warehouse-24.png" height="32" width="32"><img src="/static/img/scooter-24.png" height="32" width="32"></p>
@@ -45,26 +32,4 @@
     </div>
 </section>
 
-<section class="social-media front-page">
-    <div class="row">
-      <div class="span12">
-          <p class="lead">Share with your friends!</p>
-          <ul class="unstyled">
-            <li class="twitterwidget"><a href="https://twitter.com/share" class="twitter-share-button" data-url="http://checkin.gogreenstreets.org" data-counturl="http://checkin.gogreenstreets.org" data-via="walkridedays" data-text="I'm commuting green today!" data-hashtags="walkrideday">Tweet</a>
-            <script>
-            !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');
-            </script></li>
-            <li><div class="g-plusone" data-size="medium"></div>
-            <script type="text/javascript">
-              (function() {
-                var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
-                po.src = 'https://apis.google.com/js/platform.js';
-                var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
-              })();
-            </script></li>
-            <li><div class="fb-like" data-href="http://checkin.gogreenstreets.org" data-layout="button_count" data-action="like" data-show-faces="false" data-share="false" style="width: 119px;"></div></li>
-          </ul>
-      </div>
-    </div> 
-</section>
 {% endblock %}
