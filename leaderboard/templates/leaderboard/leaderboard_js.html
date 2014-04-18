@@ -431,10 +431,6 @@ function setfilter(filter) {
     <div class="row clearfix">
         <div class="col-md-8 col-md-offset-2 column">
 
-
-            
-
-
             <div>
                 <center><hr class="lite">
             <h3>Switches made on Walk/Ride Day</h3><p class="lead">Calculated using the longest legs of each commute.</p></center>
@@ -446,19 +442,19 @@ function setfilter(filter) {
             </tr>
             <tr>
                 <td></td><td></td>
-                <td><p class="mode"><img src="/static/img/car-24.png" height="32" width="32" class="img-circle" title="Driving a personal car on normal days"></img><br>Car</p></td>
-                <td><p class="mode"><img src="/static/img/car-24.png" height="32" width="32" class="img-circle" title="Car (alternative vehicle) on normal days"></img><br>Car (alt.)</p></td>
-                <td><p class="mode"><img src="/static/img/car-24.png" height="32" width="32" class="img-circle" title="Carpooling on normal days"></img><br>Carpool</p></td>
-                <td><p class="mode"><img src="/static/img/school-24.png" height="32" width="32" class="img-circle" title="Walking on normal days"></img><br>Walk</p></td>
-                <td><p class="mode"><img src="/static/img/pitch-24.png" height="32" width="32" class="img-circle" title="Jog/running on normal days"></img><br>Run</p></td>
-                <td><p class="mode"><img src="/static/img/bicycle-24.png" height="32" width="32" class="img-circle" title="Biking on normal days"></img><br>Bike</p></td>
-                <td><p class="mode"><img src="/static/img/rail-24.png" height="32" width="32" class="img-circle" title="Taking public transit on normal days"></img><br>Transit</p></td>
-                <td><p class="mode"><img src="/static/img/warehouse-24.png" height="32" width="32" class="img-circle" title="Telecommuting on normal days"></img><br>Telecommute</p></td>
-                <td><p class="mode"><img src="/static/img/scooter-24.png" height="32" width="32" class="img-circle" title="Other transportaition on normal days"></img><br>Other</p></td>
+                <td><p class="mode"><img src="{% static 'img/car-24.png' %}" height="32" width="32" class="img-circle" title="Driving a personal car on normal days"></img><br>Car</p></td>
+                <td><p class="mode"><img src="{% static 'img/car-24.png' %}" height="32" width="32" class="img-circle" title="Car (alternative vehicle) on normal days"></img><br>Car (alt.)</p></td>
+                <td><p class="mode"><img src="{% static 'img/car-24.png' %}" height="32" width="32" class="img-circle" title="Carpooling on normal days"></img><br>Carpool</p></td>
+                <td><p class="mode"><img src="{% static 'img/school-24.png' %}" height="32" width="32" class="img-circle" title="Walking on normal days"></img><br>Walk</p></td>
+                <td><p class="mode"><img src="{% static 'img/pitch-24.png' %}" height="32" width="32" class="img-circle" title="Jog/running on normal days"></img><br>Run</p></td>
+                <td><p class="mode"><img src="{% static 'img/bicycle-24.png' %}" height="32" width="32" class="img-circle" title="Biking on normal days"></img><br>Bike</p></td>
+                <td><p class="mode"><img src="{% static 'img/rail-24.png' %}" height="32" width="32" class="img-circle" title="Taking public transit on normal days"></img><br>Transit</p></td>
+                <td><p class="mode"><img src="{% static 'img/warehouse-24.png' %}" height="32" width="32" class="img-circle" title="Telecommuting on normal days"></img><br>Telecommute</p></td>
+                <td><p class="mode"><img src="{% static 'img/scooter-24.png' %}" height="32" width="32" class="img-circle" title="Other transportaition on normal days"></img><br>Other</p></td>
             </tr>
             <tr>
                 <th rowspan="10"><div class="matrixWRlabel"><h4>Walk/Ride Day</h4></div></th>
-                <td><p class="mode"><img src="/static/img/car-24.png" height="32" width="32" class="img-circle" title="Driving a personal car on Walk-Ride days"></img><br>Car</p></td>
+                <td><p class="mode"><img src="{% static 'img/car-24.png' %}" height="32" width="32" class="img-circle" title="Driving a personal car on Walk-Ride days"></img><br>Car</p></td>
                 <td class='cctd'>{{ m.c.c }}</td>
                 <td class='ustd'>{{ m.c.dalt }}</td>
                 <td class='ustd'>{{ m.c.cp }}</td>
@@ -470,7 +466,7 @@ function setfilter(filter) {
                 <td class='ustd'>{{ m.c.o }}</td>
             </tr>
             <tr>
-                <td><p class="mode"><img src="/static/img/car-24.png" height="32" width="32" class="img-circle" title="Car (alternative vehicle) on Walk-Ride days"></img><br>Car (alt.)</p></td>
+                <td><p class="mode"><img src="{% static 'img/car-24.png' %}" height="32" width="32" class="img-circle" title="Car (alternative vehicle) on Walk-Ride days"></img><br>Car (alt.)</p></td>
                 <td class='gstd'>{{ m.dalt.c }}</td>
                 <td class='gctd'>{{ m.dalt.dalt }}</td>
                 <td class='gctd'>{{ m.dalt.cp }}</td>
@@ -482,7 +478,7 @@ function setfilter(filter) {
                 <td class='ustd'>{{ m.dalt.o }}</td>
             </tr>
             <tr>
-                <td><p class="mode"><img src="/static/img/car-24.png" height="32" width="32" class="img-circle" title="Carpooling on Walk-Ride days"></img><br>Carpool</p></td>
+                <td><p class="mode"><img src="{% static 'img/car-24.png' %}" height="32" width="32" class="img-circle" title="Carpooling on Walk-Ride days"></img><br>Carpool</p></td>
                 <td class='gstd'>{{ m.cp.c }}</td>
                 <td class='gctd'>{{ m.cp.dalt }}</td>
                 <td class='gctd'>{{ m.cp.cp }}</td>
@@ -494,7 +490,7 @@ function setfilter(filter) {
                 <td class='ustd'>{{ m.cp.o }}</td>
             </tr>
             <tr>
-                <td><p class="mode"><img src="/static/img/school-24.png" height="32" width="32" class="img-circle" title="Walking on Walk-Ride days"></img><br>Walk</p></td>
+                <td><p class="mode"><img src="{% static 'img/school-24.png' %}" height="32" width="32" class="img-circle" title="Walking on Walk-Ride days"></img><br>Walk</p></td>
                 <td class='gstd'>{{ m.w.c }}</td>
                 <td class='gstd'>{{ m.w.dalt }}</td>
                 <td class='gstd'>{{ m.w.cp }}</td>
@@ -506,7 +502,7 @@ function setfilter(filter) {
                 <td class='ustd'>{{ m.w.o }}</td>
             </tr>
             <tr>
-                <td><p class="mode"><img src="/static/img/pitch-24.png" height="32" width="32" class="img-circle" title="Running on Walk-Ride days"></img><br>Run</p></td>
+                <td><p class="mode"><img src="{% static 'img/pitch-24.png' %}" height="32" width="32" class="img-circle" title="Running on Walk-Ride days"></img><br>Run</p></td>
                 <td class='gstd'>{{ m.r.c }}</td>
                 <td class='gstd'>{{ m.r.dalt }}</td>
                 <td class='gstd'>{{ m.r.cp }}</td>
@@ -518,7 +514,7 @@ function setfilter(filter) {
                 <td class='ustd'>{{ m.r.o }}</td>
             </tr>
             <tr>
-                <td><p class="mode"><img src="/static/img/bicycle-24.png" height="32" width="32" class="img-circle" title="Biking on Walk-Ride days"></img><br>Bike</p></td>
+                <td><p class="mode"><img src="{% static 'img/bicycle-24.png' %}" height="32" width="32" class="img-circle" title="Biking on Walk-Ride days"></img><br>Bike</p></td>
                 <td class='gstd'>{{ m.b.c }}</td>
                 <td class='gstd'>{{ m.b.dalt }}</td>
                 <td class='gstd'>{{ m.b.cp }}</td>
@@ -530,7 +526,7 @@ function setfilter(filter) {
                 <td class='ustd'>{{ m.b.o }}</td>
             </tr>
             <tr>
-                <td><p class="mode"><img src="/static/img/rail-24.png" height="32" width="32" class="img-circle" title="Taking public transit on Walk-Ride days"></img><br>Transit</p></td>
+                <td><p class="mode"><img src="{% static 'img/rail-24.png' %}" height="32" width="32" class="img-circle" title="Taking public transit on Walk-Ride days"></img><br>Transit</p></td>
                 <td class='gstd'>{{ m.t.c }}</td>
                 <td class='gstd'>{{ m.t.dalt }}</td>
                 <td class='gstd'>{{ m.t.cp }}</td>
@@ -542,7 +538,7 @@ function setfilter(filter) {
                 <td class='ustd'>{{ m.t.o }}</td>
             </tr>
             <tr>
-                <td><p class="mode"><img src="/static/img/warehouse-24.png" height="32" width="32" class="img-circle" title="Telecommuting on Walk-Ride days"></img><br>Telecommute</p></td>
+                <td><p class="mode"><img src="{% static 'img/warehouse-24.png' %}" height="32" width="32" class="img-circle" title="Telecommuting on Walk-Ride days"></img><br>Telecommute</p></td>
                 <td class='gstd'>{{ m.tc.c }}</td>
                 <td class='gstd'>{{ m.tc.dalt }}</td>
                 <td class='gstd'>{{ m.tc.cp }}</td>
@@ -554,7 +550,7 @@ function setfilter(filter) {
                 <td class='ustd'>{{ m.tc.o }}</td>
             </tr>
             <tr>
-                <td><p class="mode"><img src="/static/img/scooter-24.png" height="32" width="32" class="img-circle" title="Other transportation on Walk-Ride days"></img><br>Other</p></td>
+                <td><p class="mode"><img src="{% static 'img/scooter-24.png' %}" height="32" width="32" class="img-circle" title="Other transportation on Walk-Ride days"></img><br>Other</p></td>
                 <td class='ustd'>{{ m.o.c }}</td>
                 <td class='ustd'>{{ m.o.dalt }}</td>
                 <td class='ustd'>{{ m.o.cp }}</td>

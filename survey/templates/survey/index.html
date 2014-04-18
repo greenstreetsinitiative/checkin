@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-
+{% load staticfiles %}
 {% load survey_extras %}
 
 {% load i18n %}
@@ -15,7 +15,7 @@
 
         <p class="wrday">{% wr_day %}</p>
         
-        <p class="lead"><img src="/static/img/car-24.png" height="32" width="32"><img src="/static/img/school-24.png" height="32" width="32"><img src="/static/img/pitch-24.png" height="32" width="32"><img src="/static/img/bicycle-24.png" height="32" width="32"><img src="/static/img/rail-24.png" height="32" width="32"><img src="/static/img/warehouse-24.png" height="32" width="32"><img src="/static/img/scooter-24.png" height="32" width="32"></p>
+        <p class="lead"><img src="{% static 'img/car-24.png' %}" height="32" width="32"><img src="{% static 'img/school-24.png' %}" height="32" width="32"><img src="{% static 'img/pitch-24.png' %}" height="32" width="32"><img src="{% static 'img/bicycle-24.png' %}" height="32" width="32"><img src="{% static 'img/rail-24.png' %}" height="32" width="32"><img src="{% static 'img/warehouse-24.png' %}" height="32" width="32"><img src="{% static 'img/scooter-24.png' %}" height="32" width="32"></p>
         <p class="lead">Everyone is welcome to check in </p>
         <hr class="lite">
         <p><strong>Why?</strong>Your completion of this short survey for each Walk/Ride Day (the last Friday of every month) helps us see the impact of our initiative and only takes a few quick steps. After filling it out, you will get confirmation for Retail Partners' rewards and <strong>be entered into an online raffle</strong>! </p>
