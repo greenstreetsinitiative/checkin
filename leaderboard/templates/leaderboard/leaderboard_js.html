@@ -203,24 +203,8 @@ function setfilter(filter) {
 {% block body %}
     <div class="row clearfix">
         <div class="col-md-12 column">
-            <h1>Walk/Ride Day Leaderboard</h1>
-            <div id="test"></div>
-            <p class="lead">The latest stats from the 2014 Corporate Challenge.</p>
-            <!-- <hr class="lite"> -->
-			<!-- {% if current_month == 'all' %}<span class="lbmonth">{{ current_month }}</span>{% endif %}
-			{% if current_month != 'all' %}
-			<a href="/leaderboard/{% if empid %}{{ empid }}/{% endif %}{% if filter_by and sectorid %}{{ filter_by }}/{% endif %}{% if sectorid and filter_by == 'sector' %}{{ sectorid }}/{% endif %}{% if filt and filter_by == 'size' %}{{ filt }}/{% endif %}{% if sort %}{{ sort }}/{% endif %}month_all" class="lbmonth">all</a>
-			{% endif %}
-			{% for month in months %}			
-			{% if month.url_month != current_month %}
-			<a href="/leaderboard/{% if empid %}{{ empid }}/{% endif %}{% if filter_by and sectorid %}{{ filter_by }}/{% endif %}{% if sectorid and filter_by == 'sector' %}{{ sectorid }}/{% endif %}{% if filt and filter_by == 'size' %}{{ filt }}/{% endif %}{% if sort %}{{ sort }}/{% endif %}month_{{ month.url_month }}" class="lbmonth">{{ month }}</a>
-			{% endif %} 
-			
-			{% if month.url_month == current_month %}
-			<span class="lbmonth">{{ month }}</span>
-			{% endif %} 
-
-			{% endfor %} -->
+            <center><h1>Walk/Ride Day Leaderboard</h1>
+            <div id="test"></div></center>
         </div>
     </div>
     <div class="row clearfix filters lbcontrols">
@@ -259,7 +243,8 @@ function setfilter(filter) {
             <!-- sector options -->
             <select class="form-control" id="sector_filter" name="sector_filter">
                 <option value="0" selected>Please select sector</option>
-            {% for sector in sectors %}<option value="{{ sector.id }}">{{ sector.name }}</option>{% endfor %}
+                <!-- change slice number if number of sectors changes -->
+            {% for sector in sectors|slice:":7" %}<option value="{{ sector.id }}">{{ sector.name }}</option>{% endfor %}
             </select>
             <select class="form-control" id="team_filter" style="display: none" name="sector_filter"  disabled="true">
                 <option value="0" selected>Please select group</option>
@@ -269,7 +254,7 @@ function setfilter(filter) {
 		<input type="hidden" name="month" value="{{ current_month }}">
             <button type="submit" class="btn btn-small btn-success">Submit</button>
         </div>
-<!-- disabled for performance reasons
+<!--  disabled for performance reasons
         <div class="col-md-6 column">
             <p class="lead"><strong>Please choose ranking type</strong></p>
             <div class="btn-group">
@@ -290,23 +275,22 @@ function setfilter(filter) {
             <a href="/leaderboard/gs" class="btn btn-default gswitch {% if sort == 'gs' %}selected{% endif %}">Green switches</a>
             {% endif %}
             </div>
-        </div>-->
+        </div> -->
 		</form>
     </div>
     <div class="row clearfix">
         <div class="col-md-12 column">
             <hr>
 			{% if filter_by == 'sector' %}
-            <h2 class="leaderboard">Rankings within {{ emp_sector }}</h2>
+            <h2 class="leaderboard">Rankings within {{ emp_sector }} ({{ display_month }})</h2>
 			{% endif %}
 			{% if filter_by == 'size' %}
-            <h2 class="leaderboard">Rankings within {{ sizecat }}</h2>
+            <h2 class="leaderboard">Rankings within {{ sizecat }} ({{ display_month }})</h2>
 			{% endif %}
 
             <h1 class="leaderboard"><span class="
-                {% if sort == 'participation' %}participation{% endif %}{% if sort == 'gc' %}gcommute{% endif %}{% if sort == 'gs' %}gswitch{% endif %}">
-                {% if sort == 'participation' %}Participation{% endif %}{% if sort == 'gc' %}Green commutes{% endif %}{% if sort == 'gs' %}Green switches{% endif %}
-            </span></h1>
+                {% if sort == 'participation' %}participation{% endif %}{% if sort == 'gc' %}gcommute{% endif %}{% if sort == 'gs' %}gswitch{% endif %}">{% if sort == 'participation' %}Participation{% endif %}{% if sort == 'gc' %}Green commutes{% endif %}{% if sort == 'gs' %}Green switches{% endif %}</span></h1>
+                <center><p class="lead">Please click on any company to show more details.</p></center>
                 <hr>
         </div>
     </div>
@@ -383,7 +367,6 @@ function setfilter(filter) {
         <div class="col-md-12 column">
             <hr>
             <h2 class="leaderboard">Details for {{ employer.name }}</h2>
-            <p class="lead">Lots of details!</p>
         </div>
     </div>
 
@@ -462,9 +445,10 @@ function setfilter(filter) {
 
 
             <div>
-            <h3>Switches made on Walk/Ride Day</h3>
+                <center><hr class="lite">
+            <h3>Switches made on Walk/Ride Day</h3><p class="lead">Calculated using the longest legs of each commute.</p></center>
             <div class="table-responsive">
-                <p class="lead">Calculated using the longest legs of each commute.</p>
+                
             <table class="table table-borderless table-hover">
             <tr>
                 <th></th><th></th><th colspan="10"><h4>Modes taken on a normal day</h4></th>

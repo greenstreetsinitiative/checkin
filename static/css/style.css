@@ -1,3 +1,13 @@
+ul.unstyled > li {
+  height: 25px;
+  vertical-align: top; 
+}
+
+.legB {
+  background: #E5F7E5;
+  padding: 5px 0px;
+}
+
 p {
   font-family:aleoregular;
 }
@@ -5,6 +15,10 @@ p {
 p.wrday {
   margin: 30px;
   font-size:26px;
+}
+
+#test {
+  font-size:16px;
 }
 
 h1,h2,h3,legend {
@@ -227,9 +241,8 @@ a.company {
 }
 
 .summary {
-  font-size: 12px;
   line-height:1.1;
-  padding: 14px;
+  padding: 5px;
   text-align: center;
   margin-top:20px;
   margin-bottom:20px;

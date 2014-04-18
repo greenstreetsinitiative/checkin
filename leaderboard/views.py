@@ -142,19 +142,14 @@ def new_leaderboard(request, empid=0, filter_by='sector', _filter=0, sort='parti
     return render(request, 'leaderboard/leaderboard_js.html', context)
 
 def getSectorNum(sector):
-    if sector.name[1] == ' ':
-        return int(sector.name[0])
-    elif sector.name[2] == ' ':
-        return int(sector.name[:2])
-    else:
-        return int(sector.name[:3])
+        return sector.id
+
 
 def get_subteams():
     sectors = sorted(EmplSector.objects.all(), key=getSectorNum)
     subteams = []
     for sector in sectors:
-        words = sector.name.split()
-        if int(words[0]) > 10:
+        if sector.id > 9:
             subteams.append(sector)
 
     return subteams
