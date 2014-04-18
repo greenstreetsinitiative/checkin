@@ -259,7 +259,8 @@ function setfilter(filter) {
             <!-- sector options -->
             <select class="form-control" id="sector_filter" name="sector_filter">
                 <option value="0" selected>Please select sector</option>
-            {% for sector in sectors %}<option value="{{ sector.id }}">{{ sector.name }}</option>{% endfor %}
+                <!-- change slice number if number of sectors changes -->
+            {% for sector in sectors|slice:":7" %}<option value="{{ sector.id }}">{{ sector.name }}</option>{% endfor %}
             </select>
             <select class="form-control" id="team_filter" style="display: none" name="sector_filter"  disabled="true">
                 <option value="0" selected>Please select group</option>
@@ -269,7 +270,7 @@ function setfilter(filter) {
 		<input type="hidden" name="month" value="{{ current_month }}">
             <button type="submit" class="btn btn-small btn-success">Submit</button>
         </div>
-<!-- disabled for performance reasons
+<!--  disabled for performance reasons
         <div class="col-md-6 column">
             <p class="lead"><strong>Please choose ranking type</strong></p>
             <div class="btn-group">
@@ -290,7 +291,7 @@ function setfilter(filter) {
             <a href="/leaderboard/gs" class="btn btn-default gswitch {% if sort == 'gs' %}selected{% endif %}">Green switches</a>
             {% endif %}
             </div>
-        </div>-->
+        </div> -->
 		</form>
     </div>
     <div class="row clearfix">
