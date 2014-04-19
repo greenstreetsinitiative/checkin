@@ -69,7 +69,7 @@ class EmployerSectorAdmin(admin.ModelAdmin):
 class CommutersurveyAdmin(admin.OSMGeoAdmin):
     fieldsets = [
         (None, 
-            {'fields': ['month', 'name', 'email', 'employer']}),
+            {'fields': ['wr_day_month', 'name', 'email', 'employer']}),
         ('Commute', 
             {'fields': ['home_address', 'work_address', ]}),
         ('Maps',
@@ -77,11 +77,11 @@ class CommutersurveyAdmin(admin.OSMGeoAdmin):
         ('Meta',
             {'fields': ['ip']}),
     ]
-    list_display = ('month', 'email', 'employer', 'home_address', 'work_address', )
+    list_display = ('wr_day_month', 'email', 'employer', 'home_address', 'work_address', )
     list_display_links = ['email']
     list_editable = ['employer']
-    list_filter = ['month', ]
-    search_fields = ['name', 'employer']
+    list_filter = ['wr_day_month', ]
+    search_fields = ['name', 'email', 'employer']
     actions = [export_as_csv]
 
 class MonthsAdmin(admin.ModelAdmin):

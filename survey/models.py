@@ -145,22 +145,23 @@ class Employer(models.Model):
 
     def __unicode__(self):
         return self.name
+
     @property
     def nr_surveys(self):
-        return Commutersurvey.objects.filter(employer__exact=self.name).count()
+        return Commutersurvey.objects.filter(employer=self).count()
 
     def get_surveys(self, month):
         if self.is_parent:
-            sectorEmps = Employer.objects.filter(sector=EmplSector.objects.get(parent=self.name)).values_list('name', flat=True)
+            sectorEmps = Employer.objects.filter(sector=EmplSector.objects.get(parent=self.name))
             if month != 'all':
                 return Commutersurvey.objects.filter(month=month, employer__in=sectorEmps)
             else:
                 return Commutersurvey.objects.filter(month__in=Month.objects.active_months_list(), employer__in=sectorEmps)
         else:
             if month != 'all':
-                return Commutersurvey.objects.filter(month=month, employer__exact=self.name)
+                return Commutersurvey.objects.filter(month=month, employer=self)
             else:
-                return Commutersurvey.objects.filter(month__in=Month.objects.active_months_list(), employer__exact=self.name)
+                return Commutersurvey.objects.filter(month__in=Month.objects.active_months_list(), employer=self)
 
     def get_nr_surveys(self, month):
         if self.is_parent:
@@ -215,7 +216,8 @@ class Commutersurvey(models.Model):
     name = models.CharField(max_length=50, blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
     share = models.BooleanField(default=False)
-    employer = models.CharField('Employer', max_length=100, blank=False, null=True)
+    employer_legacy = models.CharField(max_length=100, blank=True, null=True)
+    employer = models.ForeignKey(Employer, null=True)
     comments = models.TextField(null=True, blank=True)
 
     ip = models.IPAddressField('IP Address', blank=True, null=True)
