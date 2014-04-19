@@ -342,10 +342,14 @@ surveys_cache = {}
 
 def get_lb_surveys(emp, month):
     global surveys_cache
+    print month
     if emp.name + month in surveys_cache:
         return surveys_cache[emp, month]
     else:
-        surveys_cache[emp.name, month] = Commutersurvey.objects.select_related().filter(employer=emp, month=month)
+        if month != 'all':
+            surveys_cache[emp.name, month] = Commutersurvey.objects.select_related().filter(employer=emp, month=month)
+        else:
+            surveys_cache[emp.name, month] = Commutersurvey.objects.select_related().filter(employer=emp, month__in=Month.objects.active_months_list() )
         return surveys_cache[emp.name, month]
 
 def getBreakDown(emp, bd_month):
