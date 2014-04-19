@@ -73,7 +73,7 @@ def new_leaderboard(request, empid=0, filter_by='sector', _filter=0, sort='parti
     context['months'] = months
     for m in months:
         if m.url_month == selmonth:
-            month = m
+            month = m.month
     if selmonth == 'all':
         global nmonths
         month = 'all'
@@ -342,20 +342,20 @@ surveys_cache = {}
 
 def get_lb_surveys(emp, month):
     global surveys_cache
-    print month
-    if emp.name + month in surveys_cache:
-        return surveys_cache[emp, month]
-    else:
-        if month != 'all':
-            surveys_cache[emp.name, month] = Commutersurvey.objects.select_related().filter(employer=emp, month=month)
-        else:
-            surveys_cache[emp.name, month] = Commutersurvey.objects.select_related().filter(employer=emp, month__in=Month.objects.active_months_list() )
-        return surveys_cache[emp.name, month]
+    surveys = []
+    if emp.name not in surveys_cache:
+        surveys_cache[emp.name] = Commutersurvey.objects.prefetch_related("leg_set").filter(employer=emp, month__in=Month.objects.active_months_list() )
+    if month == 'all':
+        return surveys_cache[emp.name]
+    for survey in surveys_cache[emp.name]:
+        if survey.month == month:
+            surveys.append(survey)
+    return surveys
 
 def getBreakDown(emp, bd_month):
     global breakdown
     if emp.name + bd_month in breakdown:
-        return breakdown[emp.name, bd_month]
+        return breakdown[emp.name, bd_month.month]
 
     empSurveys = get_lb_surveys(emp, bd_month)
     unhealthySwitches = 0
