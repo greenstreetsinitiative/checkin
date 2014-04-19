@@ -76,6 +76,11 @@ def api(request):
         except Month.DoesNotExist:
             return HttpResponse('No such Walk/Ride Day.', status=500)
 
+        try:
+            data['employer'] = Employer.objects.get(pk=data['employer'])
+        except Employer.DoesNotExist:
+            return HttpResponse('No such Employer.', status=500)
+
         survey = Commutersurvey(**data)
         
         # check for existing survey
