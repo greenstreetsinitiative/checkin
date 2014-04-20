@@ -67,8 +67,12 @@
           <div class="col-sm-9 col-xs-10">
             <select class="form-control" id="employer" name="employer">
               <option value="1105" selected>Other employer (not registered in Challenge)</option>
-              <option value="1155">Self</option>
-              {% for employer in employers %}<option value="{{ employer.id }}">{{ employer.name|escape }}</option>{% endfor %}
+              <option value="1155">Self</option>         
+              {% for employer in employers %}
+              {% if not employer.is_parent %}
+              <option value="{{ employer.id }}">{{ employer.name|escape }}</option>      
+              {% endif %}
+              {% endfor %}
             </select>
             <span class="help-block required"> Required if your employer is part of the Walk/Ride Day Challenge.</span>
           </div>
