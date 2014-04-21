@@ -1,6 +1,20 @@
+//load the map once the page finishes loading - needed for the map to work in IE
+
+var map;
+
+$( window ).load(function() { 
+  map = new google.maps.Map(document.getElementById('map-canvas'), {
+    zoom: 11,
+    mapTypeId: google.maps.MapTypeId.TERRAIN,
+    center: new google.maps.LatLng(42.357778, -71.061667),
+    streetViewControl: false,
+    mapTypeControl: false
+  });
+})
+
 $(function() {
   var cs, // commutersurvey data
-      map, geocoder, directionsService, directionsDisplay;
+      geocoder, directionsService, directionsDisplay;
 
   // map & locations
   geocoder = new google.maps.Geocoder();
@@ -33,14 +47,6 @@ $(function() {
 
   // read cache
   cs = simpleStorage.get('commutersurvey') || {};
-
-  map = new google.maps.Map(document.getElementById('map-canvas'), {
-    zoom: 11,
-    mapTypeId: google.maps.MapTypeId.TERRAIN,
-    center: new google.maps.LatLng(42.357778, -71.061667),
-    streetViewControl: false,
-    mapTypeControl: false
-  });
 
   // geocode address
   function geocodeAddress($address) {
