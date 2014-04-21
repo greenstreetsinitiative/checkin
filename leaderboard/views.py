@@ -246,7 +246,6 @@ def participation_pct(month, filter_by, _filter=0):
             continue
         participation = ( (nsurveys*1.0) / (emp.nr_employees*1.0*nmonths) ) * 100
         if emp.sector and (emp.sector.id < 10 or int(_filter) > 9):
-            print emp.sector.id
             rank.append({'pct': participation, 'name': emp.name, 'id': emp.id })
     
     return sorted(rank, key=lambda idx: idx['pct'], reverse=True);
