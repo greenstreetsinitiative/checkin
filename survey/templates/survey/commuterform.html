@@ -21,7 +21,6 @@
 <section>
   <center>
     <h1>Walk/Ride Day Check-In</h1>
-    <div id="test"></div>
     <h2>{{ wr_day }}</h2>
     <p class="lead">Check in on the last Friday of every month. The Corporate Challenge takes place April through October.</p></center>
 
@@ -65,9 +64,7 @@
         <div class="form-group">
           <label class="control-label col-sm-3 col-xs-2">Your employer's name</label>
           <div class="col-sm-9 col-xs-10">
-            <select class="form-control" id="employer" name="employer">
-              <option value="1105" selected>Other employer (not registered in Challenge)</option>
-              <option value="1155">Self</option>         
+            <select class="form-control" id="employer" name="employer">     
               {% for employer in employers %}
               {% if not employer.is_parent %}
               <option value="{{ employer.id }}">{{ employer.name|escape }}</option>      
