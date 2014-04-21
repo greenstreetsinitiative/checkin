@@ -221,7 +221,8 @@ def participation_rankings(month, filter_by, _filter=0):
 
     for emp in employers:
         nsurveys = emp.get_surveys(month=month).count()
-        rank.append({'val': nsurveys, 'name': emp.name, 'id': emp.id })
+        if emp.sector and (emp.sector.id < 10 or int(_filter) > 9):
+            rank.append({'val': nsurveys, 'name': emp.name, 'id': emp.id })
     
     return sorted(rank, key=lambda idx: idx['val'], reverse=True);
 
@@ -244,7 +245,9 @@ def participation_pct(month, filter_by, _filter=0):
         if not emp.nr_employees:
             continue
         participation = ( (nsurveys*1.0) / (emp.nr_employees*1.0*nmonths) ) * 100
-        rank.append({'pct': participation, 'name': emp.name, 'id': emp.id })
+        if emp.sector and (emp.sector.id < 10 or int(_filter) > 9):
+            print emp.sector.id
+            rank.append({'pct': participation, 'name': emp.name, 'id': emp.id })
     
     return sorted(rank, key=lambda idx: idx['pct'], reverse=True);
 
@@ -344,9 +347,9 @@ def get_lb_surveys(emp, month):
     global surveys_cache
     surveys = []
 
-    sectorEmps = Employer.objects.filter(sector=EmplSector.objects.get(parent=emp.name))
     if emp.name not in surveys_cache:
         if emp.is_parent:
+            sectorEmps = Employer.objects.filter(sector=EmplSector.objects.get(parent=emp.name))
             surveys_cache[emp.name] = Commutersurvey.objects.prefetch_related("leg_set").filter(employer__in=sectorEmps, wr_day_month__in=Month.objects.filter(active='t') )
         else:
             surveys_cache[emp.name] = Commutersurvey.objects.prefetch_related("leg_set").filter(employer=emp, wr_day_month__in=Month.objects.filter(active='t') )
