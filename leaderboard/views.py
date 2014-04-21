@@ -121,7 +121,10 @@ def new_leaderboard(request, empid=0, filter_by='sector', _filter=0, sort='parti
         context['chart'] = json.dumps(getCanvasJSChart(emp) )
         emp_stats = getBreakDown(emp, month)
         nsurveys = emp.get_surveys(month=month).count()
-        context['participation'] = ( float(nsurveys) / float(emp.nr_employees) ) * 100
+        try: 
+            context['participation'] = ( float(nsurveys) / float(emp.nr_employees) ) * 100
+        except TypeError, ZeroDivisionError:
+            context['participation'] = 0
         context['ncommutes'] = nsurveys*2
         context['gc'] = emp_stats['gc']
         context['gs'] = emp_stats['gs']
