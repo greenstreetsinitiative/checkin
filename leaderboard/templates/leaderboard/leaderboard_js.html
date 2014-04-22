@@ -328,7 +328,7 @@ function setfilter(filter) {
             <ol>
 				{% for rank in ranks %} 
 				{% if forloop.counter < 11 %}
-				<li>{% if rank.id != 1105 %}<a class="company" href="/leaderboard/{{ rank.id }}/#details">{{ rank.name }}</a>{% endif %}{% if rank.id == 1105 %}{{ rank.name }}{% endif %}: <b>{{rank.val}}</b></li> 
+				<li>{% if rank.id != 1105 %}<a class="company" href="/leaderboard/{{ rank.id }}/">{{ rank.name }}</a>{% endif %}{% if rank.id == 1105 %}{{ rank.name }}{% endif %}: <b>{{rank.val}}</b></li> 
 				{% endif %}
 				{% endfor %}
             </ol>
@@ -347,7 +347,7 @@ function setfilter(filter) {
             <ol>
 				{% for rank in ranks_pct %} 
 				{% if forloop.counter < 11 and rank.id != 1105 %}
-				<li>{% if rank.id != 1105 %}<a class="company" href="/leaderboard/{{ rank.id }}/#details">{{ rank.name }}</a>{% endif %}{% if rank.id == 1105 %}{{ rank.name }}{% endif %}: <b>{{rank.pct|floatformat}}%</b></li> 
+				<li>{% if rank.id != 1105 %}<a class="company" href="/leaderboard/{{ rank.id }}/">{{ rank.name }}</a>{% endif %}{% if rank.id == 1105 %}{{ rank.name }}{% endif %}: <b>{{rank.pct|floatformat}}%</b></li> 
 				{% endif %}
 				{% endfor %}
             </ol>
