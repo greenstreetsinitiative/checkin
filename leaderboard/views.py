@@ -220,7 +220,7 @@ def participation_rankings(month, filter_by, _filter=0):
         employers = Employer.objects.filter(size_cat=_filter, active=True)
 
     for emp in employers:
-        nsurveys = emp.get_surveys(month=month).count()
+        nsurveys = len(get_lb_surveys(emp, month) )
         if emp.sector and (emp.sector.id < 10 or int(_filter) > 9):
             rank.append({'val': nsurveys, 'name': emp.name, 'id': emp.id })
     
@@ -241,7 +241,7 @@ def participation_pct(month, filter_by, _filter=0):
         employers = Employer.objects.filter(size_cat=_filter, active=True)
 
     for emp in employers:
-        nsurveys = emp.get_surveys(month=month).count()
+        nsurveys = len(get_lb_surveys(emp, month) )
         if not emp.nr_employees:
             continue
         participation = ( (nsurveys*1.0) / (emp.nr_employees*1.0*nmonths) ) * 100
