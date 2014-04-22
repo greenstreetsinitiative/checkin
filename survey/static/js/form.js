@@ -1,4 +1,9 @@
 $(function() {
+  //activate chosen plugin
+  $("#employer").chosen({
+    width: "99%"
+  });
+
   var cs, // commutersurvey data
       map, geocoder, directionsService, directionsDisplay;
 
