@@ -1,6 +1,20 @@
+//load the map once the page finishes loading - needed for the map to work in IE
+
+var map;
+
+$( window ).load(function() { 
+  map = new google.maps.Map(document.getElementById('map-canvas'), {
+    zoom: 11,
+    mapTypeId: google.maps.MapTypeId.TERRAIN,
+    center: new google.maps.LatLng(42.357778, -71.061667),
+    streetViewControl: false,
+    mapTypeControl: false
+  });
+})
+
 $(function() {
   var cs, // commutersurvey data
-      map, geocoder, directionsService, directionsDisplay;
+      geocoder, directionsService, directionsDisplay;
 
   // map & locations
   geocoder = new google.maps.Geocoder();
@@ -33,14 +47,6 @@ $(function() {
 
   // read cache
   cs = simpleStorage.get('commutersurvey') || {};
-
-  map = new google.maps.Map(document.getElementById('map-canvas'), {
-    zoom: 11,
-    mapTypeId: google.maps.MapTypeId.TERRAIN,
-    center: new google.maps.LatLng(42.357778, -71.061667),
-    streetViewControl: false,
-    mapTypeControl: false
-  });
 
   // geocode address
   function geocodeAddress($address) {
@@ -78,7 +84,7 @@ $(function() {
 
       } else {
         $helptxt = $('<span />', {
-          class: 'text-danger'
+          'class': 'text-danger'
         }).html('We were not able to locate this address.');
         $address.after($helptxt);
         if (cs[location]) {
@@ -325,7 +331,7 @@ $(function() {
     });
     $.each(wLegs, function(i,l) {
       durationTotal += parseInt(l.duration);
-      if (['da', 'dalt', 'cp'].indexOf(l.mode) === -1) durationNoCar += parseInt(l.duration);
+      if ($.inArray(l.mode, ['da', 'dalt', 'cp']) === -1) durationNoCar += parseInt(l.duration);
     });
     if (durationNoCar === 0) {
       $('#saved-co2').text('You didn\'t save CO2 emissions on Walk/Ride Day');
@@ -407,7 +413,7 @@ $(function() {
 
   function addErrorMsg($element, text) {
     $errorMsg = $('<div />', {
-      class: 'alert alert-danger alert-dismissable validation-error'
+      'class': 'alert alert-danger alert-dismissable validation-error'
     }).html(text);
     $element.after($errorMsg);
     $('#notvalidated').show();

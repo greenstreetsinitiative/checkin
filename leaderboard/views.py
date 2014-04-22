@@ -73,7 +73,7 @@ def new_leaderboard(request, empid=0, filter_by='sector', _filter=0, sort='parti
     context['months'] = months
     for m in months:
         if m.url_month == selmonth:
-            month = m
+            month = m.month
     if selmonth == 'all':
         global nmonths
         month = 'all'
@@ -121,7 +121,10 @@ def new_leaderboard(request, empid=0, filter_by='sector', _filter=0, sort='parti
         context['chart'] = json.dumps(getCanvasJSChart(emp) )
         emp_stats = getBreakDown(emp, month)
         nsurveys = emp.get_surveys(month=month).count()
-        context['participation'] = ( float(nsurveys) / float(emp.nr_employees) ) * 100
+        try: 
+            context['participation'] = ( float(nsurveys) / (float(emp.nr_employees)*nmonths) ) * 100
+        except TypeError, ZeroDivisionError:
+            context['participation'] = 0
         context['ncommutes'] = nsurveys*2
         context['gc'] = emp_stats['gc']
         context['gs'] = emp_stats['gs']
@@ -137,7 +140,7 @@ def new_leaderboard(request, empid=0, filter_by='sector', _filter=0, sort='parti
         context['employer'] = emp
         context['emp_sector'] = emp.sector
         context['sectorid'] = emp.sector.id
-        context['m'] = getEmpCheckinMatrix(emp)
+        context['m'] = getEmpCheckinMatrix(emp, month)
         
     return render(request, 'leaderboard/leaderboard_js.html', context)
 
@@ -186,7 +189,7 @@ def getTopCompanies(vvp, month, svs, sos):
     topEmps = sorted(companyList, key=itemgetter(1), reverse=True)
     return topEmps
 
-def getEmpCheckinMatrix(emp):
+def getEmpCheckinMatrix(emp, month):
 
     checkinMatrix = {}
     modes = [ 'c', 'cp', 'dalt', 'w', 'b', 'r', 't', 'o', 'tc' ]
@@ -195,7 +198,7 @@ def getEmpCheckinMatrix(emp):
         for mode2 in modes:
             checkinMatrix[mode][mode2] = 0
 
-    empCommutes = emp.get_surveys('all')
+    empCommutes = get_lb_surveys(emp, month)
     for emp in empCommutes:
         if from_work_normally(emp) and from_work_today(emp) and to_work_normally(emp) and to_work_today(emp):
             checkinMatrix[from_work_today(emp)][from_work_normally(emp)] += 1
@@ -335,13 +338,26 @@ def gc_rankings(month, filter_by, _filter=0):
     return sorted(rank, key=lambda idx: idx['val'], reverse=True);
 
 breakdown = {}
+surveys_cache = {}
+
+def get_lb_surveys(emp, month):
+    global surveys_cache
+    surveys = []
+    if emp.name not in surveys_cache:
+        surveys_cache[emp.name] = Commutersurvey.objects.prefetch_related("leg_set").filter(employer=emp, month__in=Month.objects.active_months_list() )
+    if month == 'all':
+        return surveys_cache[emp.name]
+    for survey in surveys_cache[emp.name]:
+        if survey.month == month:
+            surveys.append(survey)
+    return surveys
 
 def getBreakDown(emp, bd_month):
     global breakdown
-    if emp.name in breakdown:
-        return breakdown[emp.name, bd_month]
+    if emp.name + bd_month in breakdown:
+        return breakdown[emp.name, bd_month.month]
 
-    empSurveys = emp.get_surveys(bd_month)
+    empSurveys = get_lb_surveys(emp, bd_month)
     unhealthySwitches = 0
     carCommuters = 0
     greenCommuters = 0
