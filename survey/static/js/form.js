@@ -45,8 +45,10 @@ $(function() {
     }
   });
 
-  // read cache
-  cs = simpleStorage.get('commutersurvey') || {};
+  // read cache or use default form values
+  cs = simpleStorage.get('commutersurvey') || { 
+    employer: 1105 
+  };
 
   // geocode address
   function geocodeAddress($address) {
