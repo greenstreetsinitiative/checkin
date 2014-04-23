@@ -1,7 +1,6 @@
 {% if type == 'current_wr_day' %}
 
 <a style="font-size:20px;" href="{% url 'commuterform' %}" class="btn btn-large btn-success" tabindex="3">Check-in your Walk/Ride Day commute!</a>
-<div id="test"></div>
 <p><strong>Current Walk/Ride Day: {{ date }}.</strong> Check-ins will be accepted from {{ open }} through {{ close }}. Walk/Ride Day is the last Friday of every month. If that Friday is impossible for you, you may substitute another day within the week.</p>
 <hr class="lite">
 
@@ -12,7 +11,6 @@
 <hr class="lite">
 
 {% elif type == 'end_of_season' %}
-<div id="test"></div>
 <font style="font-family: aleolight;">This year's challenge has ended.<br> See you next year!</font>
 
 
