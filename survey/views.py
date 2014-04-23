@@ -36,7 +36,7 @@ def commuter(request):
         return redirect('/')
 
     survey = Commutersurvey()
-    employers = Employer.objects.filter(active=True)
+    employers = Employer.objects.filter(active=True, is_parent=False)
 
     return render_to_response('survey/commuterform.html', locals(), context_instance=RequestContext(request))
 
