@@ -64,7 +64,8 @@
         <div class="form-group">
           <label class="control-label col-sm-3 col-xs-2">Your employer's name</label>
           <div class="col-sm-9 col-xs-10">
-            <select class="form-control" id="employer" name="employer">     
+            <select class="form-control" id="employer" name="employer" data-placeholder="Choose an employer or team">     
+              <option selected></option>
               {% for employer in employers %}
               {% if not employer.is_parent %}
               <option value="{{ employer.id }}">{{ employer.name|escape }}</option>      

@@ -192,7 +192,7 @@ def getTopCompanies(vvp, month, svs, sos):
 def getEmpCheckinMatrix(emp, month):
 
     checkinMatrix = {}
-    modes = [ 'c', 'cp', 'dalt', 'w', 'b', 'r', 't', 'o', 'tc' ]
+    modes = [ 'c', 'cp', 'da', 'dalt', 'w', 'b', 'r', 't', 'o', 'tc' ]
     for mode in modes:
         checkinMatrix[mode] = {}
         for mode2 in modes:
