@@ -54,7 +54,9 @@ def new_leaderboard(request, empid=0, filter_by='sector', _filter=0, sort='parti
     context = {}
     context['empid'] = empid
     global surveys_cache
+    global breakdown
     surveys_cache = {} 
+    breakdown = {}
  
     if _filter == '0':
         _filter = 0
