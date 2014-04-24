@@ -1,0 +1,582 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load staticfiles %}
+
+{% block title %}Leaderboard{% endblock %}
+{% block javascript %}
+<script type="text/javascript">
+    $("document").ready(function() {
+		chart_data = {% autoescape off %}{{ chart }}{% endautoescape %}
+		var chart = new CanvasJS.Chart("breakDownGraph", chart_data);
+		chart.render();
+    });
+    function getResults() {
+        var hostname = top.location.host.toString();
+        $.post("http://"+hostname+"/leaderboard/",
+            {
+                "selVVP":$("#id_vol_v_perc").val(),
+                "selMonth":$("#id_month").val(),
+                "selSVS":$("#id_svs").val(),
+                "selSOS":$("#id_sos").val(),
+                "just_emp": "false",
+            },
+            makeChange, 'json');
+    }
+    function getNewEmp(emp) {
+        var hostname = top.location.host.toString();
+        $("#comanyName").text(emp);
+        $.post("http://"+hostname+"/leaderboard/",
+            {
+            "just_emp": "true",
+            "focusEmployer": emp,
+            },
+            newEmp, 'json');
+    }
+    function makeChange(data, status) {
+        $("#month-label").text($("#id_month option:selected").text());
+        $("#vvp-label").text($("#id_vol_v_perc option:selected").text());
+        $('#id_companies').empty();
+        if (data.vol_v_perc === 'perc') {
+    		vvpMsg = '% participation out of {0} employees';
+        }
+        else {
+    		vvpMsg = ' check-ins out of {0} employees';
+        }
+        if ($("#id_svs").val() !== "name") {
+            empOptFS = '{0} place is {1} with {2}{3}';
+        }
+        else {
+    		empOptFS = '{1} with {4} employees';
+        }
+        for(var i=0; i<data.top_companies.length; i++) {
+            $('#id_companies').append('<option value="{0}">{1}</option>'.format(data.top_companies[i][0], empOptFS.format(Number.getOrdinalFor(i+1, true), data.top_companies[i][0], data.top_companies[i][2], vvpMsg.format(data.top_companies[i][3]), data.top_companies[i][3])));
+        }
+        newEmp(data, status);
+    }
+
+    (function(o) {
+     Number.getOrdinalFor = function(intNum, includeNumber) {
+     return (includeNumber ? intNum : "")
+     + (o[((intNum = Math.abs(intNum % 100)) - 20) % 10] || o[intNum] || "th");
+     };
+     })([,"st","nd","rd"]);
+
+    function newEmp(data, status) {
+    	if ($("#id_svs").val() == "name") {
+    		$("#sector_label").parents("span").removeClass("hidden");
+    		$("#sector_label").text(data.emp_sector);
+    		if (typeof data.emp_size_cat !== 'undefined') {
+    			$("#size_label").parents("span").removeClass("hidden");
+    			$("#size_label").text(data.emp_size_cat);
+    		}
+    	}
+    	else {
+    		$(".sas_label").addClass("hidden");
+    	}
+        var chart = new CanvasJS.Chart("breakDownGraph", data.chart_data);
+        chart.render();
+        $("#total_checkins").text(data.total_breakdown.total);
+        $("#total_gs").text(data.total_breakdown.gs);
+        $("#total_gc").text(data.total_breakdown.gc);
+        $("#total_us").text(data.total_breakdown.us);
+        $("#total_cc").text(data.total_breakdown.cc);
+        var commuterModes = ['c', 'cp', 'w', 'b', 't', 'tc', 'o'];
+        tableString = "#breakDownTable>table>tbody>tr:eq({0})>td:eq({1})";
+        for (var i=0; i<7; i++) { // td differentiation is normal day differentiation
+            for (var j=0; j<7; j++) {
+                $(tableString.format((i+1).toString(), (j+1).toString())).text(data.checkin_matrix[i][j]);
+            }
+        }
+    }
+    function switchSOS() {
+        newSOS = $("#id_svs").val();
+        if (newSOS == "size") {
+            $("#sosdiv").removeClass("hidden");
+            $("#vvpdiv").removeClass("hidden");
+            $("#monthdiv").removeClass("hidden");
+            $("#sos_label>strong").text("Select Size");
+            $("#id_sos").empty();
+    		if ($("#id_vol_v_perc").val() == 'vol') {
+            	$("#id_sos").html('<option value="1">Small (1-10 Employees)</option><option value="2">Medium (11-100 Employees)</option><option value="3">Large (101-1000 Employees)</option><option value="4" selected="true">Largest (>1000 Employees)</option>');
+    		}
+    		else {
+    			$("#id_sos").html('<option value="1">Small (1-10 Employees)</option><option value="2" selected="true">Medium (11-100 Employees)</option><option value="3">Large (101-1000 Employees)</option><option value="4">Largest (>1000 Employees)</option>');
+    		}
+        }
+        else if (newSOS == "sector") {
+            $("#sosdiv").removeClass("hidden");
+            $("#vvpdiv").removeClass("hidden");
+            $("#monthdiv").removeClass("hidden");
+            $("#sos_label>strong").text("Select Sector");
+            $("#id_sos").empty(); 
+            $("#id_sos").html("{% for sector in sectors %}<option value={{ sector.id }}>{{ sector.name }}</option>{% endfor %}"); 
+        }
+        else {
+            $("#sosdiv").addClass("hidden");
+            $("#vvpdiv").addClass("hidden");
+            $("#monthdiv").addClass("hidden");
+        }
+        getResults();
+    }
+    String.prototype.format = function() {
+        var formatted = this;
+        for(arg in arguments) {
+            formatted = formatted.replace("{" + arg + "}", arguments[arg]);
+        }
+        return formatted;
+    };
+
+    //for rotated text header on the matrix
+    $('.matrixWRlabel').css('height', $('.matrixWRlabel').width());
+
+    //toggle the dropdown menu when selecting filters
+    $('#sizeoption,#sectoroption,#groupsoption').hide();
+
+    $('input[name="filter"]').change(function(){   
+        //if size selected
+        if($(this).val() == "size"){
+            //display size dropdown
+            $('#sizeoption').show();
+            $('#sectoroption,#groupsoption').hide();
+        }
+        //if sector selected
+        else if($(this).val() == "sector"){
+            //display sector dropdown
+            $('#sizeoption,#groupsoption').hide();
+            $('#sectoroption').show();
+        }
+
+        //if groups with subteams selected
+        else if($(this).val() == "groups"){
+            //display groups dropdown
+            $('#sizeoption,#sectoroption').hide();
+            $('#groupsoption').show();
+        }
+
+        //if no filter selected
+        else { $('#sizeoption,#sectoroption,#groupsoption').hide(); }
+    });
+
+	
+</script>
+<script type="text/javascript">
+function setfilter(filter) {
+		if(filter == "size") { 
+			$('#size_filter').show();
+			$('#size_filter').removeAttr('disabled');
+			$('#team_filter').hide();
+			$('#team_filter').attr('disabled', "true");
+			$('#sector_filter').hide();
+			$('#sector_filter').attr('disabled', "true");
+		}
+		else if(filter == "team") { 
+			$('#team_filter').show();
+			$('#team_filter').removeAttr('disabled');
+			$('#size_filter').hide();
+			$('#size_filter').attr('disabled', "true");
+			$('#sector_filter').hide();
+			$('#sector_filter').attr('disabled', "true");
+		}
+		else if(filter == "sector") { 
+			$('#sector_filter').show();
+			$('#sector_filter').removeAttr('disabled');
+			$('#size_filter').hide();
+			$('#size_filter').attr('disabled', "true");
+			$('#team_filter').hide();
+			$('#team_filter').attr('disabled', "true");
+		}
+	}
+</script>
+<script type="text/javascript" src="{% static 'libs/canvasjs.min.js' %}"></script>
+{% endblock %}
+
+
+{% block body %}
+    <div class="row clearfix">
+        <div class="col-md-12 column">
+            <center><h1>Walk/Ride Day Leaderboard</h1>
+        </div>
+    </div>
+
+    <div class="row clearfix">
+        <div class="col-md-12 column">
+            <div class="alert alert-info" style="font-size: 14pt; text-align:center; margin:30px; padding:20px;"><strong>Thanks for checking in!</strong> April's check-ins will display on the Leaderboard in a few days. <br><br>The Green Streets volunteer IT team thanks you for your patience!</div>
+        </div>
+    </div>
+
+    <div class="row clearfix filters lbcontrols">
+	<form method="get" action="/leaderboard/redirect" id="filter_form">
+        <div class="col-md-12 column">
+            {% if current_month == 'all' %}<span class="lbmonth">{{ current_month }}</span>{% endif %}
+            {% if current_month != 'all' %}
+            <a href="/leaderboard/{% if empid %}{{ empid }}/{% endif %}{% if filter_by and sectorid %}{{ filter_by }}/{% endif %}{% if sectorid and filter_by == 'sector' %}{{ sectorid }}/{% endif %}{% if filt and filter_by == 'size' %}{{ filt }}/{% endif %}{% if sort %}{{ sort }}/{% endif %}month_all" class="lbmonth">all</a>
+            {% endif %}
+            {% for month in months %}           
+            {% if month.url_month != current_month %}
+            <a href="/leaderboard/{% if empid %}{{ empid }}/{% endif %}{% if filter_by and sectorid %}{{ filter_by }}/{% endif %}{% if sectorid and filter_by == 'sector' %}{{ sectorid }}/{% endif %}{% if filt and filter_by == 'size' %}{{ filt }}/{% endif %}{% if sort %}{{ sort }}/{% endif %}month_{{ month.url_month }}" class="lbmonth">{{ month }}</a>
+            {% endif %} 
+            
+            {% if month.url_month == current_month %}
+            <span class="lbmonth">{{ month }}</span>
+            {% endif %} 
+
+            {% endfor %}
+        </div>
+        <div class="col-md-6 column">
+            <p class="lead"><strong>Filter the companies by</strong></p>
+            <label><input type="radio" name="color" onclick="setfilter('size')" value="size"/> Size</label>
+            <label><input checked="true" type="radio" name="color" onclick="setfilter('sector')" value="sector"/> Sector</label>
+            <label><input type="radio" name="color" onclick="setfilter('team')" value ="sector"/> Groups with subteams</label>
+
+            <!-- size options -->
+            <select id="size_filter" name="size_filter" class="form-control" style="display: none" disabled="true">
+                <option value="0" selected>Please select size</option>
+            <option value="1">Small (1-10 Employees)</option>
+            <option value="2">Medium (11-100 Employees)</option>
+            <option value="3">Large (101-1000 Employees)</option>
+            <option value="4">Largest (&gt;1001 Employees)</option>
+            </select>
+
+            <!-- sector options -->
+            <select class="form-control" id="sector_filter" name="sector_filter">
+                <option value="0" selected>Please select sector</option>
+                <!-- change slice number if number of sectors changes -->
+            {% for sector in sectors|slice:":7" %}<option value="{{ sector.id }}">{{ sector.name }}</option>{% endfor %}
+            </select>
+            <select class="form-control" id="team_filter" style="display: none" name="sector_filter"  disabled="true">
+                <option value="0" selected>Please select group</option>
+            {% for team in subteams %}<option value="{{ team.id }}">{{ team.name }}</option>{% endfor %}
+            </select>
+        {% if sort %}<input type="hidden" name="sort" value="{{ sort }}">{% endif %}
+		<input type="hidden" name="month" value="{{ current_month }}">
+            <button type="submit" class="btn btn-small btn-success">Submit</button>
+        </div>
+<!--  disabled for performance reasons
+        <div class="col-md-6 column">
+            <p class="lead"><strong>Please choose ranking type</strong></p>
+            <div class="btn-group">
+            {% if not filt and not empid %}
+            <a href="/leaderboard/participation" class="btn btn-default participation {% if sort == 'participation' %}selected{% endif %}">Participation</a>
+            <a href="/leaderboard/gc" class="btn btn-default gcommute {% if sort == 'gc' %}selected{% endif %}">Green commutes</a>
+            <a href="/leaderboard/gs" class="btn btn-default gswitch {% if sort == 'gs' %}selected{% endif %}">Green switches</a>
+            {% endif %}
+
+            {% if filt and not empid %}
+            <a href="/leaderboard/participation" class="btn btn-default participation {% if sort == 'participation' %}selected{% endif %}">Participation</a>
+            <a href="/leaderboard/gc" class="btn btn-default gcommute {% if sort == 'gc' %}selected{% endif %}">Green commutes</a>
+            <a href="/leaderboard/gs" class="btn btn-default gswitch {% if sort == 'gs' %}selected{% endif %}">Green switches</a>
+            {% endif %}
+            {% if empid %}
+            <a href="/leaderboard/participation" class="btn btn-default participation {% if sort == 'participation' %}selected{% endif %}">Participation</a>
+            <a href="/leaderboard/gc" class="btn btn-default gcommute {% if sort == 'gc' %}selected{% endif %}">Green commutes</a>
+            <a href="/leaderboard/gs" class="btn btn-default gswitch {% if sort == 'gs' %}selected{% endif %}">Green switches</a>
+            {% endif %}
+            </div>
+        </div> -->
+		</form>
+    </div>
+    <div class="row clearfix">
+        <div class="col-md-12 column">
+            <hr>
+			{% if filter_by == 'sector' %}
+            <h2 class="leaderboard">Rankings within {{ emp_sector }} ({{ display_month }})</h2>
+			{% endif %}
+			{% if filter_by == 'size' %}
+            <h2 class="leaderboard">Rankings within {{ sizecat }} ({{ display_month }})</h2>
+			{% endif %}
+
+            <h1 class="leaderboard"><span class="
+                {% if sort == 'participation' %}participation{% endif %}{% if sort == 'gc' %}gcommute{% endif %}{% if sort == 'gs' %}gswitch{% endif %}">{% if sort == 'participation' %}Participation{% endif %}{% if sort == 'gc' %}Green commutes{% endif %}{% if sort == 'gs' %}Green switches{% endif %}</span></h1>
+                <center><p class="lead">Please click on any company to show more details.</p></center>
+                <hr>
+        </div>
+    </div>
+
+    <div class="row clearfix">
+
+        <div class="col-md-4 column">
+            {% if sort == 'participation' %}
+            <div class="panel participation">
+                <p>Participation counts! We measure participation both on absolute terms (number of people who check in) but also as a percentage of each company!</p>
+                <p>In <strong>{{ display_month }}</strong>, the <strong>{{ total_companies }}</strong> companies of <strong>{% if filter_by == 'sector' %}{{ emp_sector }}{% endif %}{% if filter_by == 'size' %}{{ sizecat }}{% endif %}</strong> have made <strong>{{ total }}  check ins!</strong></p>
+            </div>
+            {% endif %}
+            {% if sort == 'gc' %}
+            <div class="panel gcommute">
+                <p>Green commutes make use of walking, biking, running, taking transit, or using alternative driving arrangements such as carpooling or carsharing.</p>
+                <p>In <strong>{{ display_month }}</strong>, the <strong>{{ total_companies }}</strong> companies of <strong>{% if filter_by == 'sector' %}{{ emp_sector }}{% endif %}{% if filter_by == 'size' %}{{ sizecat }}{% endif %}</strong> have made <strong>{{ total }} green commutes!</strong></p>
+            </div>
+            {% endif %}
+            {% if sort == 'gs' %}
+            <div class="panel gswitch">
+                <p>Green switches are made by commuters adding at least one new green mode of transportation to their commute.</p>
+                <p>In <strong>{{ display_month }}</strong>, the <strong>{{ total_companies }}</strong> companies of <strong>{% if filter_by == 'sector' %}{{ emp_sector }}{% endif %}{% if filter_by == 'size' %}{{ sizecat }}{% endif %}</strong> have made <strong>{{ total }} green switches!</strong></p>
+            </div>
+            {% endif %}
+        </div>
+        <div class="col-md-4 column">
+			{% if sort == 'participation' %}
+            <h3 class="ranktitle">Most participation</h3><p class="ranksubtitle">Total</p>
+			{% endif %}
+			{% if sort == 'gc' %}
+            <h3 class="ranktitle">Most green commutes</h3><p class="ranksubtitle">Total</p>
+			{% endif %}
+			{% if sort == 'gs' %}
+            <h3 class="ranktitle">Most green switches</h3><p class="ranksubtitle">Total</p>
+			{% endif %}
+
+            <ol>
+				{% for rank in ranks %} 
+				{% if forloop.counter < 11 %}
+				<li>{% if rank.id != 1105 %}<a class="company" href="/leaderboard/{{ rank.id }}/">{{ rank.name }}</a>{% endif %}{% if rank.id == 1105 %}{{ rank.name }}{% endif %}: <b>{{rank.val}}</b></li> 
+				{% endif %}
+				{% endfor %}
+            </ol>
+        </div>
+        <div class="col-md-4 column">
+			{% if sort == 'participation' %}
+			<h3 class="ranktitle">Most participation</h3><p class="ranksubtitle">As a percentage of employees</p>
+			{% endif %}
+			{% if sort == 'gc' %}
+            <h3 class="ranktitle">Most green commutes</h3><p class="ranksubtitle">As a percentage of commutes</p>
+			{% endif %}
+			{% if sort == 'gs' %}
+            <h3 class="ranktitle">Most green switches</h3><p class="ranksubtitle">As a percentage of commutes</p>
+			{% endif %}
+
+            <ol>
+				{% for rank in ranks_pct %} 
+				{% if forloop.counter < 11 and rank.id != 1105 %}
+				<li>{% if rank.id != 1105 %}<a class="company" href="/leaderboard/{{ rank.id }}/">{{ rank.name }}</a>{% endif %}{% if rank.id == 1105 %}{{ rank.name }}{% endif %}: <b>{{rank.pct|floatformat}}%</b></li> 
+				{% endif %}
+				{% endfor %}
+            </ol>
+        </div>
+    </div>
+
+    <!-- carbon dioxide info -->
+
+    <!-- calories info -->
+
+
+{% if empid != 0 %}
+    <div class="row clearfix">
+        <div class="col-md-12 column">
+            <a id="details"></a>
+            <hr>
+            <h2 class="leaderboard">Details for {{ employer.name }}</h2>
+        </div>
+    </div>
+
+
+    <div class="row clearfix">
+        <div class="col-md-4 column summary participation">
+            <h4>Employee Participation</h4>
+            <p>{{ ncommutes }} commutes</p>
+            <p>{{ participation|floatformat }}% of employees</p>
+        </div>
+        <div class="col-md-4 column summary gcommute">
+            <h4>Green Commutes</h4>
+            <p>{{ gc }} commutes</p>
+            <p>{{ gc_pct|floatformat }}% of all checkins</p>
+        </div>
+        <div class="col-md-4 column summary gswitch">
+            <h4>Green Switches</h4>
+            <p>{{ gs }} switches</p>
+            <p>{{ gs_pct|floatformat }}% of all checkins</p>
+        </div>
+       <!--  <div class="col-md-2 column summary co2">
+            <h4>Carbon Dioxide</h4>
+            <p>(Number) tons saved</p>
+            <p>(Number unit) per employee</p>
+        </div>
+        <div class="col-md-2 column summary calories">
+            <h4>Calories Burned</h4>
+            <p>(Number) burned</p>
+            <p>(Number unit) per employee</p>
+        </div> -->
+
+    </div>
+
+    <div class="row clearfix">
+        <div class="col-md-8 column"> 
+            <!-- Where the generated bar chart goes -->
+            <div id="breakDownGraph" style="height:300px"></div>
+        </div>
+        <div class="col-md-3 column"> 
+            <div id="totalBreakDown">
+            <table class="table table-borderless">
+                <tr>
+                    <th id="totals"><h4>Totals: </h4></th>
+                </tr>
+                <tr>
+                    <td><div class="gc text-right">Commutes:</div></td>
+                    <td class="gc" id="total_checkins">{{ ncommutes }}</td>
+                </tr>
+                <tr>
+                    <td><div class="text-right">Green Switches:</div></td>
+                    <td class="gstd" id="total_gs">{{ gs }}</td>
+                </tr>
+                <tr>
+                    <td><div class="text-right">Green Commutes:</div></td>
+                    <td class="gctd" id="total_gc">{{ gc }}</td>
+                </tr>
+                <tr>
+                    <td><div class="text-right">Car Commutes:</div></td>
+                    <td class="cctd" id="total_cc">{{ cc }}</td>
+                </tr>
+                <tr>
+                    <td><div class="text-right">Other:</div></td>
+                    <td class="ustd" id="total_us">{{ other }}</td>
+                </tr>
+            </table>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row clearfix">
+        <div class="col-md-8 col-md-offset-2 column">
+
+            <div>
+                <center><hr class="lite">
+            <h3>Switches made on Walk/Ride Day</h3><p class="lead">Calculated using the longest legs of each commute.</p></center>
+            <div class="table-responsive">
+                
+            <table class="table table-borderless table-hover">
+            <tr>
+                <th></th><th></th><th colspan="10"><h4>Modes taken on a normal day</h4></th>
+            </tr>
+            <tr>
+                <td></td><td></td>
+                <td><p class="mode"><img src="{% static 'img/car-24.png' %}" height="32" width="32" class="img-circle" title="Driving a personal car on normal days"></img><br>Car</p></td>
+                <td><p class="mode"><img src="{% static 'img/car-24.png' %}" height="32" width="32" class="img-circle" title="Car (alternative vehicle) on normal days"></img><br>Car (alt.)</p></td>
+                <td><p class="mode"><img src="{% static 'img/car-24.png' %}" height="32" width="32" class="img-circle" title="Carpooling on normal days"></img><br>Carpool</p></td>
+                <td><p class="mode"><img src="{% static 'img/school-24.png' %}" height="32" width="32" class="img-circle" title="Walking on normal days"></img><br>Walk</p></td>
+                <td><p class="mode"><img src="{% static 'img/pitch-24.png' %}" height="32" width="32" class="img-circle" title="Jog/running on normal days"></img><br>Run</p></td>
+                <td><p class="mode"><img src="{% static 'img/bicycle-24.png' %}" height="32" width="32" class="img-circle" title="Biking on normal days"></img><br>Bike</p></td>
+                <td><p class="mode"><img src="{% static 'img/rail-24.png' %}" height="32" width="32" class="img-circle" title="Taking public transit on normal days"></img><br>Transit</p></td>
+                <td><p class="mode"><img src="{% static 'img/warehouse-24.png' %}" height="32" width="32" class="img-circle" title="Telecommuting on normal days"></img><br>Telecommute</p></td>
+                <td><p class="mode"><img src="{% static 'img/scooter-24.png' %}" height="32" width="32" class="img-circle" title="Other transportaition on normal days"></img><br>Other</p></td>
+            </tr>
+            <tr>
+                <th rowspan="10"><div class="matrixWRlabel"><h4>Walk/Ride Day</h4></div></th>
+                <td><p class="mode"><img src="{% static 'img/car-24.png' %}" height="32" width="32" class="img-circle" title="Driving a personal car on Walk-Ride days"></img><br>Car</p></td>
+                <td class='cctd'>{{ m.c.c }}</td>
+                <td class='ustd'>{{ m.c.dalt }}</td>
+                <td class='ustd'>{{ m.c.cp }}</td>
+                <td class='ustd'>{{ m.c.w }}</td>
+                <td class='ustd'>{{ m.c.r }}</td>
+                <td class='ustd'>{{ m.c.b }}</td>
+                <td class='ustd'>{{ m.c.t }}</td>
+                <td class='ustd'>{{ m.c.tc }}</td>
+                <td class='ustd'>{{ m.c.o }}</td>
+            </tr>
+            <tr>
+                <td><p class="mode"><img src="{% static 'img/car-24.png' %}" height="32" width="32" class="img-circle" title="Car (alternative vehicle) on Walk-Ride days"></img><br>Car (alt.)</p></td>
+                <td class='gstd'>{{ m.dalt.c }}</td>
+                <td class='gctd'>{{ m.dalt.dalt }}</td>
+                <td class='gctd'>{{ m.dalt.cp }}</td>
+                <td class='gctd'>{{ m.dalt.w }}</td>
+                <td class='gctd'>{{ m.dalt.r }}</td>
+                <td class='gctd'>{{ m.dalt.b }}</td>
+                <td class='gctd'>{{ m.dalt.t }}</td>
+                <td class='gctd'>{{ m.dalt.tc }}</td>
+                <td class='ustd'>{{ m.dalt.o }}</td>
+            </tr>
+            <tr>
+                <td><p class="mode"><img src="{% static 'img/car-24.png' %}" height="32" width="32" class="img-circle" title="Carpooling on Walk-Ride days"></img><br>Carpool</p></td>
+                <td class='gstd'>{{ m.cp.c }}</td>
+                <td class='gctd'>{{ m.cp.dalt }}</td>
+                <td class='gctd'>{{ m.cp.cp }}</td>
+                <td class='gctd'>{{ m.cp.w }}</td>
+                <td class='gctd'>{{ m.cp.r }}</td>
+                <td class='gctd'>{{ m.cp.b }}</td>
+                <td class='gctd'>{{ m.cp.t }}</td>
+                <td class='gctd'>{{ m.cp.tc }}</td>
+                <td class='ustd'>{{ m.cp.o }}</td>
+            </tr>
+            <tr>
+                <td><p class="mode"><img src="{% static 'img/school-24.png' %}" height="32" width="32" class="img-circle" title="Walking on Walk-Ride days"></img><br>Walk</p></td>
+                <td class='gstd'>{{ m.w.c }}</td>
+                <td class='gstd'>{{ m.w.dalt }}</td>
+                <td class='gstd'>{{ m.w.cp }}</td>
+                <td class='gctd'>{{ m.w.w }}</td>
+                <td class='gctd'>{{ m.w.r }}</td>
+                <td class='gctd'>{{ m.w.b }}</td>
+                <td class='gstd'>{{ m.w.t }}</td>
+                <td class='gstd'>{{ m.w.tc }}</td>
+                <td class='ustd'>{{ m.w.o }}</td>
+            </tr>
+            <tr>
+                <td><p class="mode"><img src="{% static 'img/pitch-24.png' %}" height="32" width="32" class="img-circle" title="Running on Walk-Ride days"></img><br>Run</p></td>
+                <td class='gstd'>{{ m.r.c }}</td>
+                <td class='gstd'>{{ m.r.dalt }}</td>
+                <td class='gstd'>{{ m.r.cp }}</td>
+                <td class='gctd'>{{ m.r.w }}</td>
+                <td class='gctd'>{{ m.r.r }}</td>
+                <td class='gctd'>{{ m.r.b }}</td>
+                <td class='gstd'>{{ m.r.t }}</td>
+                <td class='gstd'>{{ m.r.tc }}</td>
+                <td class='ustd'>{{ m.r.o }}</td>
+            </tr>
+            <tr>
+                <td><p class="mode"><img src="{% static 'img/bicycle-24.png' %}" height="32" width="32" class="img-circle" title="Biking on Walk-Ride days"></img><br>Bike</p></td>
+                <td class='gstd'>{{ m.b.c }}</td>
+                <td class='gstd'>{{ m.b.dalt }}</td>
+                <td class='gstd'>{{ m.b.cp }}</td>
+                <td class='gctd'>{{ m.b.w }}</td>
+                <td class='gctd'>{{ m.b.r }}</td>
+                <td class='gctd'>{{ m.b.b }}</td>
+                <td class='gstd'>{{ m.b.t }}</td>
+                <td class='gstd'>{{ m.b.tc }}</td>
+                <td class='ustd'>{{ m.b.o }}</td>
+            </tr>
+            <tr>
+                <td><p class="mode"><img src="{% static 'img/rail-24.png' %}" height="32" width="32" class="img-circle" title="Taking public transit on Walk-Ride days"></img><br>Transit</p></td>
+                <td class='gstd'>{{ m.t.c }}</td>
+                <td class='gstd'>{{ m.t.dalt }}</td>
+                <td class='gstd'>{{ m.t.cp }}</td>
+                <td class='gctd'>{{ m.t.w }}</td>
+                <td class='gctd'>{{ m.t.r }}</td>
+                <td class='gctd'>{{ m.t.b }}</td>
+                <td class='gctd'>{{ m.t.t }}</td>
+                <td class='gctd'>{{ m.t.tc }}</td>
+                <td class='ustd'>{{ m.t.o }}</td>
+            </tr>
+            <tr>
+                <td><p class="mode"><img src="{% static 'img/warehouse-24.png' %}" height="32" width="32" class="img-circle" title="Telecommuting on Walk-Ride days"></img><br>Telecommute</p></td>
+                <td class='gstd'>{{ m.tc.c }}</td>
+                <td class='gstd'>{{ m.tc.dalt }}</td>
+                <td class='gstd'>{{ m.tc.cp }}</td>
+                <td class='gctd'>{{ m.tc.w }}</td>
+                <td class='gctd'>{{ m.tc.r }}</td>
+                <td class='gctd'>{{ m.tc.b }}</td>
+                <td class='gstd'>{{ m.tc.t }}</td>
+                <td class='gctd'>{{ m.tc.tc }}</td>
+                <td class='ustd'>{{ m.tc.o }}</td>
+            </tr>
+            <tr>
+                <td><p class="mode"><img src="{% static 'img/scooter-24.png' %}" height="32" width="32" class="img-circle" title="Other transportation on Walk-Ride days"></img><br>Other</p></td>
+                <td class='ustd'>{{ m.o.c }}</td>
+                <td class='ustd'>{{ m.o.dalt }}</td>
+                <td class='ustd'>{{ m.o.cp }}</td>
+                <td class='ustd'>{{ m.o.w }}</td>
+                <td class='ustd'>{{ m.o.r }}</td>
+                <td class='ustd'>{{ m.o.b }}</td>
+                <td class='ustd'>{{ m.o.t }}</td>
+                <td class='ustd'>{{ m.o.tc }}</td>
+                <td class='ustd'>{{ m.o.o }}</td>
+            </tr>
+            </table></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endif %}
+
+
+{% endblock %}
+
+
