@@ -162,16 +162,14 @@ a.company {
 }
 
 .ranktitle {
-  font-family: aleobolditalic;
-  letter-spacing: -1px;
+  font-family: aleoregular;
+  padding: 5px;
+  text-transform: none;
+  letter-spacing: -0.5px;
+  font-size: 18px;
+  background: #eee;
 }
 
-.ranksubtitle {
-  line-height:1.0;
-  font-size: 14pt;
-  margin-top:-6px;
-  font-family:aleolightitalic;
-}
 
 .labelHeader {
         text-align: right;
@@ -285,6 +283,53 @@ span.lbmonth {
   color: black;
   outline: 5px green solid;
   z-index:11;
+}
+
+/*ranks*/
+ol.lbrank {
+    counter-reset:li; /* Initiate a counter */
+    margin-left:0; /* Remove the default left margin */
+    padding-left:0; /* Remove the default left padding */
+}
+ol.lbrank > li {
+    position:relative; /* Create a positioning context */
+    margin:0 0 6px 2em; /* Give each list item a left margin to make room for the numbers */
+    list-style:none; /* Disable the normal item numbering */
+}
+ol.lbrank > li:before {
+    content:counter(li); /* Use the counter as content */
+    counter-increment:li; /* Increment the counter by 1 */
+    /* Position and style the number */
+    position:absolute;
+    top:-2px;
+    left:-2em;
+    -moz-box-sizing:border-box;
+    -webkit-box-sizing:border-box;
+    box-sizing:border-box;
+    width:2em;
+    /* Some space between the number and the content in browsers that support
+       generated content but not positioning it (Camino 2 is one example) */
+    margin-right:8px;
+    padding:4px;
+    color:#000;
+    font-weight:bold;
+    font-size:18px;
+    font-family:"Helvetica Neue", Arial, sans-serif;
+    text-align:center;
+}
+
+/*li ol.lbrank,
+li ul {margin-top:6px;}
+ol ol li:last-child {margin-bottom:0;}​*/
+
+.list-group-item {
+  padding: 4px 8px;
+  border:none;
+}
+
+span.badge {
+  font-size: 1em;
+  font-weight: normal;
 }
 
 /* Topnav budget numbers
