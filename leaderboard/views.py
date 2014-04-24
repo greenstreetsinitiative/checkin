@@ -46,11 +46,15 @@ def lb_redirect(request):
     return redirect(url, permanent=True)
 
 nmonths = 1
+breakdown = {}
+surveys_cache = {}
 
 def new_leaderboard(request, empid=0, filter_by='sector', _filter=0, sort='participation', selmonth='all'):
 #    context = leaderboard_reply_data('perc', month, filter_by, _filter);
     context = {}
     context['empid'] = empid
+    global surveys_cache
+    surveys_cache = {} 
  
     if _filter == '0':
         _filter = 0
@@ -339,8 +343,6 @@ def gc_rankings(month, filter_by, _filter=0):
 
     return sorted(rank, key=lambda idx: idx['val'], reverse=True);
 
-breakdown = {}
-surveys_cache = {}
 
 def get_lb_surveys(emp, month):
     global surveys_cache
