@@ -120,7 +120,7 @@ def new_leaderboard(request, empid=0, filter_by='sector', _filter=0, sort='parti
     if empid != 0:
         context['chart'] = json.dumps(getCanvasJSChart(emp) )
         emp_stats = getBreakDown(emp, month)
-        nsurveys = emp.get_surveys(month=month).count()
+        nsurveys = len(get_lb_surveys(emp, month) )
         try: 
             context['participation'] = ( float(nsurveys) / (float(emp.nr_employees)*nmonths) ) * 100
         except TypeError, ZeroDivisionError:
@@ -221,7 +221,8 @@ def participation_rankings(month, filter_by, _filter=0):
 
     for emp in employers:
         nsurveys = emp.get_surveys(month=month).count()
-        rank.append({'val': nsurveys, 'name': emp.name, 'id': emp.id })
+        if emp.sector and (emp.sector.id < 10 or int(_filter) > 9):
+            rank.append({'val': nsurveys, 'name': emp.name, 'id': emp.id })
     
     return sorted(rank, key=lambda idx: idx['val'], reverse=True);
 
@@ -244,7 +245,8 @@ def participation_pct(month, filter_by, _filter=0):
         if not emp.nr_employees:
             continue
         participation = ( (nsurveys*1.0) / (emp.nr_employees*1.0*nmonths) ) * 100
-        rank.append({'pct': participation, 'name': emp.name, 'id': emp.id })
+        if emp.sector and (emp.sector.id < 10 or int(_filter) > 9):
+            rank.append({'pct': participation, 'name': emp.name, 'id': emp.id })
     
     return sorted(rank, key=lambda idx: idx['pct'], reverse=True);
 
@@ -343,12 +345,17 @@ surveys_cache = {}
 def get_lb_surveys(emp, month):
     global surveys_cache
     surveys = []
+
     if emp.name not in surveys_cache:
-        surveys_cache[emp.name] = Commutersurvey.objects.prefetch_related("leg_set").filter(employer=emp, month__in=Month.objects.active_months_list() )
+        if emp.is_parent:
+            sectorEmps = Employer.objects.filter(sector=EmplSector.objects.get(parent=emp.name))
+            surveys_cache[emp.name] = Commutersurvey.objects.prefetch_related("leg_set").filter(employer__in=sectorEmps, wr_day_month__in=Month.objects.filter(active='t') )
+        else:
+            surveys_cache[emp.name] = Commutersurvey.objects.prefetch_related("leg_set").filter(employer=emp, wr_day_month__in=Month.objects.filter(active='t') )
     if month == 'all':
         return surveys_cache[emp.name]
     for survey in surveys_cache[emp.name]:
-        if survey.month == month:
+        if survey.wr_day_month.month == month:
             surveys.append(survey)
     return surveys
 
