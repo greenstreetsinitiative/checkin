@@ -73,7 +73,7 @@ def new_leaderboard(request, empid=0, filter_by='sector', _filter=0, sort='parti
     context['months'] = months
     for m in months:
         if m.url_month == selmonth:
-            month = m
+            month = m.month
     if selmonth == 'all':
         global nmonths
         month = 'all'
@@ -120,8 +120,11 @@ def new_leaderboard(request, empid=0, filter_by='sector', _filter=0, sort='parti
     if empid != 0:
         context['chart'] = json.dumps(getCanvasJSChart(emp) )
         emp_stats = getBreakDown(emp, month)
-        nsurveys = emp.get_surveys(month=month).count()
-        context['participation'] = ( float(nsurveys) / float(emp.nr_employees) ) * 100
+        nsurveys = len(get_lb_surveys(emp, month) )
+        try: 
+            context['participation'] = ( float(nsurveys) / (float(emp.nr_employees)*nmonths) ) * 100
+        except TypeError, ZeroDivisionError:
+            context['participation'] = 0
         context['ncommutes'] = nsurveys*2
         context['gc'] = emp_stats['gc']
         context['gs'] = emp_stats['gs']
@@ -137,24 +140,19 @@ def new_leaderboard(request, empid=0, filter_by='sector', _filter=0, sort='parti
         context['employer'] = emp
         context['emp_sector'] = emp.sector
         context['sectorid'] = emp.sector.id
-        context['m'] = getEmpCheckinMatrix(emp)
+        context['m'] = getEmpCheckinMatrix(emp, month)
         
     return render(request, 'leaderboard/leaderboard_js.html', context)
 
 def getSectorNum(sector):
-    if sector.name[1] == ' ':
-        return int(sector.name[0])
-    elif sector.name[2] == ' ':
-        return int(sector.name[:2])
-    else:
-        return int(sector.name[:3])
+        return sector.id
+
 
 def get_subteams():
     sectors = sorted(EmplSector.objects.all(), key=getSectorNum)
     subteams = []
     for sector in sectors:
-        words = sector.name.split()
-        if int(words[0]) > 10:
+        if sector.id > 9:
             subteams.append(sector)
 
     return subteams
@@ -191,7 +189,7 @@ def getTopCompanies(vvp, month, svs, sos):
     topEmps = sorted(companyList, key=itemgetter(1), reverse=True)
     return topEmps
 
-def getEmpCheckinMatrix(emp):
+def getEmpCheckinMatrix(emp, month):
 
     checkinMatrix = {}
     modes = [ 'c', 'cp', 'dalt', 'w', 'b', 'r', 't', 'o', 'tc' ]
@@ -200,7 +198,7 @@ def getEmpCheckinMatrix(emp):
         for mode2 in modes:
             checkinMatrix[mode][mode2] = 0
 
-    empCommutes = emp.get_surveys('all')
+    empCommutes = get_lb_surveys(emp, month)
     for emp in empCommutes:
         if from_work_normally(emp) and from_work_today(emp) and to_work_normally(emp) and to_work_today(emp):
             checkinMatrix[from_work_today(emp)][from_work_normally(emp)] += 1
@@ -222,8 +220,9 @@ def participation_rankings(month, filter_by, _filter=0):
         employers = Employer.objects.filter(size_cat=_filter, active=True)
 
     for emp in employers:
-        nsurveys = emp.get_surveys(month=month).count()
-        rank.append({'val': nsurveys, 'name': emp.name, 'id': emp.id })
+        nsurveys = len(get_lb_surveys(emp, month) )
+        if emp.sector and (emp.sector.id < 10 or int(_filter) > 9):
+            rank.append({'val': nsurveys, 'name': emp.name, 'id': emp.id })
     
     return sorted(rank, key=lambda idx: idx['val'], reverse=True);
 
@@ -242,11 +241,12 @@ def participation_pct(month, filter_by, _filter=0):
         employers = Employer.objects.filter(size_cat=_filter, active=True)
 
     for emp in employers:
-        nsurveys = emp.get_surveys(month=month).count()
+        nsurveys = len(get_lb_surveys(emp, month) )
         if not emp.nr_employees:
             continue
         participation = ( (nsurveys*1.0) / (emp.nr_employees*1.0*nmonths) ) * 100
-        rank.append({'pct': participation, 'name': emp.name, 'id': emp.id })
+        if emp.sector and (emp.sector.id < 10 or int(_filter) > 9):
+            rank.append({'pct': participation, 'name': emp.name, 'id': emp.id })
     
     return sorted(rank, key=lambda idx: idx['pct'], reverse=True);
 
@@ -340,13 +340,31 @@ def gc_rankings(month, filter_by, _filter=0):
     return sorted(rank, key=lambda idx: idx['val'], reverse=True);
 
 breakdown = {}
+surveys_cache = {}
+
+def get_lb_surveys(emp, month):
+    global surveys_cache
+    surveys = []
+
+    if emp.name not in surveys_cache:
+        if emp.is_parent:
+            sectorEmps = Employer.objects.filter(sector=EmplSector.objects.get(parent=emp.name))
+            surveys_cache[emp.name] = Commutersurvey.objects.prefetch_related("leg_set").filter(employer__in=sectorEmps, wr_day_month__in=Month.objects.filter(active='t') )
+        else:
+            surveys_cache[emp.name] = Commutersurvey.objects.prefetch_related("leg_set").filter(employer=emp, wr_day_month__in=Month.objects.filter(active='t') )
+    if month == 'all':
+        return surveys_cache[emp.name]
+    for survey in surveys_cache[emp.name]:
+        if survey.wr_day_month.month == month:
+            surveys.append(survey)
+    return surveys
 
 def getBreakDown(emp, bd_month):
     global breakdown
-    if emp.name in breakdown:
-        return breakdown[emp.name, bd_month]
+    if emp.name + bd_month in breakdown:
+        return breakdown[emp.name, bd_month.month]
 
-    empSurveys = emp.get_surveys(bd_month)
+    empSurveys = get_lb_surveys(emp, bd_month)
     unhealthySwitches = 0
     carCommuters = 0
     greenCommuters = 0

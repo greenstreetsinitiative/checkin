@@ -31,8 +31,10 @@ $(function() {
     }
   });
 
-  // read cache
-  cs = simpleStorage.get('commutersurvey') || {};
+  // read cache or use default form values
+  cs = simpleStorage.get('commutersurvey') || { 
+    employer: 1105 
+  };
 
   map = new google.maps.Map(document.getElementById('map-canvas'), {
     zoom: 11,
@@ -78,7 +80,7 @@ $(function() {
 
       } else {
         $helptxt = $('<span />', {
-          class: 'text-danger'
+          'class': 'text-danger'
         }).html('We were not able to locate this address.');
         $address.after($helptxt);
         if (cs[location]) {
@@ -238,6 +240,7 @@ $(function() {
 
     $newLeg = $lastLeg
     .clone()
+    .toggleClass('legB')
     .appendTo($container);
 
     if (legData) {
@@ -324,7 +327,7 @@ $(function() {
     });
     $.each(wLegs, function(i,l) {
       durationTotal += parseInt(l.duration);
-      if (['da', 'dalt', 'cp'].indexOf(l.mode) === -1) durationNoCar += parseInt(l.duration);
+      if ($.inArray(l.mode, ['da', 'dalt', 'cp']) === -1) durationNoCar += parseInt(l.duration);
     });
     if (durationNoCar === 0) {
       $('#saved-co2').text('You didn\'t save CO2 emissions on Walk/Ride Day');
@@ -406,7 +409,7 @@ $(function() {
 
   function addErrorMsg($element, text) {
     $errorMsg = $('<div />', {
-      class: 'alert alert-danger alert-dismissable validation-error'
+      'class': 'alert alert-danger alert-dismissable validation-error'
     }).html(text);
     $element.after($errorMsg);
     $('#notvalidated').show();
