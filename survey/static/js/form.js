@@ -534,7 +534,7 @@ $(function() {
     }).done(function() {
       window.location.href = '/commuterform/complete/';
     }).fail(function() {
-      alert('An error occured and your checkin could not be saved. Please try again or contact info@GoGreenStreets.org.');
+      alert('An error occured and your checkin could not be saved, please try again. Green Streets Support has been notified. We are sorry for the inconvenience.');
     }); 
   });
 

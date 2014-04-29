@@ -1,16 +1,20 @@
 {% extends "base.html" %}
+{% load staticfiles %}
 
 {% block title %}Successful Walk/Ride Day check-in!{% endblock %}
 
+{% block javascript %}
+<script src="{% static 'libs/simpleStorage.min.js' %}" type="text/javascript"></script>
+<script src="{% static 'js/thanks.js' %}" type="text/javascript"></script>
+{% endblock %}
 
 {% block body %}
-
 <section class="thanks-page">
     <div class="row">
       <div class="span12">
         <h1 class="thanks-page">You successfully checked-in for <span class="nowrap">Walk/Ride Day</span> <span class="nowrap">{{ month }}</span></h1>
         <p class="lead">Thank you for checking in and for traveling sustainably!</p>
-        <a class="btn btn-large btn-primary" href="/commuterform/">Check in another person</a>
+        <a id="checkin-another" class="btn btn-large btn-primary" href="/commuterform/">Check in another person</a>
         <a class="btn btn-large btn-warning" href="/leaderboard/">View Leaderboard</a>
 
         <!-- Information about retail partners rewards. Personal codes here? -->
@@ -19,6 +23,4 @@
       </div>
     </div>
 </section>
-
-
 {% endblock %}

@@ -81,7 +81,7 @@ class CommutersurveyAdmin(admin.OSMGeoAdmin):
     list_display_links = ['email']
     list_editable = ['employer']
     list_filter = ['wr_day_month', ]
-    search_fields = ['name', 'email', 'employer']
+    search_fields = ['name', 'email', 'employer__name']
     actions = [export_as_csv]
 
 class MonthsAdmin(admin.ModelAdmin):
