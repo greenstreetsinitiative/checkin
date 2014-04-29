@@ -129,7 +129,28 @@ def api(request):
             send_email('checkin-confirmation', template_content, message)
             return HttpResponse(status=200)
         except:
-            return HttpResponse(status=500)
+            # email error details to Trello
+            # FIXME: this could be done with the Trello API
+            template_content = [{
+                'content': request.META.get('HTTP_USER_AGENT'), 
+                'name': 'browser'
+            }, {
+                'content': json.dumps(request.POST), 
+                'name': 'form_data'
+            }]
+            message = {
+                'from_email': 'checkin@gogreenstreets.org',
+                'from_name': 'Checkin',
+                'metadata': {'website': 'checkin.gogreenstreets.org'},
+                'subject': 'Checkin Error for %s' % request.POST['email'],
+                'to': [{
+                    'email': 'cspanring+qkkzwxbq8tvfsfyfk8wz@boards.trello.com', 
+                    'name': 'Checkin', 
+                    'type': 'to'
+                }]
+            }
+            send_email('checkin-error', template_content, message)
+            return HttpResponse('Somehting went wrong.', status=500)
 
     return HttpResponse(status=403)
 
