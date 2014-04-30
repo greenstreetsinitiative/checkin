@@ -326,7 +326,7 @@ class Leg(models.Model):
     different transportation modes.
     """
 
-    mode = models.CharField(blank=True, null=True, max_length=2, choices=COMMUTER_MODES)
+    mode = models.CharField(blank=True, null=True, max_length=4, choices=COMMUTER_MODES)
     direction = models.CharField(blank=True, null=True, max_length=2, choices=LEG_DIRECTIONS)
     duration = models.IntegerField(blank=True, null=True, choices=LEG_DURATIONS)
     day = models.CharField(blank=True, null=True, max_length=1, choices=LEG_DAYS)
