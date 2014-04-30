@@ -40,12 +40,10 @@ def commuter(request):
 
     return render_to_response('survey/commuterform.html', locals(), context_instance=RequestContext(request))
 
-def update_existing_survey(survey, survey_id, created, legs):
+def update_existing_survey(survey, survey_id, created):
     survey.id = survey_id
     survey.created = created
-    legs = Leg.objects.filter(commutersurvey=survey)
-    for leg in legs:
-        leg.delete()
+    Leg.objects.filter(commutersurvey=survey).delete()
     return survey
 
 def send_email(template, template_content, message):
@@ -86,7 +84,7 @@ def api(request):
         # check for existing survey
         try:
             existing_survey = Commutersurvey.objects.get(wr_day_month=data['wr_day_month'], email=data['email'])
-            update_existing_survey(survey, existing_survey.id, existing_survey.created, legs)
+            update_existing_survey(survey, existing_survey.id, existing_survey.created)
         except ObjectDoesNotExist:
             pass
         except MultipleObjectsReturned:
@@ -94,7 +92,7 @@ def api(request):
             surveys = Commutersurvey.objects.filter(wr_day_month=data['wr_day_month'], email=data['email']).order_by('-created')
             for s in surveys[1:]:
                 s.delete()
-            update_existing_survey(survey, surveys[0].id, surveys[0].created, legs)
+            update_existing_survey(survey, surveys[0].id, surveys[0].created)
 
         try:
             survey.save_with_legs(legs=legs)
