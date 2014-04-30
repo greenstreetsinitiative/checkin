@@ -62,6 +62,13 @@ GENDER_CHOICES = (
     ('o', _('Other')),
 )
 
+SWITCH_CHOICES = (
+    (0, _('no data')),
+    (1, _('unhealthy switch')),
+    (2, _('car commute')),
+    (3, _('green commute')),
+    (4, _('green switch')),
+)
 
 class MonthManager(models.Manager):
     def active_months(self):
@@ -218,8 +225,8 @@ class Commutersurvey(models.Model):
     # 2 ... car commute
     # 3 ... green commute
     # 4 ... green switch
-    from_work_switch = models.IntegerField(default=0)
-    to_work_switch = models.IntegerField(default=0)
+    from_work_switch = models.IntegerField(default=0, choices=SWITCH_CHOICES)
+    to_work_switch = models.IntegerField(default=0, choices=SWITCH_CHOICES)
 
     name = models.CharField(max_length=50, blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
