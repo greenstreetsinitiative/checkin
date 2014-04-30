@@ -71,15 +71,16 @@ class CommutersurveyAdmin(admin.OSMGeoAdmin):
         (None, 
             {'fields': ['wr_day_month', 'name', 'email', 'employer']}),
         ('Commute', 
-            {'fields': ['home_address', 'work_address', ]}),
+            {'fields': ['home_address', 'work_address', 'from_work_switch', 'to_work_switch']}),
         ('Maps',
             {'fields': ['geom', ]}),
         ('Meta',
             {'fields': ['ip']}),
     ]
-    list_display = ('id', 'wr_day_month', 'email', 'name', 'employer', 'home_address', 'work_address', )
-    list_filter = ['wr_day_month', ]
+    list_display = ('id', 'wr_day_month', 'email', 'name', 'share', 'employer', 'from_work_switch', 'to_work_switch', 'home_address', 'work_address', )
+    list_filter = ['wr_day_month', 'employer', 'share']
     search_fields = ['name', 'email', 'employer__name']
+    actions = [export_as_csv]
 
 class MonthsAdmin(admin.ModelAdmin):
     list_display = ['id', 'wr_day', 'open_checkin', 'close_checkin', 'active', 'url_month', 'short_name']

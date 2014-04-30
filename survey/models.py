@@ -1,6 +1,7 @@
 from django.contrib.gis.db import models
 from django.db.models import permalink
 from django.utils.text import slugify
+from django.db.models import Sum
 
 # lazy translation
 from django.utils.translation import ugettext_lazy as _
@@ -61,6 +62,13 @@ GENDER_CHOICES = (
     ('o', _('Other')),
 )
 
+SWITCH_CHOICES = (
+    (0, _('no data')),
+    (1, _('unhealthy switch')),
+    (2, _('car commute')),
+    (3, _('green commute')),
+    (4, _('green switch')),
+)
 
 class MonthManager(models.Manager):
     def active_months(self):
@@ -213,6 +221,13 @@ class Commutersurvey(models.Model):
     distance = models.DecimalField(max_digits=10, decimal_places=1, blank=True, null=True)
     duration = models.DecimalField(max_digits=10, decimal_places=1, blank=True, null=True)
 
+    # 1 ... unhealthy switch
+    # 2 ... car commute
+    # 3 ... green commute
+    # 4 ... green switch
+    from_work_switch = models.IntegerField(default=0, choices=SWITCH_CHOICES)
+    to_work_switch = models.IntegerField(default=0, choices=SWITCH_CHOICES)
+
     name = models.CharField(max_length=50, blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
     share = models.BooleanField(default=False)
@@ -271,57 +286,45 @@ class Commutersurvey(models.Model):
         """
         Also creates related Commutersurvey legs
         """
+
         legs = kwargs['legs']
         del kwargs['legs']
 
         super(Commutersurvey, self).save(*args, **kwargs)
 
-        for l in legs:
-            print l
-            leg = Leg(commutersurvey=self, **l)
-            leg.save()
+        Leg.objects.bulk_create([Leg(commutersurvey=self, **l) for l in legs])
 
+        switch = self.switch_analysis()
+        self.from_work_switch = switch['fw']
+        self.to_work_switch = switch['tw']
+        super(Commutersurvey, self).save(*args, **kwargs)
+    
     @property
     def legs(self):
         return self.leg_set.all()
 
-    @property
-    def from_work_switch(self):
-        normal_green_legs = 0
-        wr_green_legs = 0
-        for leg in self.legs:
-            if leg.mode != 'c' and leg.mode != 'da' and leg.direction == 'fw' and leg.day == 'w':
-                wr_green_legs += 1
-            if leg.mode != 'c' and leg.mode != 'da' and leg.direction == 'fw' and leg.day == 'n':
-                normal_green_legs += 1
-        
-        if wr_green_legs == 0:
-            return 2 # car commute
-        if wr_green_legs > normal_green_legs:
-            return 4 # green switch
-        if wr_green_legs < normal_green_legs:
-            return 1 # "unhealthy switch"
-        if wr_green_legs > 0:
-            return 3 # green commute
-    
-    @property
-    def to_work_switch(self):
-        normal_green_legs = 0
-        wr_green_legs = 0
-        for leg in self.legs:
-            if leg.mode != 'c' and leg.mode != 'da' and leg.direction == 'tw' and leg.day == 'w':
-                wr_green_legs += 1
-            if leg.mode != 'c' and leg.mode != 'da' and leg.direction == 'tw' and leg.day == 'n':
-                normal_green_legs += 1
-        
-        if wr_green_legs == 0:
-            return 2 # car commute
-        if wr_green_legs > normal_green_legs:
-            return 4 # green switch
-        if wr_green_legs < normal_green_legs:
-            return 1 # "unhealthy switch"
-        if wr_green_legs > 0:
-            return 3 # green commute
+    def green_legs_duration(self):
+        green_legs_duration = {}
+        for direction in [d[0] for d in LEG_DIRECTIONS]:
+            green_legs_duration[direction] = {}
+            for day in [d[0] for d in LEG_DAYS]:
+                duration = self.legs.exclude(mode__in=['c', 'da']).filter(direction=direction, day=day).aggregate(Sum('duration'))
+                green_legs_duration[direction][day] = duration['duration__sum'] or 0
+        return green_legs_duration
+
+    def switch_analysis(self):
+        switch = {}
+        green_legs_duration = self.green_legs_duration()
+        for direction in [d[0] for d in LEG_DIRECTIONS]:
+            if green_legs_duration[direction]['w'] == 0:
+                switch[direction] = 2 # car commute
+            if green_legs_duration[direction]['w'] > 0:
+                switch[direction] = 3 # green commute
+            if green_legs_duration[direction]['w'] > green_legs_duration[direction]['n']:
+                switch[direction] = 4 # green switch
+            if green_legs_duration[direction]['w'] < green_legs_duration[direction]['n']:
+                switch[direction] = 1 # unhealthy switch
+        return switch
 
 
 class Leg(models.Model):
@@ -330,7 +333,7 @@ class Leg(models.Model):
     different transportation modes.
     """
 
-    mode = models.CharField(blank=True, null=True, max_length=2, choices=COMMUTER_MODES)
+    mode = models.CharField(blank=True, null=True, max_length=4, choices=COMMUTER_MODES)
     direction = models.CharField(blank=True, null=True, max_length=2, choices=LEG_DIRECTIONS)
     duration = models.IntegerField(blank=True, null=True, choices=LEG_DURATIONS)
     day = models.CharField(blank=True, null=True, max_length=1, choices=LEG_DAYS)
