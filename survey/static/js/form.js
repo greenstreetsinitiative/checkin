@@ -477,14 +477,14 @@ $(function() {
     return simpleStorage.set('commutersurvey', cacheData);
   }
 
-  // remove empty values (problems with server side validation)
-  // and stringify JSON objects
+  // remove empty values, invalid numbers and stringify JSON objects
   function djangofy(data) {
-    // FIXME: add better cleanup function
+    var intFields = ['health', 'cdays', 'caltdays', 'cpdays', 'tdays', 'bdays', 'rdays', 'wdays', 'odays', 'tcdays', 'cdaysaway', 'caltdaysaway', 'cpdaysaway', 'tdaysaway', 'bdaysaway', 'rdaysaway', 'wdaysaway', 'odaysaway', 'tcdaysaway'];
+
     delete data['home_location'];
     delete data['work_location'];
     $.each(data, function(k,v) {
-      if (!v) delete data[k];
+      if (!v || (!parseInt(v) && $.inArray(k, intFields) > -1)) delete data[k];
       if (typeof v === 'object') {
         data[k] = JSON.stringify(v);
       }
