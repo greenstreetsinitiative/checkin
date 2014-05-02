@@ -69,17 +69,16 @@ class EmployerSectorAdmin(admin.ModelAdmin):
 class CommutersurveyAdmin(admin.OSMGeoAdmin):
     fieldsets = [
         (None, 
-            {'fields': ['wr_day_month', 'name', 'email', 'employer']}),
+            {'fields': ['wr_day_month', 'name', 'email', 'employer', 'share', 'comments', ]}),
         ('Commute', 
             {'fields': ['home_address', 'work_address', 'from_work_switch', 'to_work_switch']}),
-        ('Maps',
-            {'fields': ['geom', ]}),
-        ('Meta',
-            {'fields': ['ip']}),
+        ('Optional Questions', 
+            {'fields': ['health', 'weight', 'height', 'gender', 'gender_other', 'outsidechanges', 'affectedyou', 'volunteer', 'cdays', 'caltdays', 'cpdays', 'tdays', 'bdays', 'rdays', 'wdays', 'odays', 'tcdays', 'lastweek', 'cdaysaway', 'caltdaysaway', 'cpdaysaway', 'tdaysaway', 'bdaysaway', 'rdaysaway', 'wdaysaway', 'odaysaway', 'tcdaysaway', ]}),
     ]
     list_display = ('id', 'wr_day_month', 'email', 'name', 'share', 'employer', 'from_work_switch', 'to_work_switch', 'home_address', 'work_address', )
-    list_filter = ['wr_day_month', 'employer', 'share']
+    list_filter = ['wr_day_month', 'employer', 'share', 'volunteer']
     search_fields = ['name', 'email', 'employer__name']
+    readonly_fields = ('from_work_switch', 'to_work_switch',)
     actions = [export_as_csv]
 
 class MonthsAdmin(admin.ModelAdmin):
@@ -93,4 +92,3 @@ admin.site.register(Employer, EmployerAdmin)
 admin.site.register(EmplSizeCategory, EmployerLookupAdmin)
 admin.site.register(EmplSector, EmployerSectorAdmin)
 admin.site.register(Month, MonthsAdmin)
-admin.site.register(Leg, admin.ModelAdmin)
