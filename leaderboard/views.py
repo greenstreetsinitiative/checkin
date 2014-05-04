@@ -5,6 +5,7 @@ from django.http import HttpResponse
 from operator import itemgetter, attrgetter
 import json
 from django.shortcuts import redirect
+from django.db import connections
 
 COLOR_SCHEME = {
         'gs': '#0096FF',
@@ -51,10 +52,12 @@ surveys_cache = {}
 
 def new_leaderboard(request, empid=0, filter_by='sector', _filter=0, sort='participation', selmonth='all'):
 #    context = leaderboard_reply_data('perc', month, filter_by, _filter);
+    db = connections['default'].cursor()
     context = {}
     context['empid'] = empid
     global surveys_cache
     global breakdown
+    global nmonths
     surveys_cache = {} 
     breakdown = {}
  
@@ -66,7 +69,7 @@ def new_leaderboard(request, empid=0, filter_by='sector', _filter=0, sort='parti
         emp = res[0]
         sector = emp.sector
     if empid != 0 and _filter == 0:
-        _filter = sector
+        _filter = sector.id
 
     context['filter_by'] = filter_by
     context['filt'] = _filter
@@ -79,11 +82,12 @@ def new_leaderboard(request, empid=0, filter_by='sector', _filter=0, sort='parti
     context['months'] = months
     for m in months:
         if m.url_month == selmonth:
-            month = m.month
+            month = m.id
     if selmonth == 'all':
-        global nmonths
         month = 'all'
         nmonths = len(months)
+    else:
+        nmonths = 1
 
     if filter_by == 'size':
         if _filter == 0:
@@ -103,20 +107,14 @@ def new_leaderboard(request, empid=0, filter_by='sector', _filter=0, sort='parti
         context['display_month'] = "all months"
     else:
         context['display_month'] = month
-    if sort == 'gs':
-        context['ranks'] = green_switch_rankings(month, filter_by, _filter)
-        context['ranks_pct'] = rankings_by_pct(month, filter_by, _filter)
-    elif sort == 'gc':
-        context['ranks'] = gc_rankings(month, filter_by, _filter)
-        context['ranks_pct'] = gc_by_pct(month, filter_by, _filter)
-    else:
-        context['ranks'] = participation_rankings(month, filter_by, _filter)
-        context['ranks_pct'] = participation_pct(month, filter_by, _filter)
 
+    context['ranks'] = participation_rankings(month, filter_by, _filter)
+    context['ranks_pct'] = participation_pct(month, filter_by, _filter)
+    
     context['total_companies'] = len(context['ranks_pct'])
     context['total'] = 0
     for rank in context['ranks']:
-        context['total'] += rank['val']
+        context['total'] += rank[0]
     
     if _filter == 0:
         context['emp_sector'] = 'all sectors'
@@ -163,38 +161,6 @@ def get_subteams():
 
     return subteams
 
-def getTopCompanies(vvp, month, svs, sos):
-    emps = Employer.objects.filter(sector__in=EmplSector.objects.filter(parent=None))
-    if svs == 'size':
-        emps = emps.filter(size_cat=sos)
-    elif svs == 'sector':
-        sector = EmplSector.objects.get(pk=sos)
-        if sector.parent != None:
-            emps = Employer.objects.filter(sector=sos)
-        else:
-            emps = emps.filter(sector=sos)
-    elif svs == 'name':
-        nameList = []
-        for emp in sorted(emps, key=attrgetter('name')):
-            nameList += [(emp.name, 0, 0, emp.nr_employees),]
-        return nameList
-    companyList = []
-    if vvp == 'perc':
-        for company in emps:
-            try:
-                percent = (100 * float(company.get_nr_surveys(month))/float(company.nr_employees))
-                if month == 'all':
-                    percent /= Month.objects.active_months().count()
-                companyList += [(company.name, percent, ('%.1f' % percent), company.nr_employees),]
-            except TypeError:
-                pass
-    else:
-        for company in emps:
-            nr_surveys = company.get_nr_surveys(month)
-            companyList += [(company.name, nr_surveys, str(nr_surveys), company.nr_employees),]
-    topEmps = sorted(companyList, key=itemgetter(1), reverse=True)
-    return topEmps
-
 def getEmpCheckinMatrix(emp, month):
 
     checkinMatrix = {}
@@ -212,138 +178,48 @@ def getEmpCheckinMatrix(emp, month):
     return checkinMatrix
 
 def participation_rankings(month, filter_by, _filter=0):
-    rank = []
-    pct = 0.0
-    participation = 0.0
-    if _filter == 0 and filter_by == 'sector':
-        employers = Employer.objects.filter(active=True)
-    elif filter_by == 'sector':
-        employers = Employer.objects.filter(sector=_filter, active=True)
-
-    if _filter == 0 and filter_by == 'size':
-        employers = Employer.objects.filter(active=True)
-    elif filter_by == 'size':
-        employers = Employer.objects.filter(size_cat=_filter, active=True)
-
-    for emp in employers:
-        nsurveys = len(get_lb_surveys(emp, month) )
-        if emp.sector and (emp.sector.id < 10 or int(_filter) > 9):
-            rank.append({'val': nsurveys, 'name': emp.name, 'id': emp.id })
+    db = connections['default'].cursor()
     
-    return sorted(rank, key=lambda idx: idx['val'], reverse=True);
+    if month != 'all':
+        monthq = "wr_day_month_id = %s";
+        montharg = month
+    else:
+        monthq = " wr_day_month_id in (select id from survey_month where active = %s) "
+        montharg = 't';
+    if filter_by == 'size':
+        filterq = " size_cat_id "
+    else:
+        filterq = " sector_id "
+
+    if _filter == 0 and filter_by == 'sector':
+        db.execute("select count(cs.id) as nsurveys, e.name, e.id from survey_commutersurvey as cs join survey_employer as e on (employer_id = e.id) where " + monthq + " group by e.name, e.id order by nsurveys desc", [montharg])
+        return db.fetchall()
+
+    else:
+        db.execute("select count(cs.id) as nsurveys, e.name, e.id from survey_commutersurvey as cs join survey_employer as e on (employer_id = e.id) where " + monthq + " and " + filterq + " = %s group by e.name, e.id order by nsurveys desc", [montharg, _filter])
+        return db.fetchall()
 
 def participation_pct(month, filter_by, _filter=0):
-    rank = []
-    pct = 0.0
-    participation = 0.0
-    if _filter == 0 and filter_by == 'sector':
-        employers = Employer.objects.filter(active=True)
-    elif filter_by == 'sector':
-        employers = Employer.objects.filter(sector=_filter, active=True)
+    db = connections['default'].cursor() 
+    if month != 'all':
+        monthq = "wr_day_month_id =  %s";
+        montharg = month
+        pctq = "1"
+    else:
+        monthq = " wr_day_month_id in (select id from survey_month where active = %s) "
+        montharg = 't'
+        pctq="(select count(*) from survey_month where open_checkin < current_date and active = 't')"
+    if filter_by == 'size':
+        filterq = " size_cat_id "
+    else:
+        filterq = " sector_id "
 
-    if _filter == 0 and filter_by == 'size':
-        employers = Employer.objects.filter(active=True)
-    elif filter_by == 'size':
-        employers = Employer.objects.filter(size_cat=_filter, active=True)
-
-    for emp in employers:
-        nsurveys = len(get_lb_surveys(emp, month) )
-        if not emp.nr_employees:
-            continue
-        participation = ( (nsurveys*1.0) / (emp.nr_employees*1.0*nmonths) ) * 100
-        if emp.sector and (emp.sector.id < 10 or int(_filter) > 9):
-            rank.append({'pct': participation, 'name': emp.name, 'id': emp.id })
-    
-    return sorted(rank, key=lambda idx: idx['pct'], reverse=True);
-
-
-def rankings_by_pct(month, filter_by, _filter=0):
-    rank = []
-    pct = 0.0
-    if _filter == 0 and filter_by == 'sector':
-        employers = Employer.objects.filter(active=True)
-    elif filter_by == 'sector':
-        employers = Employer.objects.filter(sector=_filter, active=True)
-
-    if _filter == 0 and filter_by == 'size':
-        employers = Employer.objects.filter(active=True)
-    elif filter_by == 'size':
-        employers = Employer.objects.filter(size_cat=_filter, active=True)
-
-    for emp in employers:
-        breakdown = getBreakDown(emp, month)
-        total = Employer.get_nr_surveys(emp, month)
-        if total == 0:
-            pct = 0
-        else:
-            pct = ( (breakdown['gs']*1.0) / (total*2.0) ) * 100
-        rank.append({'pct' : pct, 'name' : emp.name, 'id' : emp.id })
-
-    return sorted(rank, key=lambda idx: idx['pct'], reverse=True);
-
-
-def green_switch_rankings(month, filter_by, _filter=0):
-
-    rank = []
-    if filter_by == 'sector' and _filter == 0:
-        employers = Employer.objects.filter(active=True)
-    elif filter_by == 'sector':
-        employers = Employer.objects.filter(sector=_filter, active=True)
-    
-    if filter_by == 'size' and _filter == 0:
-        employers = Employer.objects.filter(active=True)
-    elif filter_by == 'size':
-        employers = Employer.objects.filter(size_cat=_filter, active=True)
-
-    for emp in employers:
-        breakdown = getBreakDown(emp, month)
-        rank.append({'val' : breakdown['gs'], 'name' : emp.name, 'id' : emp.id })
-
-    return sorted(rank, key=lambda idx: idx['val'], reverse=True);
-
-def gc_by_pct(month, filter_by, _filter=0):
-    rank = []
-    pct = 0.0
-    if _filter == 0 and filter_by == 'sector':
-        employers = Employer.objects.filter(active=True)
-    elif filter_by == 'sector':
-        employers = Employer.objects.filter(sector=_filter, active=True)
-
-    if _filter == 0 and filter_by == 'size':
-        employers = Employer.objects.filter(active=True)
-    elif filter_by == 'size':
-        employers = Employer.objects.filter(size_cat=_filter, active=True)
-
-    for emp in employers:
-        breakdown = getBreakDown(emp, month)
-        total = Employer.get_nr_surveys(emp, month)
-        if total == 0:
-            pct = 0
-        else:
-            pct = ( (breakdown['gc']*1.0) / (total*2.0) ) * 100
-        rank.append({'pct' : pct, 'name' : emp.name, 'id' : emp.id })
-
-    return sorted(rank, key=lambda idx: idx['pct'], reverse=True);
-
-
-def gc_rankings(month, filter_by, _filter=0):
-
-    rank = []
-    if filter_by == 'sector' and _filter == 0:
-        employers = Employer.objects.filter(active=True)
-    elif filter_by == 'sector':
-        employers = Employer.objects.filter(sector=_filter, active=True)
-    
-    if filter_by == 'size' and _filter == 0:
-        employers = Employer.objects.filter(active=True)
-    elif filter_by == 'size':
-        employers = Employer.objects.filter(size_cat=_filter, active=True)
-
-    for emp in employers:
-        breakdown = getBreakDown(emp, month)
-        rank.append({'val' : breakdown['gc'], 'name' : emp.name, 'id' : emp.id })
-
-    return sorted(rank, key=lambda idx: idx['val'], reverse=True);
+    if _filter == 0:
+        db.execute("select count(cast(cs.id as float8) ) / (cast(e.nr_employees*"+pctq+" as float8) )*100 as pct,  e.name, e.id from survey_commutersurvey as cs join survey_employer as e on (employer_id = e.id) where " + monthq + " and e.nr_employees > 0 group by e.name, e.id order by pct desc", [montharg])
+        return db.fetchall()
+    else:
+        db.execute("select count(cast(cs.id as float8) ) / (cast(e.nr_employees*"+pctq+" as float8) )*100 as pct, e.name, e.id from survey_commutersurvey as cs join survey_employer as e on (employer_id = e.id) where " + monthq + " and " + filterq + " = %s and e.nr_employees > 0 group by e.name, e.id order by pct desc", [montharg, _filter])
+        return db.fetchall()
 
 
 def get_lb_surveys(emp, month):
