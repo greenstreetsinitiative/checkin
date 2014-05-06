@@ -83,8 +83,11 @@ def new_leaderboard(request, empid=0, filter_by='sector', _filter=0, sort='parti
     for m in months:
         if m.url_month == selmonth:
             month = m.id
+            context['display_month'] = m.month
+
     if selmonth == 'all':
         month = 'all'
+        context['display_month'] = "all months"
         nmonths = len(months)
     else:
         nmonths = 1
@@ -103,10 +106,6 @@ def new_leaderboard(request, empid=0, filter_by='sector', _filter=0, sort='parti
 
 
     context['current_month'] = selmonth
-    if selmonth == 'all':
-        context['display_month'] = "all months"
-    else:
-        context['display_month'] = month
 
     context['ranks'] = participation_rankings(month, filter_by, _filter)
     context['ranks_pct'] = participation_pct(month, filter_by, _filter)
