@@ -83,10 +83,12 @@ def new_leaderboard(request, empid=0, filter_by='sector', _filter=0, sort='parti
     for m in months:
         if m.url_month == selmonth:
             month = m.id
+            old_month = m.month
             context['display_month'] = m.month
 
     if selmonth == 'all':
         month = 'all'
+        old_month = 'all'
         context['display_month'] = "all months"
         nmonths = len(months)
     else:
@@ -122,8 +124,8 @@ def new_leaderboard(request, empid=0, filter_by='sector', _filter=0, sort='parti
         context['emp_sector'] = sector[0]
     if empid != 0:
         context['chart'] = json.dumps(getCanvasJSChart(emp) )
-        emp_stats = getBreakDown(emp, month)
-        nsurveys = len(get_lb_surveys(emp, month) )
+        emp_stats = getBreakDown(emp, old_month)
+        nsurveys = len(get_lb_surveys(emp, old_month) )
         try: 
             context['participation'] = ( float(nsurveys) / (float(emp.nr_employees)*nmonths) ) * 100
         except TypeError, ZeroDivisionError:
