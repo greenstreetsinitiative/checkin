@@ -302,7 +302,7 @@ function setfilter(filter) {
             <ol class="lbrank">
                 {% for rank in ranks %} 
                 {% if forloop.counter < 11 and rank.id != 1105 %}
-                <li><a class="list-group-item company" href="/leaderboard/{{ rank.id }}/#details">{{ rank.name }}<span class="badge">{{ rank.val }}</span></a></li> 
+                <li><a class="list-group-item company" href="/leaderboard/{{ rank.2 }}/#details">{{ rank.1 }}<span class="badge">{{ rank.0 }}</span></a></li> 
                 {% endif %}
                 {% endfor %}
             </ol>
@@ -324,7 +324,7 @@ function setfilter(filter) {
             <ol class="lbrank">
                 {% for rank in ranks_pct %} 
                 {% if forloop.counter < 11 and rank.id != 1105 %}
-                <li><a class="list-group-item company" href="/leaderboard/{{ rank.id }}/#details">{{ rank.name }}<span class="badge">{{ rank.pct|floatformat }}</span></a></li> 
+                <li><a class="list-group-item company" href="/leaderboard/{{ rank.2 }}/#details">{{ rank.1 }}<span class="badge">{{ rank.0|floatformat }}</span></a></li> 
                 {% endif %}
                 {% endfor %}
             </ol>
@@ -413,7 +413,7 @@ function setfilter(filter) {
         </div>
     </div>
 
-
+<!--
     <div class="row clearfix">
         <div class="col-md-8 col-md-offset-2 column">
 
@@ -552,7 +552,7 @@ function setfilter(filter) {
         </div>
     </div>
 </div>
-
+-->
 {% endif %}
 
 
