@@ -161,6 +161,11 @@ a.company {
   color:red;
 }
 
+span.date {
+  background: #ADFF00;
+  padding: 2px;
+}
+
 .ranktitle {
   font-family: aleoregular;
   padding: 5px;
