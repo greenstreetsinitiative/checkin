@@ -1,16 +1,27 @@
 {% if type == 'current_wr_day' %}
 
 <a style="font-size:18px; font-family:aleolight;" href="{% url 'commuterform' %}" class="btn btn-large btn-success" tabindex="3">Check-in your <br>commute here!</a>
-<p style="font-family: aleolight; font-size: 16px;"><strong>Current Walk/Ride Day: {{ date }}.</strong> Check-ins will be accepted from {{ open }} through {{ close }}. Walk/Ride Day is the last Friday of every month. If that Friday is impossible for you, you may substitute another day within the week.</p>
+<p style="font-family: aleolight; font-size: 16px;">
+	<strong>Current Walk/Ride Day: <span class="date">{{ date }}</span>.</strong> 
+	<br>
+	Check-ins will be accepted from <span class="date">{{ open }}</span> through <span class="date">{{ close }}</span>.</p>
+
+<p> Walk/Ride Day is the last Friday of every month. If that Friday is impossible for you, you may substitute another day within the week.</p>
 <hr class="lite">
 
 {% elif  type == 'next_wr_day' %}
 
 <font style="font-family: aleolight;">Please come back later to check in.</font>
-<p style="font-family: aleolight; font-size: 16px;"><strong>Next Walk/Ride Day: {{ date }}.</strong> Check-ins will be accepted from {{ open }} through {{ close }}. Walk/Ride Day is the last Friday of every month. If that Friday is impossible for you, you may substitute another day within the week.</p>
+<p style="font-family: aleolight; font-size: 16px;">
+	<strong>Next Walk/Ride Day: <span class="date">{{ date }}</span>.</strong> 
+	<br>
+	Check-in period: <span class="date">{{ open }}</span> through <span class="date">{{ close }}</span>.</p>
+
+<p>Walk/Ride Day is the last Friday of every month. If that Friday is impossible for you, you may substitute another day within the week.</p>
 <hr class="lite">
 
 {% elif type == 'end_of_season' %}
+
 <font style="font-family: aleolight;">This year's challenge has ended.<br> See you next year!</font>
 
 
