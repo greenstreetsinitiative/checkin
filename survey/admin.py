@@ -81,6 +81,11 @@ class CommutersurveyAdmin(admin.OSMGeoAdmin):
     readonly_fields = ('from_work_switch', 'to_work_switch',)
     actions = [export_as_csv]
 
+class LegAdmin(admin.ModelAdmin):
+    list_display = ['id', 'mode', 'direction', 'day', 'commutersurvey', ]
+    readonly_fields = ('commutersurvey', )
+    actions = [export_as_csv]
+
 class MonthsAdmin(admin.ModelAdmin):
     list_display = ['id', 'wr_day', 'open_checkin', 'close_checkin', 'active', 'url_month', 'short_name']
     list_editable = ['wr_day', 'open_checkin', 'close_checkin', 'active']
@@ -92,3 +97,4 @@ admin.site.register(Employer, EmployerAdmin)
 admin.site.register(EmplSizeCategory, EmployerLookupAdmin)
 admin.site.register(EmplSector, EmployerSectorAdmin)
 admin.site.register(Month, MonthsAdmin)
+admin.site.register(Leg, LegAdmin)

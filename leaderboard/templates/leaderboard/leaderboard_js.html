@@ -351,8 +351,8 @@ function setfilter(filter) {
     <div class="row clearfix">
         <div class="col-md-4 column summary participation">
             <h4>Employee Participation</h4>
-            <p>{{ ncommutes }} commutes</p>
-            <p>{{ participation|floatformat }}% of employees</p>
+            <p> <!-- [# of checkins made aka number of employees who participated in this timeframe] employees --> ({{ ncommutes }} commutes)</p>
+            <p>{{ participation|floatformat }}% of {{ employer.nr_employees }} employees</p>
         </div>
         <div class="col-md-4 column summary gcommute">
             <h4>Green Commutes</h4>
