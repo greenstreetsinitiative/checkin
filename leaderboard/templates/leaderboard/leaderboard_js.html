@@ -344,14 +344,18 @@ function setfilter(filter) {
             <a id="details"></a>
             <hr>
             <h1 class="leaderboard">{{ employer.name }}</h1>
+
         </div>
     </div>
 
-
     <div class="row clearfix">
+        <div class="col-md-12 column" style="border: 1px solid #eee; padding:5px; text-align:center; letter-spacing: 0.25px; font-size: 16px;">
+            <h3>{{ display_month }} summary</h3> 
+            <p style="font-family:aleolightitalic;">Note: Two commutes (to work and back) are recorded for each check-in made.</p>
+        </div>
         <div class="col-md-4 column summary participation">
             <h4>Employee Participation</h4>
-            <p> <!-- [# of checkins made aka number of employees who participated in this timeframe] employees --> ({{ ncommutes }} commutes)</p>
+            <p>{{ ncommutes }} commutes</p>
             <p>{{ participation|floatformat }}% of {{ employer.nr_employees }} employees</p>
         </div>
         <div class="col-md-4 column summary gcommute">
@@ -378,6 +382,11 @@ function setfilter(filter) {
     </div>
 
     <div class="row clearfix">
+        <hr>
+        <div class="col-md-12 column" style="padding: 5px; text-align: center; letter-spacing: 0.25px; font-size: 16px;">
+            <h3>Across all months to date</h3>
+            <p style="font-family: aleolightitalic;">Notes: Green switches happen when you include more green transportation. Make a new trip via bicycle, bus, train… even carpooling or walking count! Green commutes designate those who maintained existing green commuting habits for Walk/Ride day.</p>
+        </div>
         <div class="col-md-8 column"> 
             <!-- Where the generated bar chart goes -->
             <div id="breakDownGraph" style="height:300px"></div>
