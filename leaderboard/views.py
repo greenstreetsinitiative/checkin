@@ -6,12 +6,15 @@ from operator import itemgetter, attrgetter
 import json
 from django.shortcuts import redirect
 from django.db import connections
+from datetime import date
 
 COLOR_SCHEME = {
         'gs': '#0096FF',
         'gc': '#65AB4B',
         'cc': '#FF2600',
         'us': '#9437FF',
+        'hs': '#000000',
+        'hc': '#f0f0f0',
         'rgs': '#0096FF',
         'rgc': '#65AB4B',
         'rcc': '#FF2600',
@@ -47,16 +50,12 @@ def lb_redirect(request):
     return redirect(url, permanent=True)
 
 nmonths = 1
-breakdown = {}
-surveys_cache = {}
 
 def new_leaderboard(request, empid=0, filter_by='sector', _filter=0, sort='participation', selmonth='all'):
-#    context = leaderboard_reply_data('perc', month, filter_by, _filter);
+
     db = connections['default'].cursor()
     context = {}
     context['empid'] = empid
-    global surveys_cache
-    global breakdown
     global nmonths
     surveys_cache = {} 
     breakdown = {}
@@ -78,7 +77,7 @@ def new_leaderboard(request, empid=0, filter_by='sector', _filter=0, sort='parti
     context['sort'] = sort
     context['sectors'] = sorted(EmplSector.objects.all(), key=getSectorNum)
     context['subteams'] = get_subteams()
-    months = Month.objects.active_months()
+    months = Month.objects.active_months().reverse().exclude(open_checkin__gt=date.today() )
     context['months'] = months
     for m in months:
         if m.url_month == selmonth:
@@ -124,28 +123,36 @@ def new_leaderboard(request, empid=0, filter_by='sector', _filter=0, sort='parti
         context['emp_sector'] = sector[0]
     if empid != 0:
         context['chart'] = json.dumps(getCanvasJSChart(emp) )
-        emp_stats = getBreakDown(emp, old_month)
-        nsurveys = len(get_lb_surveys(emp, old_month) )
-        try: 
-            context['participation'] = ( float(nsurveys) / (float(emp.nr_employees)*nmonths) ) * 100
-        except TypeError, ZeroDivisionError:
-            context['participation'] = 0
+        stats_month = getBreakDown(emp, month)
+        stats_all = stats_month
+        if month != 'all':
+            stats_all = getBreakDown(emp, 'all')
+        for count in context['ranks']:
+            if count[2] == int(empid):
+                nsurveys = count[0]
+        for count in context['ranks_pct']:
+            if count[2] == int(empid):
+                context['participation'] = count[0]
+
         context['ncommutes'] = nsurveys*2
-        context['gc'] = emp_stats['gc']
-        context['gs'] = emp_stats['gs']
-        context['cc'] = emp_stats['cc']
-        context['other'] = emp_stats['us']
+        context['gc'] = stats_month['gc']
+        context['gs'] = stats_month['gs']
+
+        context['gs_total'] = stats_all['gs']
+        context['gc_total'] = stats_all['gc']
+        context['cc_total'] = stats_all['gs']
+        context['other_total'] = stats_all['us']
+
         if nsurveys != 0:
-            context['gc_pct'] = ( ( emp_stats['gc']*1.0) / (nsurveys*2.0) ) * 100
-            context['gs_pct'] = ( ( emp_stats['gs']*1.0) / (nsurveys*2.0) ) * 100
+            context['gc_pct'] = ( ( stats_month['gc']*1.0) / (nsurveys*2.0) ) * 100
+            context['gs_pct'] = ( ( stats_month['gs']*1.0) / (nsurveys*2.0) ) * 100
         else:
             context['gs_pct'] = 0
             context['gc_pct'] = 0
-        context['stats'] = emp_stats
+        context['stats'] = stats_month
         context['employer'] = emp
         context['emp_sector'] = emp.sector
         context['sectorid'] = emp.sector.id
-        context['m'] = getEmpCheckinMatrix(emp, month)
         
     return render(request, 'leaderboard/leaderboard_js.html', context)
 
@@ -180,104 +187,168 @@ def getEmpCheckinMatrix(emp, month):
 
 def participation_rankings(month, filter_by, _filter=0):
     db = connections['default'].cursor()
+    args = []
     
     if month != 'all':
         monthq = "wr_day_month_id = %s";
         montharg = month
+        args.append(montharg)
     else:
         monthq = " wr_day_month_id in (select id from survey_month where active = %s) "
         montharg = 't';
-    if filter_by == 'size':
-        filterq = " size_cat_id "
+        args.append(montharg)
+    if filter_by == 'size' and _filter != 0:
+        filterq = " and e.size_cat_id = %s "
+        args.append(_filter)
+    elif filter_by == 'sector' and _filter != 0:
+        filterq = " and e.sector_id = %s "
+        args.append(_filter)
     else:
-        filterq = " sector_id "
+        filterq = ""
 
-    if _filter == 0 and filter_by == 'sector':
-        db.execute("select count(cs.id) as nsurveys, e.name, e.id from survey_commutersurvey as cs join survey_employer as e on (employer_id = e.id) where " + monthq + " group by e.name, e.id order by nsurveys desc", [montharg])
-        return db.fetchall()
-
+    if filter_by == 'sector' and _filter > 9:
+        sectorq = ""
     else:
-        db.execute("select count(cs.id) as nsurveys, e.name, e.id from survey_commutersurvey as cs join survey_employer as e on (employer_id = e.id) where " + monthq + " and " + filterq + " = %s group by e.name, e.id order by nsurveys desc", [montharg, _filter])
-        return db.fetchall()
+        sectorq = " and sector_id < 10 "
+
+    if len(monthq) > 1:
+        args.append(montharg)
+    if len(filterq) > 1:
+        args.append(_filter)
+
+    db.execute("select count(cs.id) as nsurveys, e.name, e.id from survey_commutersurvey as cs join survey_employer as e on (employer_id = e.id) where " + monthq + sectorq + filterq + " and e.is_parent = 'f' and e.nr_employees > 0 group by e.name, e.id union all select count(cs.id) as nsurveys, e3.name, e3.id from survey_commutersurvey cs join survey_employer e on (cs.employer_id = e.id) join survey_employer e3 on (e3.id = e.id) where e.sector_id in (select sector_id from survey_employer e2 where e2.is_parent = 't') and e3.is_parent = 't' and " + monthq + filterq + " group by e3.name, e3.id order by nsurveys desc", args)
+    return db.fetchall()
+
 
 def participation_pct(month, filter_by, _filter=0):
     db = connections['default'].cursor() 
+    args = []
+    
     if month != 'all':
-        monthq = "wr_day_month_id =  %s";
+        monthq = "wr_day_month_id = %s";
         montharg = month
+        args.append(montharg)
         pctq = "1"
     else:
         monthq = " wr_day_month_id in (select id from survey_month where active = %s) "
-        montharg = 't'
+        montharg = 't';
+        args.append(montharg)
         pctq="(select count(*) from survey_month where open_checkin < current_date and active = 't')"
-    if filter_by == 'size':
-        filterq = " size_cat_id "
+    if filter_by == 'size' and _filter != 0:
+        filterq = " and e.size_cat_id = %s "
+        args.append(_filter)
+    elif filter_by == 'sector' and _filter != 0:
+        filterq = " and e.sector_id = %s "
+        args.append(_filter)
     else:
-        filterq = " sector_id "
+        filterq = ""
 
-    if _filter == 0:
-        db.execute("select count(cast(cs.id as float8) ) / (cast(e.nr_employees*"+pctq+" as float8) )*100 as pct,  e.name, e.id from survey_commutersurvey as cs join survey_employer as e on (employer_id = e.id) where " + monthq + " and e.nr_employees > 0 group by e.name, e.id order by pct desc", [montharg])
-        return db.fetchall()
+    if filter_by == 'sector' and _filter > 9:
+        sectorq = ""
     else:
-        db.execute("select count(cast(cs.id as float8) ) / (cast(e.nr_employees*"+pctq+" as float8) )*100 as pct, e.name, e.id from survey_commutersurvey as cs join survey_employer as e on (employer_id = e.id) where " + monthq + " and " + filterq + " = %s and e.nr_employees > 0 group by e.name, e.id order by pct desc", [montharg, _filter])
-        return db.fetchall()
+        sectorq = " and sector_id < 10 "
+
+    if len(monthq) > 1:
+        args.append(montharg)
+    if len(filterq) > 1:
+        args.append(_filter)
+
+    db.execute("select count(cast(cs.id as float8) ) / (cast(e.nr_employees*"+pctq+" as float8) ) * 100 as pct, e.name, e.id from survey_commutersurvey as cs join survey_employer as e on (employer_id = e.id) where " + monthq + sectorq + filterq + " and e.is_parent = 'f' and e.nr_employees > 0 group by e.name, e.id union all select count(cast(cs.id as float8) ) / (cast(e.nr_employees*"+pctq+" as float8) ) * 100 as pct, e3.name, e3.id from survey_commutersurvey cs join survey_employer e on (cs.employer_id = e.id) join survey_employer e3 on (e3.id = e.id) where e.sector_id in (select sector_id from survey_employer e2 where e2.is_parent = 't') and e3.is_parent = 't' and " + monthq + filterq + " group by e3.name, e3.id, e.nr_employees order by pct desc", args)
+    return db.fetchall()
 
 
-def get_lb_surveys(emp, month):
-    global surveys_cache
-    surveys = []
+def getBreakDown(emp, month):
+    hs = 0
+    hc = 0
+    gs = 0
+    gc = 0
+    cc = 0
+    other = 0
 
-    if emp.name not in surveys_cache:
-        if emp.is_parent:
-            sectorEmps = Employer.objects.filter(sector=EmplSector.objects.get(parent=emp.name))
-            surveys_cache[emp.name] = Commutersurvey.objects.prefetch_related("leg_set").filter(employer__in=sectorEmps, wr_day_month__in=Month.objects.filter(active='t') )
-        else:
-            surveys_cache[emp.name] = Commutersurvey.objects.prefetch_related("leg_set").filter(employer=emp, wr_day_month__in=Month.objects.filter(active='t') )
+    highest_fw_n = 0
+    highest_fw_w = 0
+    highest_tw_n = 0
+    highest_tw_w = 0
+
+    db = connections['default'].cursor()
     if month == 'all':
-        return surveys_cache[emp.name]
-    for survey in surveys_cache[emp.name]:
-        if survey.wr_day_month.month == month:
-            surveys.append(survey)
-    return surveys
+        monthq = " wr_day_month_id in (select id from survey_month where active = %s) "
+        montharg = 't'
+    else:
+        monthq = " wr_day_month_id = %s "
+        montharg = month
 
-def getBreakDown(emp, bd_month):
-    global breakdown
-    if emp.name + bd_month in breakdown:
-        return breakdown[emp.name, bd_month.month]
+    db.execute("select commutersurvey_id, direction, day,  mode, case when mode in ('b', 'r', 'w', 'o') then 5 when mode = 'tc' then 4 when mode = 't' then 3 when mode = 'cp' then 2 when mode in ('c', 'da') then 1 end as rank, wr_day_month_id from survey_leg join survey_commutersurvey cs on (commutersurvey_id = cs.id) where employer_id = %s and " + monthq + " order by commutersurvey_id", [emp.id, montharg]);
+    surveys = db.fetchall()
 
-    empSurveys = get_lb_surveys(emp, bd_month)
-    unhealthySwitches = 0
-    carCommuters = 0
-    greenCommuters = 0
-    greenSwitches = 0
-    newUS = 0
-    newCC = 0
-    newGC = 0
-    newGS = 0
-    for survey in empSurveys:
-        #if survey.email not i
-        to_code = survey.to_work_switch
-        from_code = survey.from_work_switch
-        if to_code == 1:
-            unhealthySwitches += 1
-        elif to_code == 2:
-            carCommuters += 1
-        elif to_code == 3:
-            greenCommuters += 1
-        elif to_code == 4:
-            greenSwitches += 1
-        if from_code == 1:
-            unhealthySwitches += 1
-        elif from_code == 2:
-            carCommuters += 1
-        elif from_code == 3:
-            greenCommuters += 1
-        elif from_code == 4:
-            greenSwitches += 1
+    breakdown = {}
+    modes = [ 'c', 'cp', 'da', 'dalt', 'w', 'b', 'r', 't', 'o', 'tc' ]
+    for mode in modes:
+        breakdown[mode] = {}
+        for mode2 in modes:
+            breakdown[mode][mode2] = 0
 
-    breakdown[emp.name, bd_month] = { 'us': unhealthySwitches, 'cc': carCommuters, 'gc': greenCommuters, 'gs': greenSwitches, 'total':(len(empSurveys)*2) }
+    if len(surveys) != 0:
+        lastid = surveys[0][0]
+        for survey in surveys:
+            if survey[0] != lastid:
+                if highest_fw_w > highest_fw_n and highest_fw_w == 5:
+                    gs += 1 # formerly healthy switch, now green
+                elif highest_fw_w == 5:
+                    gc += 1 # formerly healthy commute, now green
+                elif highest_fw_w > highest_fw_n:
+                    gs += 1 # green switch
+                elif highest_fw_w > 1:
+                    gc += 1 # green commute
+                elif highest_fw_w < highest_fw_n:
+                    other += 1 # other (less healthy/green switch)
+                elif highest_fw_w == 1:
+                    cc += 1 # car commute
+                
+                if highest_tw_w > highest_tw_n and highest_tw_w == 5:
+                    gs += 1 # former healthy switch
+                elif highest_tw_w == 5:
+                    gc += 1 # former healthy commute
+                elif highest_tw_w > highest_tw_n:
+                    gs += 1 # green switch
+                elif highest_tw_w > 1:
+                    gc += 1 # green commute
+                elif highest_tw_w < highest_tw_n:
+                    other += 1 # other (less healthy/green switch)
+                elif highest_tw_w == 1:
+                    cc += 1 # car commute
 
-    return { 'us': unhealthySwitches, 'cc': carCommuters, 'gc': greenCommuters, 'gs': greenSwitches, 'total':(len(empSurveys)*2) }
+                breakdown[fw_w_mode][fw_n_mode] += 1
+                breakdown[tw_w_mode][tw_n_mode] += 1
+
+                highest_fw_w = 0
+                highest_tw_w = 0
+                highest_fw_n = 0
+                highest_tw_n = 0
+
+            if survey[1] == 'fw' and survey[2] == 'n' and survey[4] > highest_fw_n:
+                highest_fw_n = survey[4]
+                fw_n_mode = survey[3]
+            elif survey[1] == 'tw' and survey[2] == 'n' and survey[4] > highest_tw_n:
+                highest_tw_n = survey[4]
+                tw_n_mode = survey[3]
+            elif survey[1] == 'fw' and survey[2] == 'w' and survey[4] > highest_fw_w:
+                highest_fw_w = survey[4]
+                fw_w_mode = survey[3]
+            elif survey[1] == 'tw' and survey[2] == 'w' and survey[4] > highest_tw_w:
+                highest_tw_w = survey[4]
+                tw_w_mode = survey[3]
+
+
+            lastid = survey[0]
+
+    breakdown['gs'] = gs
+    breakdown['gc'] = gc
+    breakdown['us'] = other
+    breakdown['cc'] = cc
+
+    return breakdown
+
 
 def getNewVOldBD(emp, month):
     nvoBD = {'nus':0, 'ncc':0, 'ngc':0, 'ngs':0, 'rus':0, 'rcc':0, 'rgc':0, 'rgs':0, 'ntotal':0, 'rtotal':0} # new vs. old breakdown
@@ -359,11 +430,12 @@ def getCanvasJSChartData(emp):
                 'dataPoints': [
                     ]
                 }
+            
             ]
-    intToModeConversion = ['gs', 'gc', 'cc', 'us']
-    iTMSConv = ['Green Switches','Green Commutes', 'Car Commutes', 'Other']
-    for m in Month.objects.active_months():
-        breakDown = getBreakDown(emp, m.month)
+    intToModeConversion = ['gs', 'gc', 'cc', 'us' ]
+    iTMSConv = ['Green Switches','Green Commutes', 'Car Commutes', 'Other', 'Healthy Switch', 'Healthy Commute']
+    for m in Month.objects.active_months().reverse():
+        breakDown = getBreakDown(emp, m.id)
         for i in range(0, 4):
             chartData[i]['dataPoints'] += [{ 'label': m.short_name, 'y': breakDown[intToModeConversion[i]], 'name': iTMSConv[i] },]
     return chartData
