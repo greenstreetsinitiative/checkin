@@ -241,9 +241,11 @@ def participation_pct(month, filter_by, _filter=0):
         pctq="(select count(*) from survey_month where open_checkin < current_date and active = 't')"
     if filter_by == 'size' and _filter != 0:
         filterq = " and e.size_cat_id = %s "
+        subteam_filterq = " and e2.size_cat_id = %s "
         args.append(_filter)
     elif filter_by == 'sector' and _filter != 0:
         filterq = " and e.sector_id = %s "
+        subteam_filterq = " and e2.sector_id = %s "
         args.append(_filter)
     else:
         filterq = ""
@@ -259,7 +261,7 @@ def participation_pct(month, filter_by, _filter=0):
         args.append(_filter)
 
     db.execute("select count(cast(cs.id as float8) ) / (cast(e.nr_employees*"+pctq+" as float8) ) * 100 as pct, e.name, e.id from survey_commutersurvey as cs join survey_employer as e on (employer_id = e.id) where " + monthq + sectorq + filterq + " and e.is_parent = 'f' and e.nr_employees > 0 group by e.name, e.id " + 
-    "union all select count(cast(cs.id as float8) ) / (cast(e2.nr_employees*"+pctq+" as float8) ) * 100 as pct, sec.parent, e2.id from survey_commutersurvey cs join survey_employer e on (cs.employer_id = e.id) join survey_emplsector sec on (e.sector_id = sec.id), survey_employer e2 where sec.parent is not null and e2.name = sec.parent and e2.nr_employees > 0 and " + monthq + filterq + " group by sec.parent, e2.id, e2.nr_employees order by pct desc", args)
+    "union all select count(cast(cs.id as float8) ) / (cast(e2.nr_employees*"+pctq+" as float8) ) * 100 as pct, sec.parent, e2.id from survey_commutersurvey cs join survey_employer e on (cs.employer_id = e.id) join survey_emplsector sec on (e.sector_id = sec.id), survey_employer e2 where sec.parent is not null and e2.name = sec.parent and e2.nr_employees > 0 and " + monthq + subteam_filterq + " group by sec.parent, e2.id, e2.nr_employees order by pct desc", args)
     return db.fetchall()
 
 
