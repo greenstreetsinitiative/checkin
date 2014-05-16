@@ -140,8 +140,9 @@ def new_leaderboard(request, empid=0, filter_by='sector', _filter=0, sort='parti
 
         context['gs_total'] = stats_all['gs']
         context['gc_total'] = stats_all['gc']
-        context['cc_total'] = stats_all['gs']
+        context['cc_total'] = stats_all['cc']
         context['other_total'] = stats_all['us']
+        context['ncommutes_total'] = stats_all['total']
 
         if nsurveys != 0:
             context['gc_pct'] = ( ( stats_month['gc']*1.0) / (nsurveys*2.0) ) * 100
@@ -199,12 +200,15 @@ def participation_rankings(month, filter_by, _filter=0):
         args.append(montharg)
     if filter_by == 'size' and _filter != 0:
         filterq = " and e.size_cat_id = %s "
+        subteam_filterq = " and e2.size_cat_id = %s "
         args.append(_filter)
     elif filter_by == 'sector' and _filter != 0:
         filterq = " and e.sector_id = %s "
+        subteam_filterq = " and e2.sector_id = %s "
         args.append(_filter)
     else:
         filterq = ""
+        subteam_filterq = ""
 
     if filter_by == 'sector' and _filter > 9:
         sectorq = ""
@@ -216,7 +220,8 @@ def participation_rankings(month, filter_by, _filter=0):
     if len(filterq) > 1:
         args.append(_filter)
 
-    db.execute("select count(cs.id) as nsurveys, e.name, e.id from survey_commutersurvey as cs join survey_employer as e on (employer_id = e.id) where " + monthq + sectorq + filterq + " and e.is_parent = 'f' and e.nr_employees > 0 group by e.name, e.id union all select count(cs.id) as nsurveys, e3.name, e3.id from survey_commutersurvey cs join survey_employer e on (cs.employer_id = e.id) join survey_employer e3 on (e3.id = e.id) where e.sector_id in (select sector_id from survey_employer e2 where e2.is_parent = 't') and e3.is_parent = 't' and " + monthq + filterq + " group by e3.name, e3.id order by nsurveys desc", args)
+    db.execute("select count(cs.id) as nsurveys, e.name, e.id from survey_commutersurvey as cs join survey_employer as e on (employer_id = e.id) where " + monthq + sectorq + filterq + " and e.is_parent = 'f' and e.nr_employees > 0 group by e.name, e.id " +
+    "union all select count(cs.id) as nsurveys, sec.parent, e2.id from survey_commutersurvey cs join survey_employer e on (cs.employer_id = e.id) join survey_emplsector sec on (e.sector_id = sec.id), survey_employer e2 where sec.parent is not null and e2.name = sec.parent and " + monthq + subteam_filterq + " group by sec.parent, e2.id order by nsurveys desc", args)
     return db.fetchall()
 
 
@@ -253,7 +258,8 @@ def participation_pct(month, filter_by, _filter=0):
     if len(filterq) > 1:
         args.append(_filter)
 
-    db.execute("select count(cast(cs.id as float8) ) / (cast(e.nr_employees*"+pctq+" as float8) ) * 100 as pct, e.name, e.id from survey_commutersurvey as cs join survey_employer as e on (employer_id = e.id) where " + monthq + sectorq + filterq + " and e.is_parent = 'f' and e.nr_employees > 0 group by e.name, e.id union all select count(cast(cs.id as float8) ) / (cast(e.nr_employees*"+pctq+" as float8) ) * 100 as pct, e3.name, e3.id from survey_commutersurvey cs join survey_employer e on (cs.employer_id = e.id) join survey_employer e3 on (e3.id = e.id) where e.sector_id in (select sector_id from survey_employer e2 where e2.is_parent = 't') and e3.is_parent = 't' and " + monthq + filterq + " group by e3.name, e3.id, e.nr_employees order by pct desc", args)
+    db.execute("select count(cast(cs.id as float8) ) / (cast(e.nr_employees*"+pctq+" as float8) ) * 100 as pct, e.name, e.id from survey_commutersurvey as cs join survey_employer as e on (employer_id = e.id) where " + monthq + sectorq + filterq + " and e.is_parent = 'f' and e.nr_employees > 0 group by e.name, e.id " + 
+    "union all select count(cast(cs.id as float8) ) / (cast(e2.nr_employees*"+pctq+" as float8) ) * 100 as pct, sec.parent, e2.id from survey_commutersurvey cs join survey_employer e on (cs.employer_id = e.id) join survey_emplsector sec on (e.sector_id = sec.id), survey_employer e2 where sec.parent is not null and e2.name = sec.parent and e2.nr_employees > 0 and " + monthq + filterq + " group by sec.parent, e2.id, e2.nr_employees order by pct desc", args)
     return db.fetchall()
 
 
@@ -270,15 +276,28 @@ def getBreakDown(emp, month):
     highest_tw_n = 0
     highest_tw_w = 0
 
+    tw_w_mode = ''
+    tw_n_mode = ''
+    fw_w_mode = ''
+    fw_n_mode = ''
+
     db = connections['default'].cursor()
+    args = []
+    if emp.is_parent == True:
+        eid = " employer_id in (select id from survey_employer where sector_id in (select id from survey_emplsector where parent = %s) ) "
+        args.append(emp.name)
+    else:
+        eid = " employer_id = %s "
+        args.append(emp.id)
+
     if month == 'all':
         monthq = " wr_day_month_id in (select id from survey_month where active = %s) "
-        montharg = 't'
+        args.append('t')
     else:
         monthq = " wr_day_month_id = %s "
-        montharg = month
+        args.append(month)
 
-    db.execute("select commutersurvey_id, direction, day,  mode, case when mode in ('b', 'r', 'w', 'o') then 5 when mode = 'tc' then 4 when mode = 't' then 3 when mode = 'cp' then 2 when mode in ('c', 'da') then 1 end as rank, wr_day_month_id from survey_leg join survey_commutersurvey cs on (commutersurvey_id = cs.id) where employer_id = %s and " + monthq + " order by commutersurvey_id", [emp.id, montharg]);
+    db.execute("select commutersurvey_id, direction, day,  mode, case when mode in ('b', 'r', 'w', 'o') then 5 when mode = 'tc' then 4 when mode = 't' then 3 when mode = 'cp' then 2 when mode in ('c', 'da') then 1 end as rank, wr_day_month_id from survey_leg join survey_commutersurvey cs on (commutersurvey_id = cs.id) where " + eid + " and " + monthq + " order by commutersurvey_id", args);
     surveys = db.fetchall()
 
     breakdown = {}
@@ -287,11 +306,14 @@ def getBreakDown(emp, month):
         breakdown[mode] = {}
         for mode2 in modes:
             breakdown[mode][mode2] = 0
+    breakdown['total'] = 0
 
+    i = 1
     if len(surveys) != 0:
         lastid = surveys[0][0]
         for survey in surveys:
-            if survey[0] != lastid:
+            if survey[0] != lastid or i == len(surveys):
+                breakdown['total'] += 2
                 if highest_fw_w > highest_fw_n and highest_fw_w == 5:
                     gs += 1 # formerly healthy switch, now green
                 elif highest_fw_w == 5:
@@ -318,8 +340,9 @@ def getBreakDown(emp, month):
                 elif highest_tw_w == 1:
                     cc += 1 # car commute
 
-                breakdown[fw_w_mode][fw_n_mode] += 1
-                breakdown[tw_w_mode][tw_n_mode] += 1
+                if tw_w_mode and tw_n_mode and fw_w_mode and fw_n_mode:
+                    breakdown[fw_w_mode][fw_n_mode] += 1
+                    breakdown[tw_w_mode][tw_n_mode] += 1
 
                 highest_fw_w = 0
                 highest_tw_w = 0
@@ -341,6 +364,7 @@ def getBreakDown(emp, month):
 
 
             lastid = survey[0]
+            i += 1
 
     breakdown['gs'] = gs
     breakdown['gc'] = gc
