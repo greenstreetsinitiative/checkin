@@ -249,6 +249,7 @@ def participation_pct(month, filter_by, _filter=0):
         args.append(_filter)
     else:
         filterq = ""
+        subteam_filterq = ""
 
     if filter_by == 'sector' and _filter > 9:
         sectorq = ""
