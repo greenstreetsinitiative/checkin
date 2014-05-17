@@ -1,4 +1,13 @@
-# Create your views here.
+# File: leaderboard views
+# Description: creates data for page at /leaderboard/. All pages are handled by
+# the new_leaderboard() function. lb_redirect() is a target for the filter form
+# which transforms parameters into a clean URL and redirects back to 
+# new_leaderboard(). new_leaderboard() calls participation_rankings(),
+# participation_pct(), getBreakdown(), and getCanvasJSChart() to fill in rankings,
+# company breakdown, and chart data.
+# Authors: John Freeman, Owen Lynch
+# Date: 5/17/2014
+
 from survey.models import Commutersurvey, Employer, EmplSector, Leg, Month
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
@@ -7,6 +16,7 @@ import json
 from django.shortcuts import redirect
 from django.db import connections
 from datetime import date
+
 
 COLOR_SCHEME = {
         'gs': '#0096FF',
@@ -24,12 +34,6 @@ COLOR_SCHEME = {
         'ncc': '#FF266E',
         'nus': '#9496FF',
         }
-
-def index(request):
-    latest_check_ins = Commutersurvey.objects.order_by('month')[:5]
-    reply_data = leaderboard_reply_data('perc', month, 'sector', '2');
-    context = {'latest_check_ins' : latest_check_ins, 'reply_data' : reply_data }
-    return render(request, 'leaderboard/index.html', context)
 
 def lb_redirect(request):
     if request.GET['color'] == "sector":
@@ -56,9 +60,6 @@ def new_leaderboard(request, empid=0, filter_by='sector', _filter=0, sort='parti
     db = connections['default'].cursor()
     context = {}
     context['empid'] = empid
-    global nmonths
-    surveys_cache = {} 
-    breakdown = {}
  
     if _filter == '0':
         _filter = 0
@@ -82,12 +83,10 @@ def new_leaderboard(request, empid=0, filter_by='sector', _filter=0, sort='parti
     for m in months:
         if m.url_month == selmonth:
             month = m.id
-            old_month = m.month
             context['display_month'] = m.month
 
     if selmonth == 'all':
         month = 'all'
-        old_month = 'all'
         context['display_month'] = "all months"
         nmonths = len(months)
     else:
@@ -121,6 +120,8 @@ def new_leaderboard(request, empid=0, filter_by='sector', _filter=0, sort='parti
     elif filter_by == 'sector' and empid == 0:
         sector = EmplSector.objects.filter(id=_filter)
         context['emp_sector'] = sector[0]
+
+    # if a company detail page, fill in all data for selected company
     if empid != 0:
         context['chart'] = json.dumps(getCanvasJSChart(emp) )
         stats_month = getBreakDown(emp, month)
@@ -170,21 +171,6 @@ def get_subteams():
 
     return subteams
 
-def getEmpCheckinMatrix(emp, month):
-
-    checkinMatrix = {}
-    modes = [ 'c', 'cp', 'da', 'dalt', 'w', 'b', 'r', 't', 'o', 'tc' ]
-    for mode in modes:
-        checkinMatrix[mode] = {}
-        for mode2 in modes:
-            checkinMatrix[mode][mode2] = 0
-
-    empCommutes = get_lb_surveys(emp, month)
-    for emp in empCommutes:
-        if from_work_normally(emp) and from_work_today(emp) and to_work_normally(emp) and to_work_today(emp):
-            checkinMatrix[from_work_today(emp)][from_work_normally(emp)] += 1
-            checkinMatrix[to_work_today(emp)][to_work_normally(emp)] += 1
-    return checkinMatrix
 
 def participation_rankings(month, filter_by, _filter=0):
     db = connections['default'].cursor()
@@ -274,6 +260,7 @@ def getBreakDown(emp, month):
     cc = 0
     other = 0
 
+    # tw = from work, fw = from work, n/w normal day or WR day
     highest_fw_n = 0
     highest_fw_w = 0
     highest_tw_n = 0
@@ -377,32 +364,6 @@ def getBreakDown(emp, month):
     return breakdown
 
 
-def getNewVOldBD(emp, month):
-    nvoBD = {'nus':0, 'ncc':0, 'ngc':0, 'ngs':0, 'rus':0, 'rcc':0, 'rgc':0, 'rgs':0, 'ntotal':0, 'rtotal':0} # new vs. old breakdown
-    for survey in emp.get_new_surveys(month):
-        tws = survey.to_work_switch
-        fws = survey.from_work_switch
-        if tws == 1: nvoBD['nus'] += 1
-        elif tws == 2: nvoBD['ncc'] += 1
-        elif tws == 3: nvoBD['ngc'] += 1
-        elif tws == 4: nvoBD['ngs'] += 1
-        elif fws == 2: nvoBD['ncc'] += 1
-        elif fws == 3: nvoBD['ngc'] += 1
-        elif fws == 4: nvoBD['ngs'] += 1
-    for survey in emp.get_returning_surveys(month):
-        tws = survey.to_work_switch
-        fws = survey.from_work_switch
-        if tws == 1: nvoBD['rus'] += 1
-        elif tws == 2: nvoBD['rcc'] += 1
-        elif tws == 3: nvoBD['rgc'] += 1
-        elif tws == 4: nvoBD['rgs'] += 1
-        if fws == 1: nvoBD['rus'] += 1
-        elif fws == 2: nvoBD['rcc'] += 1
-        elif fws == 3: nvoBD['rgc'] += 1
-        elif fws == 4: nvoBD['rgs'] += 1
-    nvoBD['ntotal'] = nvoBD['nus'] + nvoBD['ncc'] + nvoBD['ngc'] + nvoBD['ngs']
-    nvoBD['rtotal'] = nvoBD['rus'] + nvoBD['rcc'] + nvoBD['rgc'] + nvoBD['rgs']
-    return nvoBD
 
 def getCanvasJSChart(emp, new=False):
     if new:
@@ -550,66 +511,7 @@ def getNvRcJSChartData(emp):
             chartData[i]['dataPoints'] += [{ 'label': str(month), 'y': breakDown[intToModeConversion[i]], 'name': str(iTMSConv[i]) },]
     return chartData
 
-def leaderboard_nvo_data(empName):
-    emp = Employer.objects.get(name__exact=empName)
-    return getCanvasJSChart(emp, new=True)
 
-def leaderboard_reply_data(vol_v_perc, month, svs, sos, focusEmployer=None):
-    topEmps = getTopCompanies(vol_v_perc, month, svs, sos)
-
-    if focusEmployer is None and len(topEmps) > 0:
-        focusEmployer = topEmps[0]
-        emp = Employer.objects.get(name=focusEmployer[0])
-    elif type(focusEmployer) is str:
-        emp = Employer.objects.get(name=focusEmployer)
-    elif type(focusEmployer) is Employer:
-        emp = focusEmployer
-    reply_data = {
-            'chart_data': getCanvasJSChart(emp),
-            'top_companies': topEmps,
-            'checkin_matrix': getEmpCheckinMatrix(emp),
-            'total_breakdown': getBreakDown(emp, "all"),
-            'vol_v_perc': vol_v_perc,
-            'month': month,
-            'svs': svs,
-            'sos': sos,
-            'emp_sector': emp.sector.name,
-            }
-    if emp.size_cat is not None:
-        reply_data['emp_size_cat'] = emp.size_cat.name
-    return reply_data
-
-def leaderboard_company_detail(empName):
-    emp = Employer.objects.get(name=empName)
-    reply_data = {
-            'chart_data': getCanvasJSChart(emp),
-            'checkin_matrix': getEmpCheckinMatrix(emp),
-            'total_breakdown': getBreakDown(emp, "all"),
-            'emp_sector': emp.sector.name,
-            }
-    if emp.size_cat is not None:
-        reply_data['emp_size_cat'] = emp.size_cat.name
-    return reply_data
-
-def leaderboard_context():
-    context = {
-            'sectors': sorted(EmplSector.objects.all(), key=getSectorNum),
-            'months': Month.objects.filter(active=True).order_by('-id'),
-            }
-    return context
-
-def leaderboard(request):
-    emps = Employer.objects.all()
-    if request.method == "POST":
-        if request.POST['just_emp'] == 'false':
-            reply_data = leaderboard_reply_data(request.POST['selVVP'], request.POST['selMonth'], request.POST['selSVS'], request.POST['selSOS'],)
-        elif request.POST['just_emp'] == 'true':
-            reply_data = leaderboard_company_detail(request.POST['focusEmployer'])
-        response = HttpResponse(json.dumps(reply_data), content_type='application/json')
-        return response
-    else:
-        context = leaderboard_context()
-        return render(request, 'leaderboard/leaderboard_js.html', context)
 
 def leaderboard_bare(request, vol_v_perc='all', month='all', svs='all', sos='1', focusEmployer=None):
     context = leaderboard_context(request, vol_v_perc, month, svs, sos, focusEmployer)
@@ -619,74 +521,6 @@ def testchart(request):
     context = { 'CHART_DATA': getCanvasJSChart(Employer.objects.get(name="Dana-Farber Cancer Institute")) }
     return render(request, 'leaderboard/testchart.html', context)
 
-def from_work_normally(survey):
-    longest_dur = 0
-    longest_mode = ''
-    for leg in survey.legs:
-        if not leg.duration and leg.day == 'n' and leg.direction == 'fw':
-            longest_mode = leg.mode
-        elif leg.duration > longest_dur and leg.day == 'n' and leg.direction == 'fw':
-            longest_dur = leg.duration
-            longest_mode = leg.mode
-    if longest_mode == 'da':
-        longest_mode == 'c'
-
-    return longest_mode
-
-def to_work_normally(survey):
-    longest_dur = 0
-    longest_mode = ''
-    for leg in survey.legs:
-        if not leg.duration and leg.day == 'n' and leg.direction == 'tw':
-            longest_mode = leg.mode
-        elif leg.duration > longest_dur and leg.day == 'n' and leg.direction == 'tw':
-            longest_dur = leg.duration
-            longest_mode = leg.mode
-    if longest_mode == 'da':
-        longest_mode == 'c'
-    return longest_mode
-   
-def from_work_today(survey):
-    longest_dur = 0
-    longest_mode = ''
-    for leg in survey.legs:
-        if not leg.duration and leg.day == 'w' and leg.direction == 'fw':
-            longest_mode = leg.mode
-        elif leg.duration > longest_dur and leg.day == 'w' and leg.direction == 'fw':
-            longest_dur = leg.duration
-            longest_mode = leg.mode
-    
-    if longest_mode == 'da':
-        longest_mode == 'c'
-
-    return longest_mode
-
-def to_work_today(survey):
-    longest_dur = 0
-    longest_mode = ''
-    for leg in survey.legs:
-        if not leg.duration and leg.day == 'w' and leg.direction == 'tw':
-            longest_mode = leg.mode
-        elif leg.duration > longest_dur and leg.day == 'w' and leg.direction == 'tw':
-            longest_dur = leg.duration
-            longest_mode = leg.mode
-    if longest_mode == 'da':
-        longest_mode == 'c'
-
-    return longest_mode
-
-def numNewCheckins(company, month1, month2):
-    month1Checkins = Commutersurvey.objects.filter(employer=company, month=month1)
-    month2Checkins = Commutersurvey.objects.filter(employer=company, month=month2)
-    month1emails = []
-    newCount = 0
-    for checkin in month1Checkins:
-        month1emails += checkin.email
-    for checkin in month2Checkins:
-        if checkin.email not in month1emails:
-            newCount += 1
-            month1emails += checkin.email
-    return str(round(((newCount*1.0)/(len(month1emails)*1.0))*100, 2)) + "%"
 
 def nvobreakdown(request, selEmpID=None):
     if selEmpID is None:
