@@ -243,10 +243,11 @@ function setfilter(filter) {
 
     <div class="row clearfix">
         <div class="col-md-12 column" style="border: 1px solid #eee; padding:5px; text-align:center; letter-spacing: 0.25px; font-size: 16px;">
-            <h3>{{ display_month }} summary</h3> 
-            <p style="font-family:aleolightitalic;">Note: Two commutes (to work and back) are recorded for each check-in made.</p>
+            <!-- <h3>{{ display_month }} summary</h3>  -->
+            <p style="font-family:aleolightitalic;">Details coming soon!</p>
+            <p style="font-family:aleolightitalic;"><a href="mailto:cristen@gogreenstreets.org">Email Cristen for questions or feedback.</a></p>
         </div>
-        <div class="col-md-4 column summary participation">
+        <<!-- div class="col-md-4 column summary participation">
             <h4>Employee Participation</h4>
             <p>{{ ncommutes }} commutes</p>
             <p>{{ participation|floatformat }}% of {{ employer.nr_employees }} employees</p>
@@ -260,7 +261,7 @@ function setfilter(filter) {
             <h4>Green Switches</h4>
             <p>{{ gs }} switches</p>
             <p>{{ gs_pct|floatformat }}% of all checkins</p>
-        </div>
+        </div> -->
        <!--  <div class="col-md-2 column summary co2">
             <h4>Carbon Dioxide</h4>
             <p>(Number) tons saved</p>
@@ -274,7 +275,7 @@ function setfilter(filter) {
 
     </div>
 
-    <div class="row clearfix">
+    <!-- <div class="row clearfix">
         <hr>
         <div class="col-md-12 column" style="padding: 5px; text-align: center; letter-spacing: 0.25px; font-size: 16px;">
             <h3>Across all months to date</h3>
@@ -282,7 +283,7 @@ function setfilter(filter) {
         </div>
         <div class="col-md-8 column"> 
             <!-- Where the generated bar chart goes -->
-            <div id="breakDownGraph" style="height:300px"></div>
+            <!-- <div id="breakDownGraph" style="height:300px"></div>
         </div>
         <div class="col-md-3 column"> 
             <div id="totalBreakDown">
@@ -314,7 +315,7 @@ function setfilter(filter) {
             </table>
             </div>
         </div>
-    </div>
+    </div>  -->
     {% endif %}
 
 
