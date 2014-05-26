@@ -36,9 +36,9 @@ $(function() {
     }
   });
 
-  // read cache or use default form values
+  // read cache or use empty value for employer
   cs = simpleStorage.get('commutersurvey') || { 
-    employer: 1105 
+    employer: ''
   };
 
   map = new google.maps.Map(document.getElementById('map-canvas'), {
@@ -438,6 +438,13 @@ $(function() {
       addErrorMsg($('#email'), 'Error: Please provide a valid email-address.');
       isValid = false;
     }
+
+    // EMPLOYER
+    if (!$('#employer').val()) {
+      addErrorMsg($('#employer'), 'Error: Please provide an employer or other entity.');
+      isValid = false;
+    }
+
     // home and work address
     $('.address').each(function(a,i) {
       if (!$(this).val()) {
