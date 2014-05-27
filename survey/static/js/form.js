@@ -40,6 +40,8 @@ $(function() {
   cs = simpleStorage.get('commutersurvey') || { 
     employer: ''
   };
+  // fix for accidently cached W/R month
+  if (cs.wr_day_month) delete cs.wr_day_month;
 
   map = new google.maps.Map(document.getElementById('map-canvas'), {
     zoom: 11,
@@ -475,7 +477,7 @@ $(function() {
   }
 
   function cache(data) {
-    var noCacheKeys = ['home_location', 'work_location', 'geom'],
+    var noCacheKeys = ['wr_day_month', 'home_location', 'work_location', 'geom'],
         cacheData = $.extend(true, {}, data);
     
     $.each(noCacheKeys, function(i,v) {
