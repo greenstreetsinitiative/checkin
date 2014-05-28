@@ -17,42 +17,21 @@
             formatted = formatted.replace("{" + arg + "}", arguments[arg]);
         }
         return formatted;
-    };
-
-    //for rotated text header on the matrix
-    $('.matrixWRlabel').css('height', $('.matrixWRlabel').width());
-
-    //toggle the dropdown menu when selecting filters
-    $('#sizeoption,#sectoroption,#groupsoption').hide();
-
-    $('input[name="filter"]').change(function(){   
-        //if size selected
-        if($(this).val() == "size"){
-            //display size dropdown
-            $('#sizeoption').show();
-            $('#sectoroption,#groupsoption').hide();
-        }
-        //if sector selected
-        else if($(this).val() == "sector"){
-            //display sector dropdown
-            $('#sizeoption,#groupsoption').hide();
-            $('#sectoroption').show();
-        }
-
-        //if groups with subteams selected
-        else if($(this).val() == "groups"){
-            //display groups dropdown
-            $('#sizeoption,#sectoroption').hide();
-            $('#groupsoption').show();
-        }
-
-        //if no filter selected
-        else { $('#sizeoption,#sectoroption,#groupsoption').hide(); }
-    });
-
-	
+    };	
 </script>
 <script type="text/javascript">
+
+$("document").ready(function() {
+    $('button.submitfilter').addClass('disabled'); // Disables visually
+    $('button.submitfilter').prop('disabled', true); // Disables visually + functionally
+    $('select').change(function(){
+        if ( $(this).val() !== "0" ){
+            $('button.submitfilter').prop('disabled', false);
+            $('button.submitfilter').removeClass('disabled'); 
+        }
+    });
+});
+
 function setfilter(filter) {
 		if(filter == "size") { 
 			$('#size_filter').show();
@@ -87,7 +66,7 @@ function setfilter(filter) {
 {% block body %}
     <div class="row clearfix">
         <div class="col-md-12 column">
-            <center><h1>Walk/Ride Day Leaderboard</h1>
+            <center><h1>Walk/Ride Day <br>Corporate Challenge Leaderboard</h1>
         </div>
     </div>
 
@@ -112,31 +91,37 @@ function setfilter(filter) {
         <div class="col-md-6 column">
             <p class="lead"><strong>Filter the companies by</strong></p>
             <label><input type="radio" name="color" onclick="setfilter('size')" value="size"/> Size</label>
-            <label><input checked="true" type="radio" name="color" onclick="setfilter('sector')" value="sector"/> Sector</label>
-            <label><input type="radio" name="color" onclick="setfilter('team')" value ="sector"/> Groups with subteams</label>
+            <label><input type="radio" name="color" onclick="setfilter('sector')" value="sector"/> Sector</label>
+            <label><input type="radio" name="color" onclick="setfilter('team')" value ="sector"/> Organizations with subteams</label>
 
+            <div class="col-md-9 col-sm-9 column">
             <!-- size options -->
             <select id="size_filter" name="size_filter" class="form-control" style="display: none" disabled="true">
             <option value="0" selected>Please select size</option>
-            <option value="1">Small (1 - 50 Employees)</option>
-            <option value="2">Medium (51 - 300 Employees)</option>
-            <option value="3">Large (301 - 2000 Employees)</option>
-            <option value="4">Largest (&gt; 2000 Employees)</option>
+            <option value="1" {% if sizecat == "small companies" %}selected{% endif %}>Small (1 - 50 Employees)</option>
+            <option value="2" {% if sizecat == "medium companies" %}selected{% endif %}>Medium (51 - 300 Employees)</option>
+            <option value="3" {% if sizecat == "large companies" %}selected{% endif %}>Large (301 - 2000 Employees)</option>
+            <option value="4" {% if sizecat == "largest companies" %}selected{% endif %}>Largest (&gt; 2000 Employees)</option>
             </select>
 
             <!-- sector options -->
-            <select class="form-control" id="sector_filter" name="sector_filter">
-                <option value="0" selected>Please select sector</option>
-                <!-- change slice number if number of sectors changes -->
-            {% for sector in sectors|slice:":7" %}<option value="{{ sector.id }}">{{ sector.name }}</option>{% endfor %}
+            <select class="form-control" id="sector_filter" name="sector_filter" style="display: none" disabled="true">
+            <option value="0">Please select sector</option>
+            <!-- change slice number if number of sectors changes -->
+            {% for sector in sectors|slice:":7" %}<option value="{{ sector.id }}" {% if sector == emp_sector %}selected{% endif %}>{{ sector.name }}</option>{% endfor %}
             </select>
+            
+            <!-- subteams -->
             <select class="form-control" id="team_filter" style="display: none" name="sector_filter"  disabled="true">
-                <option value="0" selected>Please select group</option>
-            {% for team in subteams %}<option value="{{ team.id }}">{{ team.name }}</option>{% endfor %}
+            <option value="0">Please select organization</option>
+            {% for team in subteams %}<option value="{{ team.id }}" {% if team == emp_sector %}selected{% endif %}>{{ team.name }}</option>{% endfor %}
             </select>
+            </div>
+            <div class="col-md-3 col-sm-3 column">
         {% if sort %}<input type="hidden" name="sort" value="{{ sort }}">{% endif %}
-		<input type="hidden" name="month" value="{{ current_month }}">
-            <button type="submit" class="btn btn-small btn-success">Submit</button>
+		<input type="hidden" name="month" value="{{ current_month }}" disabled>
+            <button type="submit" class="btn btn-small btn-success submitfilter">Submit</button>
+            </div>
         </div>
 <!--  disabled for performance reasons
         <div class="col-md-6 column">
@@ -175,12 +160,12 @@ function setfilter(filter) {
             <h1 class="leaderboard"><span class="
                 {% if sort == 'participation' %}participation{% endif %}{% if sort == 'gc' %}gcommute{% endif %}{% if sort == 'gs' %}gswitch{% endif %}">{% if sort == 'participation' %}Participation{% endif %}{% if sort == 'gc' %}Green commutes{% endif %}{% if sort == 'gs' %}Green switches{% endif %}</span> {{ display_month }}</h1>  
             <h2 class="leaderboard" style="margin-top: -15px; margin-bottom:10px;">{% if filter_by == 'sector' %}{{ emp_sector }}{% endif %}{% if filter_by == 'size' %}{{ sizecat }}{% endif %} <br>
-            {% if sort == 'participation' %}<span class="participation" style="font-family: aleolightitalic; font-size: 0.75em;">{{ total }} check ins across {{ total_companies }} organizations.</span>{% endif %}{% if sort == 'gc' %}<span class="gcommute" style="font-family: aleolightitalic; font-size: 0.75em;">{{ total }} green commutes across {{ total_companies }} organizations. Green commutes make use of walking, biking, running, taking transit, or using alternative driving arrangements such as carpooling or carsharing.</span>{% endif %}{% if sort == 'gs' %}<span class="gswitch" style="font-family: aleolightitalic; font-size: 0.75em;">{{ total }} green switches across {{ total_companies }} organizations. Green switches are made by commuters adding at least one new green mode of transportation to their commute.</span>{% endif %}</h2>
+            {% if sort == 'participation' %}<span class="participation" style="font-family: aleolightitalic; font-size: 0.75em;">{{ total }} check ins across {{ total_companies }} teams.</span>{% endif %}{% if sort == 'gc' %}<span class="gcommute" style="font-family: aleolightitalic; font-size: 0.75em;">{{ total }} green commutes across {{ total_companies }} organizations. Green commutes make use of walking, biking, running, taking transit, or using alternative driving arrangements such as carpooling or carsharing.</span>{% endif %}{% if sort == 'gs' %}<span class="gswitch" style="font-family: aleolightitalic; font-size: 0.75em;">{{ total }} green switches across {{ total_companies }} organizations. Green switches are made by commuters adding at least one new green mode of transportation to their commute.</span>{% endif %}</h2>
         </div>
     </div>
 
     <div class="row clearfix">
-        <div class="col-md-5 col-md-offset-1 column">
+        <div class="col-md-6 column">
 			{% if sort == 'participation' %}
             <h3 class="ranktitle">Total check ins</h3>
 			{% endif %}
@@ -202,7 +187,7 @@ function setfilter(filter) {
             </div>
 
         </div>
-        <div class="col-md-5 column">
+        <div class="col-md-6 column">
 			{% if sort == 'participation' %}
 			<h3 class="ranktitle">Percentage checking in</h3>
 			{% endif %}
