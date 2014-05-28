@@ -17,42 +17,21 @@
             formatted = formatted.replace("{" + arg + "}", arguments[arg]);
         }
         return formatted;
-    };
-
-    //for rotated text header on the matrix
-    $('.matrixWRlabel').css('height', $('.matrixWRlabel').width());
-
-    //toggle the dropdown menu when selecting filters
-    $('#sizeoption,#sectoroption,#groupsoption').hide();
-
-    $('input[name="filter"]').change(function(){   
-        //if size selected
-        if($(this).val() == "size"){
-            //display size dropdown
-            $('#sizeoption').show();
-            $('#sectoroption,#groupsoption').hide();
-        }
-        //if sector selected
-        else if($(this).val() == "sector"){
-            //display sector dropdown
-            $('#sizeoption,#groupsoption').hide();
-            $('#sectoroption').show();
-        }
-
-        //if groups with subteams selected
-        else if($(this).val() == "groups"){
-            //display groups dropdown
-            $('#sizeoption,#sectoroption').hide();
-            $('#groupsoption').show();
-        }
-
-        //if no filter selected
-        else { $('#sizeoption,#sectoroption,#groupsoption').hide(); }
-    });
-
-	
+    };	
 </script>
 <script type="text/javascript">
+
+$("document").ready(function() {
+    $('button.submitfilter').addClass('disabled'); // Disables visually
+    $('button.submitfilter').prop('disabled', true); // Disables visually + functionally
+    $('select').change(function(){
+        if ( $(this).val() !== "0" ){
+            $('button.submitfilter').prop('disabled', false);
+            $('button.submitfilter').removeClass('disabled'); 
+        }
+    });
+});
+
 function setfilter(filter) {
 		if(filter == "size") { 
 			$('#size_filter').show();
@@ -112,31 +91,37 @@ function setfilter(filter) {
         <div class="col-md-6 column">
             <p class="lead"><strong>Filter the companies by</strong></p>
             <label><input type="radio" name="color" onclick="setfilter('size')" value="size"/> Size</label>
-            <label><input checked="true" type="radio" name="color" onclick="setfilter('sector')" value="sector"/> Sector</label>
+            <label><input type="radio" name="color" onclick="setfilter('sector')" value="sector"/> Sector</label>
             <label><input type="radio" name="color" onclick="setfilter('team')" value ="sector"/> Organizations with subteams</label>
 
+            <div class="col-md-9 col-sm-9 column">
             <!-- size options -->
             <select id="size_filter" name="size_filter" class="form-control" style="display: none" disabled="true">
             <option value="0" selected>Please select size</option>
-            <option value="1">Small (1 - 50 Employees)</option>
-            <option value="2">Medium (51 - 300 Employees)</option>
-            <option value="3">Large (301 - 2000 Employees)</option>
-            <option value="4">Largest (&gt; 2000 Employees)</option>
+            <option value="1" {% if sizecat == "small companies" %}selected{% endif %}>Small (1 - 50 Employees)</option>
+            <option value="2" {% if sizecat == "medium companies" %}selected{% endif %}>Medium (51 - 300 Employees)</option>
+            <option value="3" {% if sizecat == "large companies" %}selected{% endif %}>Large (301 - 2000 Employees)</option>
+            <option value="4" {% if sizecat == "largest companies" %}selected{% endif %}>Largest (&gt; 2000 Employees)</option>
             </select>
 
             <!-- sector options -->
-            <select class="form-control" id="sector_filter" name="sector_filter">
-                <option value="0" selected>Please select sector</option>
-                <!-- change slice number if number of sectors changes -->
-            {% for sector in sectors|slice:":7" %}<option value="{{ sector.id }}">{{ sector.name }}</option>{% endfor %}
+            <select class="form-control" id="sector_filter" name="sector_filter" style="display: none" disabled="true">
+            <option value="0">Please select sector</option>
+            <!-- change slice number if number of sectors changes -->
+            {% for sector in sectors|slice:":7" %}<option value="{{ sector.id }}" {% if sector == emp_sector %}selected{% endif %}>{{ sector.name }}</option>{% endfor %}
             </select>
+            
+            <!-- subteams -->
             <select class="form-control" id="team_filter" style="display: none" name="sector_filter"  disabled="true">
-                <option value="0" selected>Please select organization</option>
-            {% for team in subteams %}<option value="{{ team.id }}">{{ team.name }}</option>{% endfor %}
+            <option value="0">Please select organization</option>
+            {% for team in subteams %}<option value="{{ team.id }}" {% if team == emp_sector %}selected{% endif %}>{{ team.name }}</option>{% endfor %}
             </select>
+            </div>
+            <div class="col-md-3 col-sm-3 column">
         {% if sort %}<input type="hidden" name="sort" value="{{ sort }}">{% endif %}
-		<input type="hidden" name="month" value="{{ current_month }}">
-            <button type="submit" class="btn btn-small btn-success">Submit</button>
+		<input type="hidden" name="month" value="{{ current_month }}" disabled>
+            <button type="submit" class="btn btn-small btn-success submitfilter">Submit</button>
+            </div>
         </div>
 <!--  disabled for performance reasons
         <div class="col-md-6 column">
