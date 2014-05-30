@@ -78,7 +78,6 @@ class CommutersurveyAdmin(admin.OSMGeoAdmin):
     list_display = ('id', 'wr_day_month', 'email', 'name', 'share', 'employer', 'from_work_switch', 'to_work_switch', 'home_address', 'work_address', )
     list_filter = ['wr_day_month', 'employer', 'share', 'volunteer']
     search_fields = ['name', 'email', 'employer__name']
-    readonly_fields = ('from_work_switch', 'to_work_switch',)
     actions = [export_as_csv]
 
 class LegAdmin(admin.ModelAdmin):
