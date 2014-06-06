@@ -130,7 +130,6 @@ $(function() {
       if (status == google.maps.DirectionsStatus.OK) {
         directionsDisplay2.setMap(map);
         directionsDisplay2.setDirections(response);
-        cs.geom = pathToGeoJson(response.routes[0].overview_path);
         cs.distance = response.routes[0].legs[0].distance.value; // Meters
         cs.duration = response.routes[0].legs[0].duration.value; // Seconds
         toggleCommuteDistance2(response.routes[0].legs[0].distance.text + ' (by transit)');
@@ -151,7 +150,6 @@ $(function() {
       if (status == google.maps.DirectionsStatus.OK) {
         directionsDisplay3.setMap(map);
         directionsDisplay3.setDirections(response);
-        cs.geom = pathToGeoJson(response.routes[0].overview_path);
         cs.distance = response.routes[0].legs[0].distance.value; // Meters
         cs.duration = response.routes[0].legs[0].duration.value; // Seconds
         toggleCommuteDistance3(response.routes[0].legs[0].distance.text + ' (by foot)');
@@ -194,14 +192,21 @@ $(function() {
   }
 
   function pathToGeoJson(path) {
-    return {
-      type: 'MultiLineString',
-      coordinates: [
-        $.map(path, function(v,i) {
-          return [[v.lng(), v.lat()]];
-        })
-      ]
-    };
+    if (path.length <= 1) {
+      // point if home and work location are the same;
+      // empty coordinates is a valid MultiLineString in GEOS,
+      // only one coordinate is not
+      return { type: 'MultiLineString', coordinates: [] };
+    } else {
+      return {
+        type: 'MultiLineString',
+        coordinates: [
+          $.map(path, function(v,i) {
+            return [[v.lng(), v.lat()]];
+          })
+        ]
+      };
+    }
   }
 
   function toggleCalculator(status) {
