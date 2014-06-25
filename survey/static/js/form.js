@@ -43,6 +43,14 @@ $(function() {
   // fix for accidently cached W/R month
   if (cs.wr_day_month) delete cs.wr_day_month;
 
+  // remove cached optional questions
+  var optionalquestions = ['health', 'weight', 'height', 'gender', 'gender_other', 'cdays', 'caltdays', 'cpdays', 'tdays', 'bdays', 'rdays', 'wdays', 'odays', 'tcdays', 'lastweek', 'cdaysaway', 'caltdaysaway', 'cpdaysaway', 'tdaysaway', 'bdaysaway', 'rdaysaway', 'wdaysaway', 'odaysaway', 'tcdaysaway', 'outsidechanges', 'affectedyou', 'contact', 'volunteer'];
+  
+  $.each(optionalquestions, function(i,q) {
+    if (cs[q]) delete cs[q];
+  });
+
+ 
   map = new google.maps.Map(document.getElementById('map-canvas'), {
     zoom: 11,
     mapTypeId: google.maps.MapTypeId.TERRAIN,
