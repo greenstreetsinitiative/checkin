@@ -44,8 +44,12 @@ $(function() {
   if (cs.wr_day_month) delete cs.wr_day_month;
 
   // remove cached optional questions
-  var optionalquestions = ['comments', 'health', 'weight', 'height', 'gender', 'gender_other', 'cdays', 'caltdays', 'cpdays', 'tdays', 'bdays', 'rdays', 'wdays', 'odays', 'tcdays', 'lastweek', 'cdaysaway', 'caltdaysaway', 'cpdaysaway', 'tdaysaway', 'bdaysaway', 'rdaysaway', 'wdaysaway', 'odaysaway', 'tcdaysaway', 'outsidechanges', 'affectedyou', 'contact', 'volunteer'];
-  for (q = 0; q < optionalquestions.length; q++) { if (cs.optionalquestions[q]) delete cs.optionalquestions[q]; }
+  var optionalquestions = ['health', 'weight', 'height', 'gender', 'gender_other', 'cdays', 'caltdays', 'cpdays', 'tdays', 'bdays', 'rdays', 'wdays', 'odays', 'tcdays', 'lastweek', 'cdaysaway', 'caltdaysaway', 'cpdaysaway', 'tdaysaway', 'bdaysaway', 'rdaysaway', 'wdaysaway', 'odaysaway', 'tcdaysaway', 'outsidechanges', 'affectedyou', 'contact', 'volunteer'];
+  
+  $.each(optionalquestions, function(i,q) {
+    if (cs[q]) delete cs[q];
+  });
+
  
   map = new google.maps.Map(document.getElementById('map-canvas'), {
     zoom: 11,
