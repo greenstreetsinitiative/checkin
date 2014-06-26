@@ -10,13 +10,13 @@ from django.forms import ModelForm
 from survey.models import Commutersurvey, Employer, EmplSector, EmplSizeCategory, Leg, Month
 # from django.contrib import admin
 from django.contrib.gis import admin
-
+# disable deletion of records
+admin.site.disable_action('delete_selected')
 
 # default GeoAdmin overloads
 admin.GeoModelAdmin.default_lon = -7915039
 admin.GeoModelAdmin.default_lat = 5216500
 admin.GeoModelAdmin.default_zoom = 12
-
 
 def export_as_csv(modeladmin, request, queryset):
     """
@@ -82,6 +82,7 @@ class CommutersurveyAdmin(admin.OSMGeoAdmin):
 
 class LegAdmin(admin.ModelAdmin):
     list_display = ['id', 'mode', 'direction', 'day', 'commutersurvey', ]
+    list_filter = ('commutersurvey__wr_day_month', )
     readonly_fields = ('commutersurvey', )
     actions = [export_as_csv]
 
