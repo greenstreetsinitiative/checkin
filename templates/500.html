@@ -2,14 +2,11 @@
 
 {% block title %}500 Internal Server Error{% endblock %}
 
-{% block pageheader %}
-<h1>We're sorry, something went wrong...</h1>
-{% endblock pageheader %}
-
 {% block body %}
 
 <section>
-    <p><a href="{% url home %}">Walk/Ride Day</a></p>
+	<center><h3 style="color:#999;">We're sorry, something went wrong...</h3>
+    <p><a href="{% url "home" %}" class="btn btn-large btn-warning">Go back to the Walk/Ride Day checkin page</a></p></center>
 </section>
 
 {% endblock %}
