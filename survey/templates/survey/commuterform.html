@@ -129,29 +129,32 @@
       <fieldset id="walkride">
         
         <legend>Walk/Ride Day</legend>
-
+        
+        <h4>Commuting from home to work</h4>
+        <p>How did you commute TO work on Walk/Ride Day?</p>
+        
         <!-- begin picking modes of transport -->
         <div id="w-to-work-legs">
-            <h4>Commuting from home to work</h4>
-          <div class=" form-group leg">
-            <div class="col-sm-3">
-              <label><span class="required">Required: </span>How did you commute TO work on Walk/Ride Day?</label>
-            </div>
-            <div class="col-sm-6">
+          
+          <div class="leg form-inline">
+                          
+              <label>I </label>
+
               <select name="mode" class="form-control" >
               <option value="" selected="selected">Please select mode of transportation</option>
-              <option value="da">Driving alone</option>
-              <option value="dalt">Driving alone, alternative vehicle (taxi, hybrid, car share, motorcycle, etc.)</option>
-              <option value="cp">Carpool</option>
-              <option value="t">Transit (subway, city bus, coach bus, train, ferry, shuttle, etc.)</option>
-              <option value="b">Bike</option>
-              <option value="r">Jog/Run</option>
-              <option value="w">Walk</option>               
-              <option value="o">Other (roller blade, scooter, kayak, etc.)</option>
-              <option value="tc">Telecommute</option>
+              <option value="da">drove</option>
+              <option value="dalt">drove an alternative vehicle (car share, motorcycle, etc.)</option>
+              <option value="cp">carpooled (with coworkers, family, etc.)</option>
+              <option value="t">took public transit</option>
+              <option value="b">biked</option>
+              <option value="r">jogged or ran</option>
+              <option value="w">walked</option>               
+              <option value="o">did something else (roller blade, scooter, kayak, etc.)</option>
+              <option value="tc">telecommuted</option>
               </select>
-            </div>
-            <div class="col-sm-3">
+
+              <label> for </label>
+
               <select name="duration" class="form-control" >
                 <option value="" selected="selected">Please estimate time</option>
                 <option value="1">Less than 15 minutes</option>
@@ -160,18 +163,24 @@
                 <option value="4">45-60 minutes</option>
                 <option value="5">More than an hour</option>
               </select>
-            </div>
+              
+              <span></span>
             <input type="hidden" value="w" name="day">
             <input type="hidden" value="tw" name="direction">
+
           </div>
 
         </div>
+ 
 
-        <div class="form-group">
-          <div class="col-sm-2 col-sm-offset-3">
-          <button class="btn btn-primary morelegs" data-target='w-to-work-legs'><span class="button">Add another leg</span></button>
-          </div>
+      <div class="form-group">
+        <div class="col-lg-3 col-lg-offset-9">
+        <button class="btn btn-primary morelegs" data-target='w-to-work-legs'><span class="button">Add then... (click to add)</span></button>
         </div>
+      </div>
+
+   
+
         
         <!-- end picking modes of transport -->
         <hr class="lite">

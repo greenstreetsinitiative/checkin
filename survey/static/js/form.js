@@ -274,9 +274,12 @@ $(function() {
       var $leg = $(this).parentsUntil($container);
       $leg.remove();
     });
-    $('div:first-child', $newLeg)
-    .addClass('right')
+
+    $('span', $newLeg)
     .html($removeLegBtn);
+
+    console.log($('div', $newLeg));
+    console.log($('div:first-child', $newLeg))
   }
 
   // returns array of all valid commute legs
