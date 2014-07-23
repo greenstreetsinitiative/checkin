@@ -1,3 +1,7 @@
+.leg > label,span {
+  padding: 0 1em;
+}
+
 .fluid-wrapper {
     position: relative;
     padding-bottom: 56.25%; /* 16:9 */
