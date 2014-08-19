@@ -9,32 +9,48 @@ $(function() {
 
   // map & locations
   geocoder = new google.maps.Geocoder();
-  directionsService = new google.maps.DirectionsService();
-  directionsDisplay = new google.maps.DirectionsRenderer({
-    markerOptions: {
-      visible: false
-    }
-  });
 
-  directionsService2 = new google.maps.DirectionsService();
-  directionsDisplay2 = new google.maps.DirectionsRenderer({
-    markerOptions: {
-      visible: false
-    },
-    polylineOptions: {
-      strokeColor: '#CDAAFF'
-    }
-  });
+  // mapping each transportation type
 
-  directionsService3 = new google.maps.DirectionsService();
-  directionsDisplay3 = new google.maps.DirectionsRenderer({
-    markerOptions: {
-      visible: false
-    },
-    polylineOptions: {
-      strokeColor: '#FF9966'
-    }
-  });
+  function directionsService(option) {
+    var service = new google.maps.DirectionsService();
+    var display = new google.maps.DirectionsRenderer({
+      markerOptions: {
+        visible: false
+      },
+      polylineOptions: {
+        strokeColor: '#CDAAFF'
+      }
+      });
+  };
+
+
+  // directionsService = new google.maps.DirectionsService();
+  // directionsDisplay = new google.maps.DirectionsRenderer({
+  //   markerOptions: {
+  //     visible: false
+  //   }
+  // });
+
+  // directionsService2 = new google.maps.DirectionsService();
+  // directionsDisplay2 = new google.maps.DirectionsRenderer({
+  //   markerOptions: {
+  //     visible: false
+  //   },
+  //   polylineOptions: {
+  //     strokeColor: '#CDAAFF'
+  //   }
+  // });
+
+  // directionsService3 = new google.maps.DirectionsService();
+  // directionsDisplay3 = new google.maps.DirectionsRenderer({
+  //   markerOptions: {
+  //     visible: false
+  //   },
+  //   polylineOptions: {
+  //     strokeColor: '#FF9966'
+  //   }
+  // });
 
   // read cache or use empty value for employer
   cs = simpleStorage.get('commutersurvey') || { 
@@ -237,6 +253,9 @@ $(function() {
   });
   $('input.address').on('keyup', function(event) {
     if (event.which === 13) geocodeAddress($(this));
+  });
+  $('input.address').on('blur', function(event) {
+    $(this).parent().next().find('.btn.locate-address').trigger('click');
   });
 
   // toggle more legs options

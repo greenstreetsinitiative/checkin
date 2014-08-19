@@ -18,13 +18,15 @@
 
 {% block body %}
 
-<section>
+<!-- <section> -->
+  <div class="row">
   <center>
     <h1>Walk/Ride Day Check-In</h1>
     <h2>{{ wr_day }}</h2>
     <p class="lead">Check in on the last Friday of every month. The Corporate Challenge takes place April through October.</p></center>
+  </div>
 
-      <form id="surveyform" role="form" class="form-horizontal">
+      <form id="surveyform" role="form" class="form-horizontal row">
 
         {% csrf_token %}
 
@@ -58,7 +60,7 @@
           <label class="control-label col-sm-3 col-xs-2" for="email">Your email</label>
           <div class="col-sm-9 col-xs-10">
             <input id="email"  class="form-control" maxlength="75" name="email" type="email">
-            <span class="help-block"><span class="required">Required: </span>please use your work email if your employer is part of the Walk/Ride Day Challenge</span>
+            <span class="help-block"><span class="required">Required: </span> Please use your work email if your employer is part of the Walk/Ride Day Challenge</span>
           </div>
         </div>
         <div class="form-group">
@@ -72,7 +74,7 @@
               {% endif %}
               {% endfor %}
             </select>
-            <span class="help-block required"> Required if your employer is part of the Walk/Ride Day Challenge.</span>
+            <span class="help-block"><span class="required">Required: </span> Choose "Other" if not part of the Walk/Ride Day Challenge, or "Self" or "None" if applicable.</span>
           </div>
         </div>
       </fieldset>
@@ -129,9 +131,7 @@
       <fieldset id="walkride">
         
         <legend>Walk/Ride Day</legend>
-        
-        <h4>Commuting from home to work</h4>
-        <p>How did you commute TO work on Walk/Ride Day?</p>
+        <h3>Going from <span class="point">home</span> to <span class="point">work</span> on this Walk/Ride Day...</h3>
         
         <!-- begin picking modes of transport -->
         <div id="w-to-work-legs">
@@ -185,10 +185,10 @@
         <!-- end picking modes of transport -->
         <hr class="lite">
 
-        <h4>Returning to home from work</h4>
+        <h3>Leaving from <span class="point">work</span> going <span class="point">home</span> on this Walk/Ride Day......</h3>
         
         <div class="form-group">
-          <div class="col-sm-6"><label>Did you commute the same way away from work on Walk/Ride Day?</label></div>
+          <div class="col-sm-6"><label>I did the same, in reverse.</label></div>
           <div class="col-sm-6">
             <label class="checkbox-inline">
               <input type="radio" name="w-from-work-legs" class="morelegs yes" checked> Yes
@@ -257,7 +257,7 @@
         
         <legend>Your normal commute</legend>
 
-        <h4>Commuting from home to work</h4>
+        <h3>Going from <span class="point">home</span> to <span class="point">work</span> on most other days...</h3>
 
         <div class="form-group">
             <div class="col-sm-6"><label>Do you normally commute TO work the same way you did on Walk/Ride Day?</label><span class="help-block">Imagine 'normally' to refer to how you would commute this day if it were not Walk/Ride Day.</span></div>
@@ -318,10 +318,10 @@
         </div>
         
         <hr> 
-        <h4>Returning to home from work</h4>
+        <h3>Leaving from <span class="point">work</span> going <span class="point">home</span> on most other days...</h3>
         
         <div class="form-group">
-            <div class="col-sm-6"><label>Do you normally commute FROM work the same way you normally commute TO work?</label></div>
+            <div class="col-sm-6"><label>I did the same, in reverse</label></div>
             <div class="col-sm-6">
             <label class="checkbox-inline">
             <input type="radio" name="n-from-work-legs" class="morelegs yes" checked> Yes
@@ -652,6 +652,6 @@
              
             </form>
 
-</section>
+<!-- </section> -->
 
 {% endblock %}
