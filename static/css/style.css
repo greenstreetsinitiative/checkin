@@ -15,11 +15,6 @@
   text-transform: lowercase;
 }
 
-#walkride {
-  background: #bae6c1;
-}
-
-
 .fluid-wrapper {
     position: relative;
     padding-bottom: 56.25%; /* 16:9 */
