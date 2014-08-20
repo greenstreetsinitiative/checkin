@@ -9,48 +9,32 @@ $(function() {
 
   // map & locations
   geocoder = new google.maps.Geocoder();
+  directionsService = new google.maps.DirectionsService();
+  directionsDisplay = new google.maps.DirectionsRenderer({
+    markerOptions: {
+      visible: false
+    }
+  });
 
-  // mapping each transportation type
+  directionsService2 = new google.maps.DirectionsService();
+  directionsDisplay2 = new google.maps.DirectionsRenderer({
+    markerOptions: {
+      visible: false
+    },
+    polylineOptions: {
+      strokeColor: '#CDAAFF'
+    }
+  });
 
-  function directionsService(option) {
-    var service = new google.maps.DirectionsService();
-    var display = new google.maps.DirectionsRenderer({
-      markerOptions: {
-        visible: false
-      },
-      polylineOptions: {
-        strokeColor: '#CDAAFF'
-      }
-      });
-  };
-
-
-  // directionsService = new google.maps.DirectionsService();
-  // directionsDisplay = new google.maps.DirectionsRenderer({
-  //   markerOptions: {
-  //     visible: false
-  //   }
-  // });
-
-  // directionsService2 = new google.maps.DirectionsService();
-  // directionsDisplay2 = new google.maps.DirectionsRenderer({
-  //   markerOptions: {
-  //     visible: false
-  //   },
-  //   polylineOptions: {
-  //     strokeColor: '#CDAAFF'
-  //   }
-  // });
-
-  // directionsService3 = new google.maps.DirectionsService();
-  // directionsDisplay3 = new google.maps.DirectionsRenderer({
-  //   markerOptions: {
-  //     visible: false
-  //   },
-  //   polylineOptions: {
-  //     strokeColor: '#FF9966'
-  //   }
-  // });
+  directionsService3 = new google.maps.DirectionsService();
+  directionsDisplay3 = new google.maps.DirectionsRenderer({
+    markerOptions: {
+      visible: false
+    },
+    polylineOptions: {
+      strokeColor: '#FF9966'
+    }
+  });
 
   // read cache or use empty value for employer
   cs = simpleStorage.get('commutersurvey') || { 
