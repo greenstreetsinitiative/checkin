@@ -258,7 +258,8 @@ $(function() {
   function addLeg(group, legData) {
     var $container = ('#' + group),
         $lastLeg = $('.leg:last', $container),
-        $removeLegBtn = $('<button class="btn btn-danger"><span class="button">X</span></button>'),
+        $removeLeg = $('<a href="" class="text-danger"> remove</a>'),
+        $then = $('<label>then </label>'),
         $newLeg;
 
     $newLeg = $lastLeg
@@ -272,17 +273,17 @@ $(function() {
       });
     }
 
-    $removeLegBtn.on('click', function(event) {
+    $removeLeg.on('click', function(event) {
       event.preventDefault();
       var $leg = $(this).parentsUntil($container);
       $leg.remove();
     });
 
-    $('span', $newLeg)
-    .html($removeLegBtn);
+    $('span.remove', $newLeg)
+    .html($removeLeg);
 
-    console.log($('div', $newLeg));
-    console.log($('div:first-child', $newLeg))
+    $('label.then', $newLeg)
+    .html('then &nbsp; I');
   }
 
   // returns array of all valid commute legs
