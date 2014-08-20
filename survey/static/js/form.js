@@ -238,6 +238,9 @@ $(function() {
   $('input.address').on('keyup', function(event) {
     if (event.which === 13) geocodeAddress($(this));
   });
+  $('input.address').on('blur', function(event) {
+    $(this).parent().next().find('.btn.locate-address').trigger('click');
+  });
 
   // toggle more legs options
   $('input.morelegs:radio').on('change', function(event) {
