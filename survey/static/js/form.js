@@ -44,7 +44,7 @@ $(function() {
   if (cs.wr_day_month) delete cs.wr_day_month;
 
   // remove cached optional questions
-  var optionalquestions = ['health', 'weight', 'height', 'gender', 'gender_other', 'cdays', 'caltdays', 'cpdays', 'tdays', 'bdays', 'rdays', 'wdays', 'odays', 'tcdays', 'lastweek', 'cdaysaway', 'caltdaysaway', 'cpdaysaway', 'tdaysaway', 'bdaysaway', 'rdaysaway', 'wdaysaway', 'odaysaway', 'tcdaysaway', 'outsidechanges', 'affectedyou', 'contact', 'volunteer'];
+  var optionalquestions = ['comments', 'health', 'weight', 'height', 'gender', 'gender_other', 'cdays', 'caltdays', 'cpdays', 'tdays', 'bdays', 'rdays', 'wdays', 'odays', 'tcdays', 'lastweek', 'cdaysaway', 'caltdaysaway', 'cpdaysaway', 'tdaysaway', 'bdaysaway', 'rdaysaway', 'wdaysaway', 'odaysaway', 'tcdaysaway', 'outsidechanges', 'affectedyou', 'contact', 'volunteer'];
   
   $.each(optionalquestions, function(i,q) {
     if (cs[q]) delete cs[q];
@@ -238,6 +238,9 @@ $(function() {
   $('input.address').on('keyup', function(event) {
     if (event.which === 13) geocodeAddress($(this));
   });
+  $('input.address').on('blur', function(event) {
+    $(this).parent().next().find('.btn.locate-address').trigger('click');
+  });
 
   // toggle more legs options
   $('input.morelegs:radio').on('change', function(event) {
@@ -255,7 +258,8 @@ $(function() {
   function addLeg(group, legData) {
     var $container = ('#' + group),
         $lastLeg = $('.leg:last', $container),
-        $removeLegBtn = $('<button class="btn btn-danger"><span class="button">X</span></button>'),
+        $removeLeg = $('<a href="" class="text-danger"> remove</a>'),
+        $then = $('<label>then </label>'),
         $newLeg;
 
     $newLeg = $lastLeg
@@ -269,14 +273,17 @@ $(function() {
       });
     }
 
-    $removeLegBtn.on('click', function(event) {
+    $removeLeg.on('click', function(event) {
       event.preventDefault();
       var $leg = $(this).parentsUntil($container);
       $leg.remove();
     });
-    $('div:first-child', $newLeg)
-    .addClass('right')
-    .html($removeLegBtn);
+
+    $('span.remove', $newLeg)
+    .html($removeLeg);
+
+    $('label.then', $newLeg)
+    .html('then &nbsp; I');
   }
 
   // returns array of all valid commute legs
@@ -562,36 +569,36 @@ $(function() {
 
   // apply cached data
   $.each(cs, function(f,v) {
-    var $field,
-        legContainers = {
-          'wtw': 'w-to-work-legs',
-          'wfw': 'w-from-work-legs',
-          'ntw': 'n-to-work-legs',
-          'nfw': 'n-from-work-legs'
-        };
+    // var $field,
+    //     legContainers = {
+    //       'wtw': 'w-to-work-legs',
+    //       'wfw': 'w-from-work-legs',
+    //       'ntw': 'n-to-work-legs',
+    //       'nfw': 'n-from-work-legs'
+    //     };
     
-    if (f !== 'legs') {
-      $field = $('#' + f);
-      if ($field.attr('type') === 'checkbox') {
-        $field.prop('checked', v); 
-      } else if ($('input[name=' + f + ']').attr('type') === 'radio') {
-        $('input[name=' + f + '][value=' + v + ']:radio').prop('checked', true);
-      } else {
-        $field.val(v);
-      }
-    } else {
-      $.each(v, function(k,l) {
-        var legContainerId = legContainers[l.day + l.direction];
-        addLeg(legContainerId, l);
-        // FIXME: detect wtw pattern and compare
-        // array.push(mode+duration).reverse.join
-        // combination of mode+duration
-        // to only toggle yes/no questions instead of showing everything
-        $('#' + legContainerId).parent().show(100);
-        $('input.morelegs[name=' + legContainerId + ']').prop('checked', true);
-        $('input.morelegs.yes[name=' + legContainerId + ']').prop('checked', false);
-      });
-    }
+    // if (f !== 'legs') {
+    //   $field = $('#' + f);
+    //   if ($field.attr('type') === 'checkbox') {
+    //     $field.prop('checked', v); 
+    //   } else if ($('input[name=' + f + ']').attr('type') === 'radio') {
+    //     $('input[name=' + f + '][value=' + v + ']:radio').prop('checked', true);
+    //   } else {
+    //     $field.val(v);
+    //   }
+    // } else {
+    //   $.each(v, function(k,l) {
+    //     var legContainerId = legContainers[l.day + l.direction];
+    //     addLeg(legContainerId, l);
+    //     // FIXME: detect wtw pattern and compare
+    //     // array.push(mode+duration).reverse.join
+    //     // combination of mode+duration
+    //     // to only toggle yes/no questions instead of showing everything
+    //     $('#' + legContainerId).parent().show(100);
+    //     $('input.morelegs[name=' + legContainerId + ']').prop('checked', true);
+    //     $('input.morelegs.yes[name=' + legContainerId + ']').prop('checked', false);
+    //   });
+    // }
     if (cs.home_address && cs.work_address) { 
       setCommuteGeom(cs.home_address, cs.work_address);
       setCommuteGeom2(cs.home_address, cs.work_address);

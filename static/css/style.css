@@ -1,3 +1,20 @@
+.leg > label {
+  padding: 0 1em;
+}
+
+
+#walkride > h3, #normal > h3 {
+  font-family: aleoitalic;
+  font-size: 1.25em;
+  text-transform: none;
+}
+
+#walkride > h3 > span, #normal > h3 > span {
+  font-family:aleobolditalic;
+  font-size: 1.4em;
+  text-transform: lowercase;
+}
+
 .fluid-wrapper {
     position: relative;
     padding-bottom: 56.25%; /* 16:9 */
