@@ -130,8 +130,8 @@
 
     <fieldset id="walkride">
 
-      <legend>Walk/Ride Day</legend>
-      <h3>Going from <span class="point">home</span> to <span class="point">work</span> on this Walk/Ride Day...</h3>
+      <legend>Walk/Ride Day {{ wr_day }}</legend>
+      <h3>Going from <span class="point">home</span> to <span class="point">work</span> on this Walk/Ride Day:</h3>
 
       <!-- begin picking modes of transport -->
       <div id="w-to-work-legs">
@@ -178,7 +178,7 @@
       <!-- end picking modes of transport -->
       <hr class="lite">
 
-      <h3>Leaving from <span class="point">work</span> going <span class="point">home</span> on this Walk/Ride Day......</h3>
+      <h3>Leaving from <span class="point">work</span> going <span class="point">home</span> on this Walk/Ride Day:</h3>
 
       <div class="form-group">
         <div class="col-sm-6"><label>I did the same, in reverse.</label></div>
@@ -248,10 +248,10 @@
 
       <legend>Your normal commute</legend>
 
-      <h3>Going from <span class="point">home</span> to <span class="point">work</span> on most other days...</h3>
+      <h3>Going from <span class="point">home</span> to <span class="point">work</span> on most other days:</h3>
 
       <div class="form-group">
-        <div class="col-sm-6"><label>Do you normally commute TO work the same way you did on Walk/Ride Day?</label><span class="help-block">Imagine 'normally' to refer to how you would commute this day if it were not Walk/Ride Day.</span></div>
+        <div class="col-sm-6"><label>I take the same commute as on Walk/Ride Day.</label></div>
         <div class="col-sm-6">
           <label class="checkbox-inline">
             <input type="radio" name="n-to-work-legs" class="morelegs yes" checked> Yes
@@ -308,7 +308,7 @@
         </div>
 
       <hr> 
-      <h3>Leaving from <span class="point">work</span> going <span class="point">home</span> on most other days...</h3>
+      <h3>Leaving from <span class="point">work</span> going <span class="point">home</span> on most other days:</h3>
 
       <div class="form-group">
         <div class="col-sm-6"><label>I did the same, in reverse</label></div>
