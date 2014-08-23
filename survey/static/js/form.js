@@ -44,7 +44,7 @@ $(function() {
   if (cs.wr_day_month) delete cs.wr_day_month;
 
   // remove cached optional questions
-  var optionalquestions = ['health', 'weight', 'height', 'gender', 'gender_other', 'cdays', 'caltdays', 'cpdays', 'tdays', 'bdays', 'rdays', 'wdays', 'odays', 'tcdays', 'lastweek', 'cdaysaway', 'caltdaysaway', 'cpdaysaway', 'tdaysaway', 'bdaysaway', 'rdaysaway', 'wdaysaway', 'odaysaway', 'tcdaysaway', 'outsidechanges', 'affectedyou', 'contact', 'volunteer'];
+  var optionalquestions = ['comments', 'health', 'weight', 'height', 'gender', 'gender_other', 'cdays', 'caltdays', 'cpdays', 'tdays', 'bdays', 'rdays', 'wdays', 'odays', 'tcdays', 'lastweek', 'cdaysaway', 'caltdaysaway', 'cpdaysaway', 'tdaysaway', 'bdaysaway', 'rdaysaway', 'wdaysaway', 'odaysaway', 'tcdaysaway', 'outsidechanges', 'affectedyou', 'contact', 'volunteer'];
   
   $.each(optionalquestions, function(i,q) {
     if (cs[q]) delete cs[q];
