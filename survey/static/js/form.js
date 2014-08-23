@@ -569,36 +569,36 @@ $(function() {
 
   // apply cached data
   $.each(cs, function(f,v) {
-    var $field,
-        legContainers = {
-          'wtw': 'w-to-work-legs',
-          'wfw': 'w-from-work-legs',
-          'ntw': 'n-to-work-legs',
-          'nfw': 'n-from-work-legs'
-        };
+    // var $field,
+    //     legContainers = {
+    //       'wtw': 'w-to-work-legs',
+    //       'wfw': 'w-from-work-legs',
+    //       'ntw': 'n-to-work-legs',
+    //       'nfw': 'n-from-work-legs'
+    //     };
     
-    if (f !== 'legs') {
-      $field = $('#' + f);
-      if ($field.attr('type') === 'checkbox') {
-        $field.prop('checked', v); 
-      } else if ($('input[name=' + f + ']').attr('type') === 'radio') {
-        $('input[name=' + f + '][value=' + v + ']:radio').prop('checked', true);
-      } else {
-        $field.val(v);
-      }
-    } else {
-      $.each(v, function(k,l) {
-        var legContainerId = legContainers[l.day + l.direction];
-        addLeg(legContainerId, l);
-        // FIXME: detect wtw pattern and compare
-        // array.push(mode+duration).reverse.join
-        // combination of mode+duration
-        // to only toggle yes/no questions instead of showing everything
-        $('#' + legContainerId).parent().show(100);
-        $('input.morelegs[name=' + legContainerId + ']').prop('checked', true);
-        $('input.morelegs.yes[name=' + legContainerId + ']').prop('checked', false);
-      });
-    }
+    // if (f !== 'legs') {
+    //   $field = $('#' + f);
+    //   if ($field.attr('type') === 'checkbox') {
+    //     $field.prop('checked', v); 
+    //   } else if ($('input[name=' + f + ']').attr('type') === 'radio') {
+    //     $('input[name=' + f + '][value=' + v + ']:radio').prop('checked', true);
+    //   } else {
+    //     $field.val(v);
+    //   }
+    // } else {
+    //   $.each(v, function(k,l) {
+    //     var legContainerId = legContainers[l.day + l.direction];
+    //     addLeg(legContainerId, l);
+    //     // FIXME: detect wtw pattern and compare
+    //     // array.push(mode+duration).reverse.join
+    //     // combination of mode+duration
+    //     // to only toggle yes/no questions instead of showing everything
+    //     $('#' + legContainerId).parent().show(100);
+    //     $('input.morelegs[name=' + legContainerId + ']').prop('checked', true);
+    //     $('input.morelegs.yes[name=' + legContainerId + ']').prop('checked', false);
+    //   });
+    // }
     if (cs.home_address && cs.work_address) { 
       setCommuteGeom(cs.home_address, cs.work_address);
       setCommuteGeom2(cs.home_address, cs.work_address);
