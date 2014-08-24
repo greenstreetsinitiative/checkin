@@ -230,16 +230,11 @@ $(function() {
   }
 
   // trigger address geocoder on several UI interactions
-  $('.btn.locate-address').on('click', function(event) {
-    event.preventDefault();
-    var $address = $(this).parent().prev().find('input.address');
-    geocodeAddress($address);
-  });
   $('input.address').on('keyup', function(event) {
     if (event.which === 13) geocodeAddress($(this));
   });
   $('input.address').on('blur', function(event) {
-    $(this).parent().next().find('.btn.locate-address').trigger('click');
+    geocodeAddress($(this));
   });
 
   // toggle more legs options
