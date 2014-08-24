@@ -86,30 +86,24 @@
       <legend>Your locations</legend>
 
       <div class="form-group">
-        <label class="control-label col-sm-3" for="home_address">Starting location</label>
+        <label class="control-label col-sm-3 col-xs-2" for="home_address">Starting location</label>
         <div class="col-sm-7 col-xs-10">
           <input type="text" class="form-control address" id="home_address" name="home_address" placeholder="1 Main St, Boston, MA 02111">
           <span class="help-block"><span class="required">Required: </span> Where does your commute to work begin? You may enter the closest intersection if you do not wish to share your exact address.</span>
         </div>
-        <div class="col-sm-2">
-          <a class="btn btn-primary locate-address">Locate</a>
-        </div>
       </div>
 
       <div class="form-group">
-        <label class="control-label col-sm-3" for="work_address">Work location</label>
-        <div class="col-sm-7 col-xs-10">
+        <label class="control-label col-sm-3 col-xs-2" for="work_address">Work location</label>
+        <div class="col-sm-9 col-xs-10">
           <input type="text" class="form-control address" id="work_address" name="work_address" placeholder="100 Main St, Boston, MA 02111">
           <span class="help-block"><span class="required">Required: </span> What is the address where you work? If you telecommute, please enter the work address where you most often work when not telecommuting.</span>
-        </div>
-        <div class="col-sm-2">
-          <a class="btn btn-primary locate-address">Locate</a>
         </div>
       </div>
 
       <div class="form-group">       
         <label class="control-label  col-sm-3 col-xs-12">Your Commute (examples)
-          <p class="commuteexamples"><strong>For illustrative purposes only.</strong> These routes are automatically generated from your locations using Google after you click 'Locate'.</p> 
+          <p class="commuteexamples"><strong>For illustrative purposes only.</strong> These routes are automatically generated from the locations typed above.</p> 
           <div id="commute-distance" class="col-sm-12 col-xs-3"></div>
           <div id="commute-distance3" class="col-sm-12 col-xs-3"></div>
           <div id="commute-distance2" class="col-sm-12 col-xs-3"></div>
