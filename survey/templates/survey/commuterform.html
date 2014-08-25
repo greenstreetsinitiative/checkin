@@ -391,7 +391,7 @@
               <div class="col-sm-3"><button id="btn-cal" class="btn btn-warning" disabled="disabled">Calculate Calories</button><span class="help-block">Per <a target="_blank" href="http://en.wikipedia.org/wiki/Metabolic_equivalent">Metabolic equivalent</a>, compared to commuting by car or transit.</span></div>
               <div class="col-sm-3">
 
-                <input id="weight_cal" name="weight_cal" class="form-control" step="0.1" type="number" value="150">  <label class="control-label">Adjust weight [lbs]</label>
+                <input id="weight_cal" name="weight_cal" class="form-control" step="0.1" type="number" value="150" min="0">  <label class="control-label">Adjust weight [lbs]</label>
 
               </div>
 
@@ -460,10 +460,10 @@
                 </div>
               </div>
               <div class="col-sm-3 col-xs-4">
-                <p>My weight is: <input id="weight" type="number" class="form-control" placeholder="Weight in lbs"></p>
+                <p>My weight is: <input id="weight" type="number" min="0" class="form-control" placeholder="Weight in lbs"></p>
               </div>
               <div class="col-sm-3 col-xs-4">
-                <p>My height is: <input id="height" type="number" class="form-control" placeholder="Height in ft"></p>
+                <p>My height is: <input id="height" type="number" min="0" class="form-control" placeholder="Height in ft"></p>
               </div>
             </div>
             <hr class="lite">
@@ -475,47 +475,47 @@
               <div class="col-sm-9">
 
                 <div class="col-sm-9">
-                  <div class="col-sm-3 col-xs-3"><input type="number" id="cdays" class="form-control" placeholder="0"></div>
+                  <div class="col-sm-3 col-xs-3"><input type="number" min="0" id="cdays" class="form-control" placeholder="0"></div>
                   <div><p>Driving alone</p></div>
                 </div>
                 
                 <div class="col-sm-9">
-                  <div class="col-sm-3 col-xs-3"><input type="number" id="caltdays" class="form-control" placeholder="0"></div>
+                  <div class="col-sm-3 col-xs-3"><input type="number" min="0" id="caltdays" class="form-control" placeholder="0"></div>
                   <div><p>Driving alone, alternative vehicle</p></div>
                 </div>
                 
                 <div class="col-sm-9">
-                  <div class="col-sm-3 col-xs-3"><input type="number" id="cpdays" class="form-control" placeholder="0"></div>
+                  <div class="col-sm-3 col-xs-3"><input type="number" min="0" id="cpdays" class="form-control" placeholder="0"></div>
                   <div><p>Carpool</p></div>
                 </div>
                 
                 <div class="col-sm-9">
-                  <div class="col-sm-3 col-xs-3"><input type="number" id="tdays" class="form-control" placeholder="0"> </div>
+                  <div class="col-sm-3 col-xs-3"><input type="number" min="0" id="tdays" class="form-control" placeholder="0"> </div>
                   <div><p>Transit</p></div>
                 </div>
                 
                 <div class="col-sm-9">
-                  <div class="col-sm-3 col-xs-3"><input type="number" id="bdays" class="form-control" placeholder="0"> </div>
+                  <div class="col-sm-3 col-xs-3"><input type="number" min="0" id="bdays" class="form-control" placeholder="0"> </div>
                   <div><p>Bike</p></div>
                 </div>
                 
                 <div class="col-sm-9">
-                  <div class="col-sm-3 col-xs-3"><input type="number" id="rdays" class="form-control" placeholder="0"> </div>
+                  <div class="col-sm-3 col-xs-3"><input type="number" min="0" id="rdays" class="form-control" placeholder="0"> </div>
                   <div><p>Jog/Run</p></div>
                 </div>
                 
                 <div class="col-sm-9">
-                  <div class="col-sm-3 col-xs-3"><input type="number" id="wdays" class="form-control" placeholder="0"> </div>
+                  <div class="col-sm-3 col-xs-3"><input type="number" min="0" id="wdays" class="form-control" placeholder="0"> </div>
                   <div><p>Walk</p></div>
                 </div>
                 
                 <div class="col-sm-9">  
-                  <div class="col-sm-3 col-xs-3"><input type="number" id="odays" class="form-control" placeholder="0"> </div>
+                  <div class="col-sm-3 col-xs-3"><input type="number" min="0" id="odays" class="form-control" placeholder="0"> </div>
                   <div><p>Other (roller blade, scooter, kayak, etc.)</p></div>
                 </div>
                 
                 <div class="col-sm-9">
-                  <div class="col-sm-3 col-xs-3"><input type="number" id="tcdays" class="form-control" placeholder="0"></div>
+                  <div class="col-sm-3 col-xs-3"><input type="number" min="0" id="tcdays" class="form-control" placeholder="0"></div>
                   <div><p>Telecommute</p></div>
                 </div>
 
@@ -550,47 +550,47 @@
               <div class="col-sm-9">
 
                 <div class="col-sm-9">
-                  <div class="col-sm-3 col-xs-3"><input type="number" id="cdaysaway" class="form-control" placeholder="0"></div>
+                  <div class="col-sm-3 col-xs-3"><input type="number" min="0" id="cdaysaway" class="form-control" placeholder="0"></div>
                   <div><p>Driving alone</p></div>
                 </div>
                 
                 <div class="col-sm-9">
-                  <div class="col-sm-3 col-xs-3"><input type="number" id="caltdaysaway" class="form-control" placeholder="0"></div>
+                  <div class="col-sm-3 col-xs-3"><input type="number" min="0" id="caltdaysaway" class="form-control" placeholder="0"></div>
                   <div><p>Driving alone, alternative vehicle</p></div>
                 </div>
                 
                 <div class="col-sm-9">
-                  <div class="col-sm-3 col-xs-3"><input type="number" id="cpdaysaway" class="form-control" placeholder="0"></div>
+                  <div class="col-sm-3 col-xs-3"><input type="number" min="0" id="cpdaysaway" class="form-control" placeholder="0"></div>
                   <div><p>Carpool</p></div>
                 </div>
                 
                 <div class="col-sm-9">
-                  <div class="col-sm-3 col-xs-3"><input type="number" id="tdaysaway" class="form-control" placeholder="0"> </div>
+                  <div class="col-sm-3 col-xs-3"><input type="number" min="0" id="tdaysaway" class="form-control" placeholder="0"> </div>
                   <div><p>Transit</p></div>
                 </div>
                 
                 <div class="col-sm-9">
-                  <div class="col-sm-3 col-xs-3"><input type="number" id="bdaysaway" class="form-control" placeholder="0"> </div>
+                  <div class="col-sm-3 col-xs-3"><input type="number" min="0" id="bdaysaway" class="form-control" placeholder="0"> </div>
                   <div><p>Bike</p></div>
                 </div>
                 
                 <div class="col-sm-9">
-                  <div class="col-sm-3 col-xs-3"><input type="number" id="rdaysaway" class="form-control" placeholder="0"> </div>
+                  <div class="col-sm-3 col-xs-3"><input type="number" min="0" id="rdaysaway" class="form-control" placeholder="0"> </div>
                   <div><p>Jog/Run</p></div>
                 </div>
                 
                 <div class="col-sm-9">
-                  <div class="col-sm-3 col-xs-3"><input type="number" id="wdaysaway" class="form-control" placeholder="0"> </div>
+                  <div class="col-sm-3 col-xs-3"><input type="number" min="0" id="wdaysaway" class="form-control" placeholder="0"> </div>
                   <div><p>Walk</p></div>
                 </div>
                 
                 <div class="col-sm-9">  
-                  <div class="col-sm-3 col-xs-3"><input type="number" id="odaysaway" class="form-control" placeholder="0"> </div>
+                  <div class="col-sm-3 col-xs-3"><input type="number" min="0" id="odaysaway" class="form-control" placeholder="0"> </div>
                   <div><p>Other (roller blade, scooter, kayak, etc.)</p></div>
                 </div>
                 
                 <div class="col-sm-9">
-                  <div class="col-sm-3 col-xs-3"><input type="number" id="tcdaysaway" class="form-control" placeholder="0"></div>
+                  <div class="col-sm-3 col-xs-3"><input type="number" min="0" id="tcdaysaway" class="form-control" placeholder="0"></div>
                   <div><p>Telecommute</p></div>
                 </div>
               </div>
