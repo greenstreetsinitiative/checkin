@@ -11,7 +11,7 @@ from survey.models import Commutersurvey, Employer, EmplSector, EmplSizeCategory
 # from django.contrib import admin
 from django.contrib.gis import admin
 # disable deletion of records
-admin.site.disable_action('delete_selected')
+# admin.site.disable_action('delete_selected')
 
 # default GeoAdmin overloads
 admin.GeoModelAdmin.default_lon = -7915039
