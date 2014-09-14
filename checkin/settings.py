@@ -72,6 +72,7 @@ INSTALLED_APPS = (
     'survey',
     'leaderboard',
     'leaderboardlist',
+    'graphos',
 )
 
 if not ON_OPENSHIFT:

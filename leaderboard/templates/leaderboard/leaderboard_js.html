@@ -4,6 +4,12 @@
 
 {% block title %}Leaderboard{% endblock %}
 {% block javascript %}
+
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type="text/javascript">
+    google.load("visualization", "1", {packages:["corechart"]});
+</script>
+
 <script type="text/javascript">
     $("document").ready(function() {
 		chart_data = {% autoescape off %}{{ chart }}{% endautoescape %}
@@ -67,6 +73,7 @@ function setfilter(filter) {
     <div class="row clearfix">
         <div class="col-md-12 column">
             <center><h1>Walk/Ride Day <br>Corporate Challenge Leaderboard</h1>
+                            {{ chart.as_html }}
         </div>
     </div>
 

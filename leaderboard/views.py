@@ -16,6 +16,30 @@ import json
 from django.shortcuts import redirect
 from django.db import connections
 from datetime import date
+import graphos
+from graphos import *
+# from graphos.sources.model import ModelDataSource
+# from graphos.renderers import gchart
+from graphos.sources.model import *
+from graphos.renderers import *
+from django.db.models import Count
+
+# queryset = Commutersurvey.objects.filter(wr_day_month__gte=32).filter(employer_id=1905) #dana farber in April
+# # queryset = Commutersurvey.objects.filter(wr_day_month__gte=32).filter(employer_id=1905).values('wr_day_month').annotate(total=Count('wr_day_month')).order_by('-wr_day_month')
+# data_source = ModelDataSource(queryset, fields=['wr_day_month','employer_id'])
+
+# # chart = gchart.LineChart(data_source)
+
+# Chart = LineChart(SimpleDataSource(data=data_data_source), html_id="line_chart")
+
+data =  [
+        ['Year', 'Sales', 'Expenses'],
+        [2004, 1000, 400],
+        [2005, 1170, 460],
+        [2006, 660, 1120],
+        [2007, 1030, 540]
+    ]
+Chart = LineChart(SimpleDataSource(data=data), html_id="line_chart")
 
 
 COLOR_SCHEME = {
