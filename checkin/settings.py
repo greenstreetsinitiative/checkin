@@ -33,6 +33,9 @@ else:
 # Mandrill (https://mandrillapp.com/) is used to email checkin confirmations
 MANDRILL_API_KEY = os.environ['MANDRILL_API_KEY']
 
+# MapQuest 
+MAPQUEST_API_KEY = os.environ['MAPQUEST_API_KEY']
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
 
@@ -72,6 +75,7 @@ INSTALLED_APPS = (
     'survey',
     'leaderboard',
     'leaderboardlist',
+    'retail',
 )
 
 if not ON_OPENSHIFT:

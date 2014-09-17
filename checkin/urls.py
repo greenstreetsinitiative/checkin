@@ -27,6 +27,8 @@ urlpatterns = patterns('',
     # data api
     url(r'^api/survey/$', 'survey.views.api', name='survey_api'),
 
+    # Retail Partners
+    url(r'^retail/$', include('retail.urls', namespace='retail')),
 
     # Examples:
     # url(r'^$', 'django_test.views.home', name='home'),
