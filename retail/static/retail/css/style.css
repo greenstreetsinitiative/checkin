@@ -1,16 +1,15 @@
-/* Body */
-body { 
+body { /* helps not screw up the map */
 	padding: 0;
 	padding-top: 50px;
 	height: 100%; 
 	margin: 0; 
 }
 
-html { 
+html { /* helps not screw up the map */
 	height: 100%; 
 }
 
-.nojs {
+.nojs { /* bar that shows up if javascript is disabled */
 	height: 50px;
 	width: 100%;
 	position: absolute;
@@ -26,14 +25,8 @@ html {
 /* Navbar */
 .navbar {
 	background-color: rgb(80,186,36);
-	/*background-color: rgb(178,195,178);*/
 }
 
-.navbar-brand{
-	font-family: 'areobold'!important, sans-serif;
-	color:white!important;
-	letter-spacing: 2px;
-}
 .navbar-text {
 	color: rgb(51,51,51)!important;
 }
@@ -41,6 +34,10 @@ html {
 .brand {
 	float: left;
 	padding-left: 0.25em;
+	font-size: 1.5em;
+	font-family: 'aleoregular', sans-serif;
+	color: white;
+	float: right;
 }
 
 .brand img {
@@ -241,6 +238,7 @@ html {
 	color: #00A950;
 }
 
+/* Sorts out tablet rotations */
 @media screen and (orientation:landscape){
 	#map {
 		width: 70%;
@@ -251,7 +249,6 @@ html {
 		float: right;
 	}
 }
-
 
 @media screen and (orientation:portrait){
 	#map {
