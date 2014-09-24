@@ -34,8 +34,6 @@ def index(request):
 		partners = partner.objects.filter(approved=True).order_by('name')
 		template = loader.get_template('retail/index.html')
 
-		print request.META.get('HTTP_USER_AGENT')
-
 		if mobileRE.search(request.META.get('HTTP_USER_AGENT')):
 			isMobile = True
 		else:
@@ -97,11 +95,15 @@ def index(request):
 		# Business address
 		try:
 			url = "http://www.mapquestapi.com/geocoding/v1/address?"
-			url += 'key=' + os.environ['MAPQUEST_API_KEY'] + '&'
+			url += 'key=' + settings.MAPQUEST_API_KEY + '&'
+			print 'got key'
 			url += 'inFormat=kvp&'
 			url += 'outputFormat=json&'
 			url += 'location=' + data['address'].replace(' ','%20') + '&'
+			print 'got address'
 			url += 'thumbMaps=false'
+			
+			print url
 
 			try: # Geocode address using mapquest
 				u = urllib2.urlopen(url).read()
@@ -113,6 +115,7 @@ def index(request):
 				zipcode = j['results'][0]['locations'][0]['postalCode'][0:5].strip()
 			except:		
 				_err['issues'].append('Unable to locate address, likely invalid')
+		
 		except:
 			url = ''
 			_err['issues'].append('Missing business address')
@@ -149,6 +152,8 @@ def index(request):
 				_err['issues'].append('Invalid contact e-mail')
 		except:
 			_err['issues'].append('Missing contact e-mail')
+
+		print _err
 
 		# If data is validate just fine, save to database
 		if not _err['issues']:

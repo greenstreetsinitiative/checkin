@@ -98,7 +98,7 @@ retailPartnerForm.prototype.submit = function(){
 		}
 	});
 
-	alert("Submitted! We'll get in touch if something comes up.");
+	alert("Your application was submitted. We'll be in touch!");
 	$('#jrp-submit-button').prop('disabled', false);
 	$('#jrp-close').click(); //close modal
 
