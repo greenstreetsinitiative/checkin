@@ -61,6 +61,10 @@ def index(request):
 		except:
 			return HttpResponse(json.dumps({'success':False, 'message':'Unable to get user data.'}))
 
+		_err = {} # Dict to store error messages
+		_err['data'] = data
+		_err['issues'] = []
+
 		# Business name
 		try:
 			name = data['name']
@@ -104,9 +108,9 @@ def index(request):
 				j = json.loads(u)
 				latitude = j['results'][0]['locations'][0]['latLng']['lat']
 				longitude = j['results'][0]['locations'][0]['latLng']['lng']
-				street = j['results'][0]['locations'][0]['street']
-				city = j['results'][0]['locations'][0]['adminArea5']
-				zipcode = j['results'][0]['locations'][0]['postalCode'][0:5]
+				street = j['results'][0]['locations'][0]['street'].strip()
+				city = j['results'][0]['locations'][0]['adminArea5'].strip()
+				zipcode = j['results'][0]['locations'][0]['postalCode'][0:5].strip()
 			except:		
 				_err['issues'].append('Unable to locate address, likely invalid')
 		except:
