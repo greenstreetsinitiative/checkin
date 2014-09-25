@@ -73,7 +73,7 @@ retailPartnerForm.prototype.validate = function(){
 	}
 
 	if(errmsg){
-		alert(errmsg);	
+		alert(errmsg);
 	}
 	return valid;
 }
@@ -259,7 +259,7 @@ var retailPartnerData = function(data, isMobile, isTablet){
 			if(retailPartners[i].category == 'None'){
 				retailPartners[i].category = 'Other';
 			}
-			retailPartners[i].popup = '<b>'+data[i].name+'</b><br>'+data[i].address+'<br>'+data[i].offer
+			retailPartners[i].popup = '<b>'+retailPartners[i].name+'</b><br>'+retailPartners[i].address+'<br>'+retailPartners[i].offer
 			retailPartners[i].marker = new L.marker([retailPartners[i].latitude, retailPartners[i].longitude], 
 													{icon:category[retailPartners[i].category], riseOnHover:true, title:retailPartners[i].name})
 			retailPartners[i].marker.addTo(map)
