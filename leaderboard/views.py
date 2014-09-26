@@ -16,6 +16,7 @@ import json
 from django.shortcuts import redirect
 from django.db import connections
 from datetime import date
+from django.db.models import Sum,Count
 
 
 COLOR_SCHEME = {
@@ -60,7 +61,36 @@ def new_leaderboard(request, empid=0, filter_by='sector', _filter=0, sort='parti
     db = connections['default'].cursor()
     context = {}
     context['empid'] = empid
- 
+    
+    #workaround for the subteam parents
+    if Employer.objects.filter(id=empid,is_parent='t'):
+        #need to collect all the subteams to get right totals
+        parentname = Employer.objects.filter(id=empid).values('name')
+        childteams = Employer.objects.filter(sector__parent=parentname,active='t')
+        checkins = Commutersurvey.objects.filter(wr_day_month__gte=32, employer__in=childteams)
+    else:
+        checkins = Commutersurvey.objects.filter(wr_day_month__gte=32, employer_id=empid)
+    
+    allmodes = ['da','dalt','w','b','t','o','r','tc']
+    healthmodes = ['w','b','r']
+
+    num_healthy_commutes = checkins.filter(leg__mode__in=healthmodes).distinct().count()
+    num_transit_commutes = checkins.filter(leg__mode='t').distinct().count()
+
+    context['h'] = num_healthy_commutes
+    context['t'] = num_transit_commutes
+
+    modesplit = {}
+
+    for m in allmodes:
+        modesplit[m] = {}
+        num_mode_n = checkins.filter(leg__mode=m,leg__day__exact='n').distinct().count()
+        num_mode_w = checkins.filter(leg__mode=m,leg__day__exact='w').distinct().count()
+        modesplit[m]['onmode_n']= num_mode_n
+        modesplit[m]['onmode_w']= num_mode_w
+    
+    context['thismode'] = modesplit
+
     if _filter == '0':
         _filter = 0
    
