@@ -229,10 +229,59 @@ function setfilter(filter) {
     <div class="row clearfix">
         <div class="col-md-12 column" style="border: 1px solid #eee; padding:5px; text-align:center; letter-spacing: 0.25px; font-size: 16px;">
             <!-- <h3>{{ display_month }} summary</h3>  -->
-            <p style="font-family:aleolightitalic;">Details coming soon!</p>
+            <h3>Checkins across all months</h3>
+            <div class="panel participation">
+                <p>{{ h }} checkins involved at least one walk, bike, run adventure!</p>
+                <p>{{ t }} checkins involved taking public transit.</p>
+            </div>
+            <table class="table table-condensed lead">
+            <tr><th>Type of transportation</th><th>Normal day</th><th>Walk/Ride Day</th><th>Notes</th></tr>
+                {% for mode,v in thismode.items %}
+                {% if mode = 'b' %}
+                  <tr class="success"><td>Bicycling
+                {% elif mode = 'w' %}
+                  <tr class="success"><td>Walking
+                {% elif mode = 'r' %}
+                  <tr class="success"><td>Running or jogging
+                {% elif mode = 't' %}
+                  <tr class="success"><td>Public transit
+                {% elif mode = 'da' %}
+                  <tr class="danger"><td>Driving alone
+                {% elif mode = 'dalt' %}
+                  <tr class="danger"><td>Driving alone (alternate vehicle)
+                {% elif mode = 'tc' %}
+                  <tr class="info"><td>Telecommuting
+                {% elif mode = 'o' %}
+                  <tr><td>Other
+                {% endif %} 
+            </td>
+            <td>{{ v.onmode_n }}</td><td>{{ v.onmode_w }}</td>
+            <td>
+                {% if v.onmode_n < v.onmode_w and mode != 'da' and mode != 'dalt' and mode != 'o' %}
+                Thank you!
+                {% elif mode = 'da' or mode = 'dalt' and v.onmode_w < v.onmode_n %}
+                Good progress.
+                {% elif v.onmode_n = v.onmode_w %}
+               
+                {% endif %}
+            </td>
+            </tr>
+            {% endfor %}
+            <tfoot>
+            <tr>
+            <td colspan='4'>
+                <p>Note: The above will NOT add to the reported total number of checkins because many commutes use multiple types of transportation!</p></td>
+            </tr>
+            </tfoot>
+            </table>           
+            <div class="panel">
+            <p style="font-family:aleolightitalic;">More details coming soon!</p>
             <p style="font-family:aleolightitalic;"><a href="mailto:cristen@gogreenstreets.org">Email Cristen for questions or feedback.</a></p>
+            </div>
         </div>
-        <<!-- div class="col-md-4 column summary participation">
+        
+
+        <!-- div class="col-md-4 column summary participation">
             <h4>Employee Participation</h4>
             <p>{{ ncommutes }} commutes</p>
             <p>{{ participation|floatformat }}% of {{ employer.nr_employees }} employees</p>
