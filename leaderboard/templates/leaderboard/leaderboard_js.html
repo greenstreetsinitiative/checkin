@@ -235,7 +235,7 @@ function setfilter(filter) {
                 <p>{{ t }} checkins involved taking public transit.</p>
             </div>
             <table class="table table-condensed lead">
-            <tr><th>Type of transportation</th><th>Normal day</th><th>Walk/Ride Day</th><th>Notes</th></tr>
+            <tr><th>Type of transportation</th><th>Normal day</th><th>Walk/Ride Day</th></tr>
                 {% for mode,v in thismode.items %}
                 {% if mode = 'b' %}
                   <tr class="success"><td>Bicycling
@@ -256,20 +256,11 @@ function setfilter(filter) {
                 {% endif %} 
             </td>
             <td>{{ v.onmode_n }}</td><td>{{ v.onmode_w }}</td>
-            <td>
-                {% if v.onmode_n < v.onmode_w and mode != 'da' and mode != 'dalt' and mode != 'o' %}
-                Thank you!
-                {% elif mode = 'da' or mode = 'dalt' and v.onmode_w < v.onmode_n %}
-                Good progress.
-                {% elif v.onmode_n = v.onmode_w %}
-               
-                {% endif %}
-            </td>
             </tr>
             {% endfor %}
             <tfoot>
             <tr>
-            <td colspan='4'>
+            <td colspan='3'>
                 <p>Note: The above will NOT add to the reported total number of checkins because many commutes use multiple types of transportation!</p></td>
             </tr>
             </tfoot>
