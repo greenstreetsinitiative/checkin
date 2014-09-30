@@ -59,15 +59,15 @@ def index(request):
 		except:
 			return HttpResponse(json.dumps({'success':False, 'message':'Unable to get user data.'}))
 
-		_err = {} # Dict to store error messages
-		_err['data'] = data
-		_err['issues'] = []
+		errors = {} # Dict to store error messages
+		errors['data'] = data
+		errors['issues'] = []
 
 		# Business name
 		try:
 			name = data['name']
 		except:
-			_err['issues'].append('Missing business name')
+			errors['issues'].append('Missing business name')
 
 		# Business website
 		try:
@@ -77,9 +77,9 @@ def index(request):
 					website = 'http://' + website
 				URLValidator()(website)
 			except ValidationError:
-				_err['issues'].append('Invalid business website')
+				errors['issues'].append('Invalid business website')
 		except:
-			_err['issues'].append('Missing business website')
+			errors['issues'].append('Missing business website')
 
 		# Business phone number
 		try:
@@ -88,23 +88,19 @@ def index(request):
 				if not phoneRE.match(phone): 
 					raise ValueError
 			except ValueError:
-				_err['issues'].append('Business phone is invalid')
+				errors['issues'].append('Business phone is invalid')
 		except:
-			_err['issues'].append('Missing business phone number')
+			errors['issues'].append('Missing business phone number')
 
 		# Business address
 		try:
 			url = "http://www.mapquestapi.com/geocoding/v1/address?"
 			url += 'key=' + settings.MAPQUEST_API_KEY + '&'
-			print 'got key'
 			url += 'inFormat=kvp&'
 			url += 'outputFormat=json&'
 			url += 'location=' + data['address'].replace(' ','%20') + '&'
-			print 'got address'
 			url += 'thumbMaps=false'
 			
-			print url
-
 			try: # Geocode address using mapquest
 				u = urllib2.urlopen(url).read()
 				j = json.loads(u)
@@ -114,23 +110,23 @@ def index(request):
 				city = j['results'][0]['locations'][0]['adminArea5'].strip()
 				zipcode = j['results'][0]['locations'][0]['postalCode'][0:5].strip()
 			except:		
-				_err['issues'].append('Unable to locate address, likely invalid')
+				errors['issues'].append('Unable to locate address, likely invalid')
 		
 		except:
 			url = ''
-			_err['issues'].append('Missing business address')
+			errors['issues'].append('Missing business address')
 
 		# Offer
 		try: 
 			offer = data['offer']
 		except:
-			_err['issues'].append('Missing offer information')
+			errors['issues'].append('Missing offer information')
 
 		# Contact name
 		try:
 			contact_name = data['contact_name']
 		except:
-			_err['issues'].append('Missing contact name')
+			errors['issues'].append('Missing contact name')
 
 		# Contact Phone
 		try:
@@ -139,9 +135,9 @@ def index(request):
 				if not phoneRE.match(contact_phone):
 					raise ValueError
 			except ValueError:
-				_err['issues'].append('Invalid contact phone number')
+				errors['issues'].append('Invalid contact phone number')
 		except:
-			_err['issues'].append('Missing contact phone number')
+			errors['issues'].append('Missing contact phone number')
 
 		# Contact email
 		try:
@@ -149,14 +145,12 @@ def index(request):
 			try:
 				validate_email(contact_email)
 			except ValidationError:
-				_err['issues'].append('Invalid contact e-mail')
+				errors['issues'].append('Invalid contact e-mail')
 		except:
-			_err['issues'].append('Missing contact e-mail')
-
-		print _err
+			errors['issues'].append('Missing contact e-mail')
 
 		# If data is validate just fine, save to database
-		if not _err['issues']:
+		if not errors['issues']:
 			p = partner(name=name,phone=phone,website=website,street=street,city=city,zipcode=zipcode,latitude=latitude,longitude=longitude,offer=offer,category='None',contact_name=contact_name,contact_phone=contact_phone,contact_email=contact_email,notes='',approved=False)
 			p.save()
 			try:
@@ -168,11 +162,11 @@ def index(request):
 			return HttpResponse(json.dumps({'success':True}), content_type="application/json")
 		else:
 			try:
-				message['text'] = json.dumps(_err, indent=4)
+				message['text'] = json.dumps(errors, indent=4)
 				message['subject'] = 'Attempted new retail partner; failure'
 			except mandrill.Error, e:
 				pass
-			return HttpResponse(json.dumps({'success':False, 'message': _err}), content_type="application/json")
+			return HttpResponse(json.dumps({'success':False, 'message': errors}), content_type="application/json")
 
 	else:
 		return HttpResponse('Request method not accepted.')
