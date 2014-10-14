@@ -71,7 +71,7 @@ def new_leaderboard(request, empid=0, filter_by='sector', _filter=0, sort='parti
     else:
         checkins = Commutersurvey.objects.filter(wr_day_month__gte=32, employer_id=empid)
     
-    allmodes = ['da','dalt','w','b','t','o','r','tc']
+    allmodes = ['da','dalt','cp','w','b','t','o','r','tc']
     healthmodes = ['w','b','r']
 
     num_healthy_commutes = checkins.filter(leg__mode__in=healthmodes).distinct().count()
