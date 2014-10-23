@@ -17,6 +17,7 @@ from django.shortcuts import redirect
 from django.db import connections
 from datetime import date
 from django.db.models import Sum,Count
+from django.db import connection
 
 
 COLOR_SCHEME = {
@@ -71,25 +72,120 @@ def new_leaderboard(request, empid=0, filter_by='sector', _filter=0, sort='parti
     else:
         checkins = Commutersurvey.objects.filter(wr_day_month__gte=32, employer_id=empid)
     
-    allmodes = ['da','dalt','cp','w','b','t','o','r','tc']
-    healthmodes = ['w','b','r']
+    # allmodes = ['w','b','r','t','cp','tc','da','dalt','o']
+    greenmodes = ['w','b','r','t','cp']
+    yellowmodes = ['tc']
+    redmodes = ['da','dalt']
+    othermodes = ['o']
 
-    num_healthy_commutes = checkins.filter(leg__mode__in=healthmodes).distinct().count()
-    num_transit_commutes = checkins.filter(leg__mode='t').distinct().count()
+    modesplitG = {}
+    modesplitY = {}
+    modesplitR = {}
+    modesplitO = {}
 
-    context['h'] = num_healthy_commutes
-    context['t'] = num_transit_commutes
-
-    modesplit = {}
-
-    for m in allmodes:
-        modesplit[m] = {}
+    for m in greenmodes:
+        modesplitG[m] = {}
         num_mode_n = checkins.filter(leg__mode=m,leg__day__exact='n').distinct().count()
         num_mode_w = checkins.filter(leg__mode=m,leg__day__exact='w').distinct().count()
-        modesplit[m]['onmode_n']= num_mode_n
-        modesplit[m]['onmode_w']= num_mode_w
+        modesplitG[m]['onmode_n']= num_mode_n
+        modesplitG[m]['onmode_w']= num_mode_w
+        diff = float(num_mode_w - num_mode_n)
+        if num_mode_n > 0:
+            modesplitG[m]['diff']=  round(diff*100/(num_mode_n),1)
+        else:
+            modesplitG[m]['diff']= 0.0
+
+    for m in yellowmodes:
+        modesplitY[m] = {}
+        num_mode_n = checkins.filter(leg__mode=m,leg__day__exact='n').distinct().count()
+        num_mode_w = checkins.filter(leg__mode=m,leg__day__exact='w').distinct().count()
+        modesplitY[m]['onmode_n']= num_mode_n
+        modesplitY[m]['onmode_w']= num_mode_w
+        diff = float(num_mode_w - num_mode_n)
+        if num_mode_n > 0:
+            modesplitY[m]['diff']=  round(diff*100/(num_mode_n),1)
+        else:
+            modesplitY[m]['diff']= 0.0
+
+    for m in redmodes:
+        modesplitR[m] = {}
+        num_mode_n = checkins.filter(leg__mode=m,leg__day__exact='n').distinct().count()
+        num_mode_w = checkins.filter(leg__mode=m,leg__day__exact='w').distinct().count()
+        modesplitR[m]['onmode_n']= num_mode_n
+        modesplitR[m]['onmode_w']= num_mode_w
+        diff = float(num_mode_w - num_mode_n)
+        if num_mode_n > 0:
+            modesplitR[m]['diff']=  round(diff*100/(num_mode_n),1)
+        else:
+            modesplitR[m]['diff']= 0.0
+
+    for m in othermodes:
+        modesplitO[m] = {}
+        num_mode_n = checkins.filter(leg__mode=m,leg__day__exact='n').distinct().count()
+        num_mode_w = checkins.filter(leg__mode=m,leg__day__exact='w').distinct().count()
+        modesplitO[m]['onmode_n']= num_mode_n
+        modesplitO[m]['onmode_w']= num_mode_w
+        diff = float(num_mode_w - num_mode_n)
+        if num_mode_n > 0:
+            modesplitO[m]['diff']=  round(diff*100/(num_mode_n),1)
+        else:
+            modesplitO[m]['diff']= 0.0
+
     
-    context['thismode'] = modesplit
+    context['thismodeG'] = modesplitG
+    context['thismodeY'] = modesplitY
+    context['thismodeR'] = modesplitR
+    context['thismodeO'] = modesplitO
+
+    # allmonths = [32,33,34,35,36,37,38]
+    # allmonths2 = [{32: 'April'},{33: 'May'},{},{},{},{},]
+
+    # monthsplit = {}
+
+    # for month in allmonths:
+    #     monthsplit[month] = {}
+    #     checkinsdone = checkins.filter(wr_day_month=month,leg__day__exact='w').distinct().count()
+    #     monthsplit[month] = checkinsdone
+
+    # context['monthlycheckin'] = monthsplit
+
+
+    try:
+        company = Employer.objects.filter(id=empid)[0]
+    except:
+        return json.dumps({"error" : "Invalid employer id"})
+    mos = [m.id for m in Month.objects.active_months().reverse().exclude(open_checkin__gt=date.today())] # Get valid months
+    firstMonth = min(mos)
+
+    # Selects the count of distinct emails for a given month and employer (the case statement is to deal with subgroups)
+    queryAll = """SELECT COUNT(DISTINCT email) FROM survey_commutersurvey WHERE survey_commutersurvey.wr_day_month_id = {1} AND CASE WHEN(SELECT is_parent FROM survey_employer WHERE id = {0}) = 't' THEN survey_commutersurvey.employer_id IN (SELECT survey_employer.id FROM survey_employer JOIN survey_emplsector ON survey_employer.sector_id = survey_emplsector.id WHERE survey_emplsector.parent = (SELECT name FROM survey_employer WHERE id = {0}) ) ELSE survey_commutersurvey.employer_id = {0} END"""
+
+    # Same as above, but filters out emails used in previous months
+    queryNew = """SELECT COUNT(DISTINCT email) FROM survey_commutersurvey WHERE survey_commutersurvey.wr_day_month_id = {2} AND CASE WHEN(SELECT is_parent FROM survey_employer WHERE id = {0}) = 't' THEN survey_commutersurvey.employer_id IN(SELECT survey_employer.id FROM survey_employer JOIN survey_emplsector ON survey_employer.sector_id = survey_emplsector.id WHERE survey_emplsector.parent = (SELECT name FROM survey_employer WHERE id = {0}) ) AND survey_commutersurvey.email NOT IN ( SELECT survey_commutersurvey.email FROM survey_commutersurvey WHERE wr_day_month_id BETWEEN {1} AND {2}-1 AND employer_id IN (SELECT survey_employer.id FROM survey_employer JOIN survey_emplsector ON survey_employer.sector_id = survey_emplsector.id WHERE survey_emplsector.parent = (SELECT name FROM survey_employer WHERE id = {0} ) ) ) ELSE survey_commutersurvey.employer_id = {0} AND email NOT IN (SELECT email FROM survey_commutersurvey WHERE employer_id = {0} AND wr_day_month_id BETWEEN {1} AND {2}-1 ) END"""
+
+    c = connection.cursor()
+
+    checkinData = [];
+
+    for month in mos:
+        c.execute(queryAll.format(empid, month))
+        allCheckins = c.fetchone()[0] # Add count of all checkins for that month
+        c.execute(queryNew.format(empid, firstMonth, month))
+        newCheckins = c.fetchone()[0]
+        checkinData.append({"month":month, "all": allCheckins, "new": newCheckins })
+
+    employersNewVsReturning = json.dumps({"id" : company.id, "name": company.name, "size": company.nr_employees, "checkins": checkinData})
+    
+    context['empNVR'] = employersNewVsReturning
+
+    query_modes = "SELECT survey_leg.day, survey_leg.mode, survey_commutersurvey.wr_day_month_id, COUNT(DISTINCT survey_commutersurvey.id) FROM survey_leg JOIN survey_commutersurvey ON survey_leg.commutersurvey_id = survey_commutersurvey.id WHERE survey_commutersurvey.wr_day_month_id BETWEEN {0} AND {1} AND survey_leg.mode IN ('da','dalt','w','b','t','o','r','tc') AND CASE WHEN (SELECT is_parent FROM survey_employer WHERE id = {2}) = 't' THEN survey_commutersurvey.employer_id IN (SELECT survey_employer.id FROM survey_employer JOIN survey_emplsector ON survey_employer.sector_id = survey_emplsector.id WHERE survey_emplsector.parent = (  SELECT name FROM survey_employer WHERE id = {2} ) ) ELSE survey_commutersurvey.employer_id = {2} END GROUP BY survey_leg.day, survey_leg.mode, survey_commutersurvey.wr_day_month_id"
+
+    # c.execute(query_modes.format(min(mos), max(mos), empid))
+    # checkinsByMode = json.dumps(c.fetchall())
+
+    # context['checkinsByMode'] = checkinsByMode
+
+
 
     if _filter == '0':
         _filter = 0
@@ -391,8 +487,25 @@ def getBreakDown(emp, month):
     breakdown['us'] = other
     breakdown['cc'] = cc
 
+    modes = ['da','dalt','cp','w','b','r','t','o','tc']
+
+    #workaround for the subteam parents
+    if Employer.objects.filter(id=emp.id,is_parent='t'):
+        #need to collect all the subteams to get right totals
+        parentname = Employer.objects.filter(id=emp.id).values('name')
+        childteams = Employer.objects.filter(sector__parent=parentname,active='t')
+        checkins = Commutersurvey.objects.filter(wr_day_month__gte=32, employer__in=childteams)
+    else:
+        checkins = Commutersurvey.objects.filter(wr_day_month__gte=32, employer_id=emp.id)
+
+    for m in modes:
+        breakdown[mode] = checkins.filter(leg__mode=m,leg__day__exact='w').distinct().count()
+
     return breakdown
 
+def makeChart():
+
+    return month_breakdown
 
 
 def getCanvasJSChart(emp, new=False):
@@ -414,8 +527,8 @@ def getCanvasJSChartData(emp):
     chartData = [
             {
                 'type': "stackedColumn",
-                'color': COLOR_SCHEME['gs'],
-                'legendText': "Green Switches",
+                'color': '#aa0000',
+                'legendText': "Driving alone",
                 'showInLegend': "true",
                 'toolTipContent': '{name}: {y}',
                 'dataPoints': [
@@ -423,8 +536,8 @@ def getCanvasJSChartData(emp):
                 },
             {
                 'type': "stackedColumn",
-                'color': COLOR_SCHEME['gc'],
-                'legendText': "Green Commutes",
+                'color': '#ff0000',
+                'legendText': "Driving (alt)",
                 'showInLegend': "true",
                 'toolTipContent': '{name}: {y}',
                 'dataPoints': [
@@ -432,8 +545,8 @@ def getCanvasJSChartData(emp):
                 },
             {
                 'type': "stackedColumn",
-                'color': COLOR_SCHEME['cc'],
-                'legendText': "Car Commutes",
+                'color': '#ff5500',
+                'legendText': "Carpooling",
                 'showInLegend': "true",
                 'toolTipContent': '{name}: {y}',
                 'dataPoints': [
@@ -441,21 +554,69 @@ def getCanvasJSChartData(emp):
                 },
             {
                 'type': "stackedColumn",
-                'color': COLOR_SCHEME['us'],
+                'color': '#00ff00',
+                'legendText': "Walking",
+                'showInLegend': "true",
+                'toolTipContent': '{name}: {y}',
+                'dataPoints': [
+                    ]
+                },
+            {
+                'type': "stackedColumn",
+                'color': '#00bb00',
+                'legendText': "Biking",
+                'showInLegend': "true",
+                'toolTipContent': '{name}: {y}',
+                'dataPoints': [
+                    ]
+                },
+            {
+                'type': "stackedColumn",
+                'color': '#009900',
+                'legendText': "Running/jogging",
+                'showInLegend': "true",
+                'toolTipContent': '{name}: {y}',
+                'dataPoints': [
+                    ]
+                },
+            {
+                'type': "stackedColumn",
+                'color': '#33cc33',
+                'legendText': "Public transit",
+                'showInLegend': "true",
+                'toolTipContent': '{name}: {y}',
+                'dataPoints': [
+                    ]
+                },
+            {
+                'type': "stackedColumn",
+                'color': '#aaaaaa',
                 'legendText': "Other",
                 'showInLegend': "true",
                 'toolTipContent': '{name}: {y}',
                 'dataPoints': [
                     ]
-                }
+                },
+            {
+                'type': "stackedColumn",
+                'color': '#0000aa',
+                'legendText': "Telecommuting",
+                'showInLegend': "true",
+                'toolTipContent': '{name}: {y}',
+                'dataPoints': [
+                    ]
+                }    
             
             ]
-    intToModeConversion = ['gs', 'gc', 'cc', 'us' ]
-    iTMSConv = ['Green Switches','Green Commutes', 'Car Commutes', 'Other', 'Healthy Switch', 'Healthy Commute']
+
+    modes = [ 'da', 'dalt', 'cp', 'w', 'b', 'r', 't', 'o', 'tc' ]
+    # intToModeConversion = ['gs', 'gc', 'cc', 'us' ]
+    # iTMSConv = ['Green Switches','Green Commutes', 'Car Commutes', 'Other', 'Healthy Switch', 'Healthy Commute']
     for m in Month.objects.active_months().reverse():
         breakDown = getBreakDown(emp, m.id)
         for i in range(0, 4):
-            chartData[i]['dataPoints'] += [{ 'label': m.short_name, 'y': breakDown[intToModeConversion[i]], 'name': iTMSConv[i] },]
+            chartData[i]['dataPoints'] += [{ 'label': modes[i], 'y': breakDown[modes[i]], 'name': modes[i] },]
+
     return chartData
 
 def getNvRcJSChartData(emp):
