@@ -63,127 +63,128 @@ def new_leaderboard(request, empid=0, filter_by='sector', _filter=0, sort='parti
     context = {}
     context['empid'] = empid
     
-    #workaround for the subteam parents
-    if Employer.objects.filter(id=empid,is_parent='t'):
-        #need to collect all the subteams to get right totals
-        parentname = Employer.objects.filter(id=empid).values('name')
-        childteams = Employer.objects.filter(sector__parent=parentname,active='t')
-        checkins = Commutersurvey.objects.filter(wr_day_month__gte=32, employer__in=childteams)
-    else:
-        checkins = Commutersurvey.objects.filter(wr_day_month__gte=32, employer_id=empid)
-    
-    # allmodes = ['w','b','r','t','cp','tc','da','dalt','o']
-    greenmodes = ['w','b','r','t','cp']
-    yellowmodes = ['tc']
-    redmodes = ['da','dalt']
-    othermodes = ['o']
-
-    modesplitG = {}
-    modesplitY = {}
-    modesplitR = {}
-    modesplitO = {}
-
-    for m in greenmodes:
-        modesplitG[m] = {}
-        num_mode_n = checkins.filter(leg__mode=m,leg__day__exact='n').distinct().count()
-        num_mode_w = checkins.filter(leg__mode=m,leg__day__exact='w').distinct().count()
-        modesplitG[m]['onmode_n']= num_mode_n
-        modesplitG[m]['onmode_w']= num_mode_w
-        diff = float(num_mode_w - num_mode_n)
-        if num_mode_n > 0:
-            modesplitG[m]['diff']=  round(diff*100/(num_mode_n),1)
+    if empid != 0:
+        #workaround for the subteam parents
+        if Employer.objects.filter(id=empid,is_parent='t'):
+            #need to collect all the subteams to get right totals
+            parentname = Employer.objects.filter(id=empid).values('name')
+            childteams = Employer.objects.filter(sector__parent=parentname,active='t')
+            checkins = Commutersurvey.objects.filter(wr_day_month__gte=32, employer__in=childteams)
         else:
-            modesplitG[m]['diff']= 0.0
+            checkins = Commutersurvey.objects.filter(wr_day_month__gte=32, employer_id=empid)
+        
+        # allmodes = ['w','b','r','t','cp','tc','da','dalt','o']
+        greenmodes = ['w','b','r','t','cp']
+        yellowmodes = ['tc']
+        redmodes = ['da','dalt']
+        othermodes = ['o']
 
-    for m in yellowmodes:
-        modesplitY[m] = {}
-        num_mode_n = checkins.filter(leg__mode=m,leg__day__exact='n').distinct().count()
-        num_mode_w = checkins.filter(leg__mode=m,leg__day__exact='w').distinct().count()
-        modesplitY[m]['onmode_n']= num_mode_n
-        modesplitY[m]['onmode_w']= num_mode_w
-        diff = float(num_mode_w - num_mode_n)
-        if num_mode_n > 0:
-            modesplitY[m]['diff']=  round(diff*100/(num_mode_n),1)
-        else:
-            modesplitY[m]['diff']= 0.0
+        modesplitG = {}
+        modesplitY = {}
+        modesplitR = {}
+        modesplitO = {}
 
-    for m in redmodes:
-        modesplitR[m] = {}
-        num_mode_n = checkins.filter(leg__mode=m,leg__day__exact='n').distinct().count()
-        num_mode_w = checkins.filter(leg__mode=m,leg__day__exact='w').distinct().count()
-        modesplitR[m]['onmode_n']= num_mode_n
-        modesplitR[m]['onmode_w']= num_mode_w
-        diff = float(num_mode_w - num_mode_n)
-        if num_mode_n > 0:
-            modesplitR[m]['diff']=  round(diff*100/(num_mode_n),1)
-        else:
-            modesplitR[m]['diff']= 0.0
+        for m in greenmodes:
+            modesplitG[m] = {}
+            num_mode_n = checkins.filter(leg__mode=m,leg__day__exact='n').distinct().count()
+            num_mode_w = checkins.filter(leg__mode=m,leg__day__exact='w').distinct().count()
+            modesplitG[m]['onmode_n']= num_mode_n
+            modesplitG[m]['onmode_w']= num_mode_w
+            diff = float(num_mode_w - num_mode_n)
+            if num_mode_n > 0:
+                modesplitG[m]['diff']=  round(diff*100/(num_mode_n),1)
+            else:
+                modesplitG[m]['diff']= 0.0
 
-    for m in othermodes:
-        modesplitO[m] = {}
-        num_mode_n = checkins.filter(leg__mode=m,leg__day__exact='n').distinct().count()
-        num_mode_w = checkins.filter(leg__mode=m,leg__day__exact='w').distinct().count()
-        modesplitO[m]['onmode_n']= num_mode_n
-        modesplitO[m]['onmode_w']= num_mode_w
-        diff = float(num_mode_w - num_mode_n)
-        if num_mode_n > 0:
-            modesplitO[m]['diff']=  round(diff*100/(num_mode_n),1)
-        else:
-            modesplitO[m]['diff']= 0.0
+        for m in yellowmodes:
+            modesplitY[m] = {}
+            num_mode_n = checkins.filter(leg__mode=m,leg__day__exact='n').distinct().count()
+            num_mode_w = checkins.filter(leg__mode=m,leg__day__exact='w').distinct().count()
+            modesplitY[m]['onmode_n']= num_mode_n
+            modesplitY[m]['onmode_w']= num_mode_w
+            diff = float(num_mode_w - num_mode_n)
+            if num_mode_n > 0:
+                modesplitY[m]['diff']=  round(diff*100/(num_mode_n),1)
+            else:
+                modesplitY[m]['diff']= 0.0
 
-    
-    context['thismodeG'] = modesplitG
-    context['thismodeY'] = modesplitY
-    context['thismodeR'] = modesplitR
-    context['thismodeO'] = modesplitO
+        for m in redmodes:
+            modesplitR[m] = {}
+            num_mode_n = checkins.filter(leg__mode=m,leg__day__exact='n').distinct().count()
+            num_mode_w = checkins.filter(leg__mode=m,leg__day__exact='w').distinct().count()
+            modesplitR[m]['onmode_n']= num_mode_n
+            modesplitR[m]['onmode_w']= num_mode_w
+            diff = float(num_mode_w - num_mode_n)
+            if num_mode_n > 0:
+                modesplitR[m]['diff']=  round(diff*100/(num_mode_n),1)
+            else:
+                modesplitR[m]['diff']= 0.0
 
-    # allmonths = [32,33,34,35,36,37,38]
-    # allmonths2 = [{32: 'April'},{33: 'May'},{},{},{},{},]
+        for m in othermodes:
+            modesplitO[m] = {}
+            num_mode_n = checkins.filter(leg__mode=m,leg__day__exact='n').distinct().count()
+            num_mode_w = checkins.filter(leg__mode=m,leg__day__exact='w').distinct().count()
+            modesplitO[m]['onmode_n']= num_mode_n
+            modesplitO[m]['onmode_w']= num_mode_w
+            diff = float(num_mode_w - num_mode_n)
+            if num_mode_n > 0:
+                modesplitO[m]['diff']=  round(diff*100/(num_mode_n),1)
+            else:
+                modesplitO[m]['diff']= 0.0
 
-    # monthsplit = {}
+        
+        context['thismodeG'] = modesplitG
+        context['thismodeY'] = modesplitY
+        context['thismodeR'] = modesplitR
+        context['thismodeO'] = modesplitO
 
-    # for month in allmonths:
-    #     monthsplit[month] = {}
-    #     checkinsdone = checkins.filter(wr_day_month=month,leg__day__exact='w').distinct().count()
-    #     monthsplit[month] = checkinsdone
+        # allmonths = [32,33,34,35,36,37,38]
+        # allmonths2 = [{32: 'April'},{33: 'May'},{},{},{},{},]
 
-    # context['monthlycheckin'] = monthsplit
+        # monthsplit = {}
+
+        # for month in allmonths:
+        #     monthsplit[month] = {}
+        #     checkinsdone = checkins.filter(wr_day_month=month,leg__day__exact='w').distinct().count()
+        #     monthsplit[month] = checkinsdone
+
+        # context['monthlycheckin'] = monthsplit
 
 
-    try:
-        company = Employer.objects.filter(id=empid)[0]
-    except:
-        return json.dumps({"error" : "Invalid employer id"})
-    mos = [m.id for m in Month.objects.active_months().reverse().exclude(open_checkin__gt=date.today())] # Get valid months
-    firstMonth = min(mos)
+        try:
+            company = Employer.objects.filter(id=empid)[0]
+        except:
+            return json.dumps({"error" : "Invalid employer id"})
+        mos = [m.id for m in Month.objects.active_months().reverse().exclude(open_checkin__gt=date.today())] # Get valid months
+        firstMonth = min(mos)
 
-    # Selects the count of distinct emails for a given month and employer (the case statement is to deal with subgroups)
-    queryAll = """SELECT COUNT(DISTINCT email) FROM survey_commutersurvey WHERE survey_commutersurvey.wr_day_month_id = {1} AND CASE WHEN(SELECT is_parent FROM survey_employer WHERE id = {0}) = 't' THEN survey_commutersurvey.employer_id IN (SELECT survey_employer.id FROM survey_employer JOIN survey_emplsector ON survey_employer.sector_id = survey_emplsector.id WHERE survey_emplsector.parent = (SELECT name FROM survey_employer WHERE id = {0}) ) ELSE survey_commutersurvey.employer_id = {0} END"""
+        # Selects the count of distinct emails for a given month and employer (the case statement is to deal with subgroups)
+        queryAll = """SELECT COUNT(DISTINCT email) FROM survey_commutersurvey WHERE survey_commutersurvey.wr_day_month_id = {1} AND CASE WHEN(SELECT is_parent FROM survey_employer WHERE id = {0}) = 't' THEN survey_commutersurvey.employer_id IN (SELECT survey_employer.id FROM survey_employer JOIN survey_emplsector ON survey_employer.sector_id = survey_emplsector.id WHERE survey_emplsector.parent = (SELECT name FROM survey_employer WHERE id = {0}) ) ELSE survey_commutersurvey.employer_id = {0} END"""
 
-    # Same as above, but filters out emails used in previous months
-    queryNew = """SELECT COUNT(DISTINCT email) FROM survey_commutersurvey WHERE survey_commutersurvey.wr_day_month_id = {2} AND CASE WHEN(SELECT is_parent FROM survey_employer WHERE id = {0}) = 't' THEN survey_commutersurvey.employer_id IN(SELECT survey_employer.id FROM survey_employer JOIN survey_emplsector ON survey_employer.sector_id = survey_emplsector.id WHERE survey_emplsector.parent = (SELECT name FROM survey_employer WHERE id = {0}) ) AND survey_commutersurvey.email NOT IN ( SELECT survey_commutersurvey.email FROM survey_commutersurvey WHERE wr_day_month_id BETWEEN {1} AND {2}-1 AND employer_id IN (SELECT survey_employer.id FROM survey_employer JOIN survey_emplsector ON survey_employer.sector_id = survey_emplsector.id WHERE survey_emplsector.parent = (SELECT name FROM survey_employer WHERE id = {0} ) ) ) ELSE survey_commutersurvey.employer_id = {0} AND email NOT IN (SELECT email FROM survey_commutersurvey WHERE employer_id = {0} AND wr_day_month_id BETWEEN {1} AND {2}-1 ) END"""
+        # Same as above, but filters out emails used in previous months
+        queryNew = """SELECT COUNT(DISTINCT email) FROM survey_commutersurvey WHERE survey_commutersurvey.wr_day_month_id = {2} AND CASE WHEN(SELECT is_parent FROM survey_employer WHERE id = {0}) = 't' THEN survey_commutersurvey.employer_id IN(SELECT survey_employer.id FROM survey_employer JOIN survey_emplsector ON survey_employer.sector_id = survey_emplsector.id WHERE survey_emplsector.parent = (SELECT name FROM survey_employer WHERE id = {0}) ) AND survey_commutersurvey.email NOT IN ( SELECT survey_commutersurvey.email FROM survey_commutersurvey WHERE wr_day_month_id BETWEEN {1} AND {2}-1 AND employer_id IN (SELECT survey_employer.id FROM survey_employer JOIN survey_emplsector ON survey_employer.sector_id = survey_emplsector.id WHERE survey_emplsector.parent = (SELECT name FROM survey_employer WHERE id = {0} ) ) ) ELSE survey_commutersurvey.employer_id = {0} AND email NOT IN (SELECT email FROM survey_commutersurvey WHERE employer_id = {0} AND wr_day_month_id BETWEEN {1} AND {2}-1 ) END"""
 
-    c = connection.cursor()
+        c = connection.cursor()
 
-    checkinData = [];
+        checkinData = [];
 
-    for month in mos:
-        c.execute(queryAll.format(empid, month))
-        allCheckins = c.fetchone()[0] # Add count of all checkins for that month
-        c.execute(queryNew.format(empid, firstMonth, month))
-        newCheckins = c.fetchone()[0]
-        checkinData.append({"month":month, "all": allCheckins, "new": newCheckins })
+        for month in mos:
+            c.execute(queryAll.format(empid, month))
+            allCheckins = c.fetchone()[0] # Add count of all checkins for that month
+            c.execute(queryNew.format(empid, firstMonth, month))
+            newCheckins = c.fetchone()[0]
+            checkinData.append({"month":month, "all": allCheckins, "new": newCheckins })
 
-    employersNewVsReturning = json.dumps({"id" : company.id, "name": company.name, "size": company.nr_employees, "checkins": checkinData})
-    
-    context['empNVR'] = employersNewVsReturning
+        employersNewVsReturning = json.dumps({"id" : company.id, "name": company.name, "size": company.nr_employees, "checkins": checkinData})
+        
+        context['empNVR'] = employersNewVsReturning
 
-    query_modes = "SELECT survey_leg.day, survey_leg.mode, survey_commutersurvey.wr_day_month_id, COUNT(DISTINCT survey_commutersurvey.id) FROM survey_leg JOIN survey_commutersurvey ON survey_leg.commutersurvey_id = survey_commutersurvey.id WHERE survey_commutersurvey.wr_day_month_id BETWEEN {0} AND {1} AND survey_leg.mode IN ('da','dalt','w','b','t','o','r','tc') AND CASE WHEN (SELECT is_parent FROM survey_employer WHERE id = {2}) = 't' THEN survey_commutersurvey.employer_id IN (SELECT survey_employer.id FROM survey_employer JOIN survey_emplsector ON survey_employer.sector_id = survey_emplsector.id WHERE survey_emplsector.parent = (  SELECT name FROM survey_employer WHERE id = {2} ) ) ELSE survey_commutersurvey.employer_id = {2} END GROUP BY survey_leg.day, survey_leg.mode, survey_commutersurvey.wr_day_month_id"
+        # query_modes = "SELECT survey_leg.day, survey_leg.mode, survey_commutersurvey.wr_day_month_id, COUNT(DISTINCT survey_commutersurvey.id) FROM survey_leg JOIN survey_commutersurvey ON survey_leg.commutersurvey_id = survey_commutersurvey.id WHERE survey_commutersurvey.wr_day_month_id BETWEEN {0} AND {1} AND survey_leg.mode IN ('da','dalt','w','b','t','o','r','tc') AND CASE WHEN (SELECT is_parent FROM survey_employer WHERE id = {2}) = 't' THEN survey_commutersurvey.employer_id IN (SELECT survey_employer.id FROM survey_employer JOIN survey_emplsector ON survey_employer.sector_id = survey_emplsector.id WHERE survey_emplsector.parent = (  SELECT name FROM survey_employer WHERE id = {2} ) ) ELSE survey_commutersurvey.employer_id = {2} END GROUP BY survey_leg.day, survey_leg.mode, survey_commutersurvey.wr_day_month_id"
 
-    # c.execute(query_modes.format(min(mos), max(mos), empid))
-    # checkinsByMode = json.dumps(c.fetchall())
+        # c.execute(query_modes.format(min(mos), max(mos), empid))
+        # checkinsByMode = json.dumps(c.fetchall())
 
-    # context['checkinsByMode'] = checkinsByMode
+        # context['checkinsByMode'] = checkinsByMode
 
 
 
