@@ -4,22 +4,161 @@
 
 {% block title %}Leaderboard{% endblock %}
 {% block javascript %}
+<script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
+
 <script type="text/javascript">
-    $("document").ready(function() {
-		chart_data = {% autoescape off %}{{ chart }}{% endautoescape %}
-		var chart = new CanvasJS.Chart("breakDownGraph", chart_data);
-		chart.render();
+
+
+    var employer = {{ empNVR | safe }};
+
+    employer.domain = [];
+    employer.stack = [[],[]];
+    employer.checkins.forEach(function(d) {
+      employer.domain.push([ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ][(d.month-5)%12]);
+      d.percent = d.all / employer.size;
+      employer.stack[0].push({'x': d.month-32, 'y': d.all - d.new});
+      employer.stack[1].push({'x': d.month-32, 'y': d.new});
     });
-    
-    String.prototype.format = function() {
-        var formatted = this;
-        for(arg in arguments) {
-            formatted = formatted.replace("{" + arg + "}", arguments[arg]);
+
+    //Width and height
+    var margin = {top: 20, right: 120, bottom: 35, left: 65},
+        width = 650 - margin.left - margin.right,
+        height = 350 - margin.top - margin.bottom;
+
+    var stack = d3.layout.stack();
+    stack(employer.stack);
+
+    //Set up scales
+    var xScale = d3.scale.ordinal()
+      .domain(d3.range(employer.stack[0].length))
+      .rangeRoundBands([0, width], 0.01);
+
+    var xAxis = d3.svg.axis()
+      .scale(xScale)
+      .tickFormat(function(d){
+        return [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ][(d+3)%12];
+      })
+      .orient("bottom");
+
+    var yScale = d3.scale.linear()
+      .domain([0,d3.max(employer.stack, function(d) {
+          return d3.max(d, function(d) {
+            return d.y0 + d.y;
+          });
+        })
+      ])
+      .range([height, 0]);
+
+    var yAxis = d3.svg.axis()
+      .scale(yScale)
+      .ticks(5)
+      .orient("left")
+
+    var colors = function(color) {
+        return ['#31a354','#74c476'][color%2];
+    };
+
+    //Create SVG element
+    var svg = d3.select(".barchart")
+          .attr("width", width + margin.left + margin.right)
+          .attr("height", height + margin.top + margin.bottom)
+          .append("g")
+          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    // Add a group for each row of data
+    var groups = svg.selectAll("g")
+      .data(employer.stack)
+      .enter()
+      .append("g")
+      .style("fill", function(d, i) {
+        return colors(i);
+      });
+
+    // Add a rect for each data value
+    var rects = groups.selectAll("rect")
+      .data(function(d) { return d; })
+      .enter()
+      .append("rect")
+      .attr("x", function(d, i) {
+        return xScale(i);
+      })
+      .attr("y", function(d) {
+        return yScale(d.y) + yScale(d.y0) - height;
+      })
+      .attr("height", function(d) {
+        return height - yScale(d.y);
+      })
+      .attr("width", xScale.rangeBand())
+      .on("mouseover", function() { tooltip.style("display", null); })
+      .on("mouseout", function() { tooltip.style("display", "none"); })
+      .on("mousemove", function(d) {
+        var xPosition = d3.mouse(this)[0] - 15;
+        var yPosition = d3.mouse(this)[1] - 25;
+        tooltip.attr("transform", "translate(" + xPosition + "," + yPosition + ")");
+        tooltip.select("text").text(d.y);
+      });
+
+    svg.append("g")
+        .attr("class", "x-axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis);
+
+    svg.append("g")
+        .attr("class", "y-axis")
+        .call(yAxis);
+
+    svg.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0 - margin.left)
+        .attr("x",0 - (height / 2))
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text("Unique checkins each month");
+
+    var c = [colors(0), colors(1)];
+
+    var legend = svg.selectAll(".legend")
+      .data(c)
+      .enter().append("g")
+      .attr("class", "legend")
+      .attr("transform", function(d, i) { return "translate(30," + i * 19 + ")"; });
+
+    legend.append("rect")
+      .attr("x", width - 18)
+      .attr("width", 18)
+      .attr("height", 18)
+      .style("fill", function(d, i) {return c.slice().reverse()[i];});
+
+    legend.append("text")
+      .attr("x", width + 5)
+      .attr("y", 9)
+      .attr("dy", ".35em")
+      .style("text-anchor", "start")
+      .text(function(d, i) {
+        switch (i) {
+          case 0: return "New";
+          case 1: return "Returning";
         }
-        return formatted;
-    };	
-</script>
-<script type="text/javascript">
+      });
+
+    // Prep the tooltip bits, initial display is hidden
+    var tooltip = svg.append("g")
+      .attr("class", "tooltip")
+      .style("display", "none");
+
+    tooltip.append("rect")
+      .attr("width", 30)
+      .attr("height", 20)
+      .attr("fill", "white")
+      .style("opacity", 0.5);
+
+    tooltip.append("text")
+      .attr("x", 15)
+      .attr("dy", "1.2em")
+      .style("text-anchor", "middle")
+      .attr("font-size", "12px")
+      .attr("font-weight", "bold");
+
 
 $("document").ready(function() {
     $('button.submitfilter').addClass('disabled'); // Disables visually
@@ -60,6 +199,220 @@ function setfilter(filter) {
 	}
 </script>
 <script type="text/javascript" src="{% static 'libs/canvasjs.min.js' %}"></script>
+
+<script type="text/javascript">
+// var margins = {top: 20, right: 300, bottom: 35, left: 40},
+//     w = 800 - margins.left - margins.right,
+//     h = 500 - margins.top - margins.bottom;
+
+// var datas = JSON.parse('[["n", "b", 32, 26], ["n", "b", 33, 46], ["n", "b", 34, 39], ["n", "b", 35, 39], ["n", "b", 36, 43], ["n", "b", 37, 64], ["n", "da", 32, 20], ["n", "da", 33, 53], ["n", "da", 34, 45], ["n", "da", 35, 58], ["n", "da", 36, 46], ["n", "da", 37, 94], ["n", "dalt", 32, 1], ["n", "dalt", 33, 5], ["n", "dalt", 34, 2], ["n", "dalt", 35, 6], ["n", "dalt", 36, 3], ["n", "dalt", 37, 3], ["n", "o", 35, 1], ["n", "r", 32, 1], ["n", "r", 35, 1], ["n", "t", 32, 49], ["n", "t", 33, 56], ["n", "t", 34, 67], ["n", "t", 35, 55], ["n", "t", 36, 46], ["n", "t", 37, 74], ["n", "tc", 35, 1], ["n", "tc", 36, 1], ["n", "w", 32, 36], ["n", "w", 33, 55], ["n", "w", 34, 75], ["n", "w", 35, 60], ["n", "w", 36, 63], ["n", "w", 37, 101], ["w", "b", 32, 27], ["w", "b", 33, 51], ["w", "b", 34, 39], ["w", "b", 35, 46], ["w", "b", 36, 46], ["w", "b", 37, 70], ["w", "da", 32, 15], ["w", "da", 33, 51], ["w", "da", 34, 45], ["w", "da", 35, 57], ["w", "da", 36, 41], ["w", "da", 37, 90], ["w", "dalt", 32, 1], ["w", "dalt", 33, 5], ["w", "dalt", 34, 2], ["w", "dalt", 35, 4], ["w", "dalt", 36, 3], ["w", "dalt", 37, 3], ["w", "o", 35, 1], ["w", "r", 32, 1], ["w", "r", 33, 1], ["w", "r", 34, 2], ["w", "r", 35, 1], ["w", "r", 36, 1], ["w", "t", 32, 48], ["w", "t", 33, 63], ["w", "t", 34, 69], ["w", "t", 35, 61], ["w", "t", 36, 48], ["w", "t", 37, 80], ["w", "tc", 32, 1], ["w", "tc", 35, 1], ["w", "tc", 36, 4], ["w", "tc", 37, 1], ["w", "w", 32, 46], ["w", "w", 33, 61], ["w", "w", 34, 79], ["w", "w", 35, 64], ["w", "w", 36, 68], ["w", "w", 37, 105]]');
+
+// var datas = {{ checkinsByMode | safe }};
+
+// var stackifyData = function(data, dayType) {
+//     if(dayType !== 'n' && dayType !== 'w') {
+//       return 0;
+//     }
+//     // Extract and organize the relevant data, but in a dict first
+//     var stackDict = {};
+//     data.forEach(function(element) {
+//       if ( element[0] === dayType ) {
+//         try {
+//             stackDict[ element[1] ].push( { "x": element[2] - 32,
+//                                             "y": element[3] });
+//         }
+//         catch (TypeError) {
+//           stackDict[ element[1] ] = [
+//               {
+//                 "x": element[2] - 32,
+//                 "y": element[3]
+//               }
+//           ];
+//         }
+//       }
+//     });
+//     // Get number of months
+//     var numMonths = 0;
+//     for(var key in stackDict) {
+//       if ( stackDict[key].length > numMonths ) {
+//         numMonths = stackDict[key].length;
+//       }
+//     }
+//     // Deal with months in which no one checked in by a certain method
+//     for (var key in stackDict) {
+//         var missing = [];
+//         for(var i = 0; i < numMonths; i++) {
+//             missing.push(i);
+//         }
+//         stackDict[key].forEach(function(value) {
+//             missing.splice(missing.indexOf(value.x), 1);
+//         });
+//       missing.forEach(function(x){
+//         stackDict[key].push({"x": x, "y": 0});
+//       });
+//     }
+//     // Convert into an array
+//     var stack = [];
+//     for(key in stackDict) {
+//       stack.push(stackDict[key]);
+//     }
+//     return stack;
+// }
+
+// var barchart = function(day) {
+//   if(day !== 'w' && day !== 'n'){ console.log('Invalid input.'); return 0; }
+
+//   var stack = d3.layout.stack();
+//   var dataset = stack(stackifyData(datas, day));
+
+//   var xScale = d3.scale.ordinal()
+//     .domain(d3.range(dataset[0].length))
+//     .rangeRoundBands([0, w], 0.05);
+
+//   var xAxis = d3.svg.axis()
+//     .scale(xScale)
+//     .tickFormat(function(d){
+//       return [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ][(d+3)%12];
+//     })
+//     .orient("bottom");
+
+//   var yScale = d3.scale.linear()
+//     .domain([0,
+//       d3.max(dataset, function(d) {
+//         return d3.max(d, function(d) {
+//           return d.y0 + d.y;
+//         });
+//       })
+//     ])
+//     .range([h,0]);
+
+//   var yAxis = d3.svg.axis()
+//     .scale(yScale)
+//     .ticks(5)
+//     .orient("left")
+
+//   var colors = d3.scale.category20c();
+
+//   //Create SVG element
+//   var svg = d3.select(".barchart2")
+//     .attr("width", w + margins.left + margins.right)
+//     .attr("height", h + margins.top + margins.bottom)
+//     .append("g")
+//     .attr("transform", "translate(" + margins.left + "," + margins.top + ")");
+
+//   // Add a group for each row of data
+//   var groups = svg.selectAll("g")
+//     .data(dataset)
+//     .enter()
+//     .append("g")
+//     .style("fill", function(d, i) {
+//       return colors(i);
+//     })
+
+//   // Add a rect for each data value
+//   var rects = groups.selectAll("rect")
+//     .data(function(d) { return d; })
+//     .enter()
+//     .append("rect")
+//     .attr("x", function(d, i) {
+//       return xScale(i);
+//     })
+//     .attr("width", xScale.rangeBand())
+//     .attr("y", function(d) {
+//       //return yScale(d.y0);
+//       return yScale(d.y) + yScale(d.y0) - h;
+//     })
+//     .attr("height", function(d) {
+//       //return yScale(d.y);
+//       return h - yScale(d.y);
+//     })
+//     .on("mouseover", function() { tooltip.style("display", null); })
+//     .on("mouseout", function() { tooltip.style("display", "none"); })
+//     .on("mousemove", function(d) {
+//       var xPosition = d3.mouse(this)[0] - 15;
+//       var yPosition = d3.mouse(this)[1] - 25;
+//       tooltip.attr("transform", "translate(" + xPosition + "," + yPosition + ")");
+//       tooltip.select("text").text(d.y);
+//     })
+
+//   svg.append("g")
+//       .attr("class", "x axis")
+//       .attr("transform", "translate(0," + h + ")")
+//       .call(xAxis);
+
+//   svg.append("g")
+//       .attr("class", "y axis")
+//       .call(yAxis);
+
+//   c = [];
+//   for(var i = 0; i<8; i++){
+//     c.push(colors(i));
+//   }
+
+//   var legend = svg.selectAll(".legend")
+//     .data(c)
+//     .enter().append("g")
+//     .attr("class", "legend")
+//     .attr("transform", function(d, i) { return "translate(30," + i * 19 + ")"; });
+
+//   legend.append("rect")
+//     .attr("x", w - 18)
+//     .attr("width", 18)
+//     .attr("height", 18)
+//     .style("fill", function(d, i) {return c.slice().reverse()[i];});
+
+//   legend.append("text")
+//     .attr("x", w + 5)
+//     .attr("y", 9)
+//     .attr("dy", ".35em")
+//     .style("text-anchor", "start")
+//     .text(function(d, i) {
+//       switch (i) {
+//         case 0: return "Walking";
+//         case 1: return "Telecommuting";
+//         case 2: return "Public Transit";
+//         case 3: return "Running or Jogging";
+//         case 4: return "Other";
+//         case 5: return "Driving Alone (alternate vehicle)";
+//         case 6: return "Driving Alone";
+//         case 7: return "Biking";
+//       }
+//     });
+
+//   // Prep the tooltip bits, initial display is hidden
+//   var tooltip = svg.append("g")
+//     .attr("class", "tooltip")
+//     .style("display", "none");
+
+//   tooltip.append("rect")
+//     .attr("width", 30)
+//     .attr("height", 20)
+//     .attr("fill", "white")
+//     .style("opacity", 0.5);
+
+//   tooltip.append("text")
+//     .attr("x", 15)
+//     .attr("dy", "1.2em")
+//     .style("text-anchor", "middle")
+//     .attr("font-size", "12px")
+//     .attr("font-weight", "bold");
+// }
+
+// d3.selectAll("input")
+//   .on("change", function() {
+//     var val = this.value;
+//     if(val === 'n' || val === 'w') {
+//       d3.select(".barchart2")
+//         .selectAll('g')
+//         .remove();
+//       barchart(val);
+//     }
+//   });
+
+
+// barchart('w');
+
+</script>
 {% endblock %}
 
 
@@ -123,28 +476,7 @@ function setfilter(filter) {
             <button type="submit" class="btn btn-small btn-success submitfilter">Submit</button>
             </div>
         </div>
-<!--  disabled for performance reasons
-        <div class="col-md-6 column">
-            <p class="lead"><strong>Please choose ranking type</strong></p>
-            <div class="btn-group">
-            {% if not filt and not empid %}
-            <a href="/leaderboard/participation" class="btn btn-default participation {% if sort == 'participation' %}selected{% endif %}">Participation</a>
-            <a href="/leaderboard/gc" class="btn btn-default gcommute {% if sort == 'gc' %}selected{% endif %}">Green commutes</a>
-            <a href="/leaderboard/gs" class="btn btn-default gswitch {% if sort == 'gs' %}selected{% endif %}">Green switches</a>
-            {% endif %}
 
-            {% if filt and not empid %}
-            <a href="/leaderboard/participation" class="btn btn-default participation {% if sort == 'participation' %}selected{% endif %}">Participation</a>
-            <a href="/leaderboard/gc" class="btn btn-default gcommute {% if sort == 'gc' %}selected{% endif %}">Green commutes</a>
-            <a href="/leaderboard/gs" class="btn btn-default gswitch {% if sort == 'gs' %}selected{% endif %}">Green switches</a>
-            {% endif %}
-            {% if empid %}
-            <a href="/leaderboard/participation" class="btn btn-default participation {% if sort == 'participation' %}selected{% endif %}">Participation</a>
-            <a href="/leaderboard/gc" class="btn btn-default gcommute {% if sort == 'gc' %}selected{% endif %}">Green commutes</a>
-            <a href="/leaderboard/gs" class="btn btn-default gswitch {% if sort == 'gs' %}selected{% endif %}">Green switches</a>
-            {% endif %}
-            </div>
-        </div> -->
 		</form>
     </div>
     <div class="row clearfix">
@@ -228,119 +560,87 @@ function setfilter(filter) {
 
     <div class="row clearfix">
         <div class="col-md-12 column" style="border: 1px solid #eee; padding:5px; text-align:center; letter-spacing: 0.25px; font-size: 16px;">
-            <!-- <h3>{{ display_month }} summary</h3>  -->
-            <h3>Checkins across all months</h3>
-            <div class="panel participation">
-                <p>{{ h }} checkins involved at least one walk, bike, run adventure!</p>
-                <p>{{ t }} checkins involved taking public transit.</p>
+
+            <h3>New & Returning Checkins</h3>
+
+            <div class="barchart-div">
+              <svg class="barchart"></svg>
             </div>
-            <table class="table table-condensed lead">
-            <tr><th>Type of transportation</th><th>Normal day</th><th>Walk/Ride Day</th></tr>
-                {% for mode,v in thismode.items %}
-                {% if mode = 'b' %}
-                  <tr class="success"><td>Bicycling
-                {% elif mode = 'w' %}
-                  <tr class="success"><td>Walking
-                {% elif mode = 'r' %}
-                  <tr class="success"><td>Running or jogging
-                {% elif mode = 't' %}
-                  <tr class="success"><td>Public transit
-                {% elif mode = 'da' %}
-                  <tr class="danger"><td>Driving alone
-                {% elif mode = 'dalt' %}
-                  <tr class="danger"><td>Driving alone (alternate vehicle)
-                {% elif mode = 'tc' %}
-                  <tr class="info"><td>Telecommuting
-                {% elif mode = 'o' %}
-                  <tr><td>Other
-                {% endif %} 
-            </td>
-            <td>{{ v.onmode_n }}</td><td>{{ v.onmode_w }}</td>
-            </tr>
-            {% endfor %}
-            <tfoot>
-            <tr>
-            <td colspan='3'>
-                <p>Note: The above will NOT add to the reported total number of checkins because many commutes use multiple types of transportation!</p></td>
-            </tr>
-            </tfoot>
-            </table>           
-            <div class="panel">
-            <p style="font-family:aleolightitalic;">More details coming soon!</p>
+
+
+            <hr>
+                <h3>Breakdowns by transportation type</h3>
+                <p class="lead">Totals for all months in 2014</p>
+  
+                <div class="col-sm-8 col-sm-offset-2">
+                <table class="table table-condensed table-borderless">
+                <tr><th>Transportation</th><th>Normal Day</th><th>Walk/Ride Day</th><th>Difference</th></tr>
+                    {% for mode,v in thismodeG.items %}
+                    {% if mode = 'b' %}
+                      <tr class="success"><td><img src="{% static 'img/bicycle-24.png' %}" height="32" width="32">Bicycling
+                    {% elif mode = 'w' %}
+                      <tr class="success"><td><img src="{% static 'img/school-24.png' %}" height="32" width="32">Walking
+                    {% elif mode = 'r' %}
+                      <tr class="success"><td><img src="{% static 'img/pitch-24.png' %}" height="32" width="32">Running or jogging
+                    {% elif mode = 't' %}
+                      <tr class="success"><td><img src="{% static 'img/rail-24.png' %}" height="32" width="32">Public transit
+                    {% elif mode = 'cp' %}
+                      <tr class="success"><td><img src="{% static 'img/car-24.png' %}" height="32" width="32"> Carpooling
+                    {% endif %} 
+                </td>
+                <td>{{ v.onmode_n }}</td><td>{{ v.onmode_w }}</td><td>{{ v.diff }}%</td>
+                </tr>
+                {% endfor %}
+
+
+                    {% for mode,v in thismodeY.items %}
+                    {% if mode = 'tc' %}
+                      <tr class="info"><td><img src="{% static 'img/warehouse-24.png' %}" height="32" width="32">Telecommuting
+                    {% endif %} 
+                </td>
+                <td>{{ v.onmode_n }}</td><td>{{ v.onmode_w }}</td><td>{{ v.diff }}%</td>
+                </tr>
+                {% endfor %}
+
+
+                    {% for mode,v in thismodeR.items %}
+                    {% if mode = 'dalt' %}
+                      <tr class="danger"><td><img src="{% static 'img/car-24.png' %}" height="32" width="32"> Driving alone (alternate vehicle)
+                    {% elif mode = 'da' %}
+                      <tr class="danger"><td><img src="{% static 'img/car-24.png' %}" height="32" width="32"> Driving alone
+                    {% endif %} 
+                </td>
+                <td>{{ v.onmode_n }}</td><td>{{ v.onmode_w }}</td><td>{{ v.diff }}%</td>
+                </tr>
+                {% endfor %}
+
+
+                    {% for mode,v in thismodeO.items %}
+                    {% if mode = 'o' %}
+                      <tr><td><img src="{% static 'img/scooter-24.png' %}" height="32" width="32">Other
+                    {% endif %} 
+                </td>
+                <td>{{ v.onmode_n }}</td><td>{{ v.onmode_w }}</td><td>{{ v.diff }}%</td>
+                </tr>
+                {% endfor %}
+                <tfoot>
+                <tr>
+                <td colspan='4'>
+                    <p>Note: The above will NOT add to the reported total number of checkins because many commutes use multiple types of transportation!</p></td>
+                </tr>
+                </tfoot>
+                </table>
+                      </div>
+            
+
+
+                    <div class="col-sm-12">
             <p style="font-family:aleolightitalic;"><a href="mailto:cristen@gogreenstreets.org">Email Cristen for questions or feedback.</a></p>
-            </div>
         </div>
-        
-
-        <!-- div class="col-md-4 column summary participation">
-            <h4>Employee Participation</h4>
-            <p>{{ ncommutes }} commutes</p>
-            <p>{{ participation|floatformat }}% of {{ employer.nr_employees }} employees</p>
         </div>
-        <div class="col-md-4 column summary gcommute">
-            <h4>Green Commutes</h4>
-            <p>{{ gc }} commutes</p>
-            <p>{{ gc_pct|floatformat }}% of all checkins</p>
-        </div>
-        <div class="col-md-4 column summary gswitch">
-            <h4>Green Switches</h4>
-            <p>{{ gs }} switches</p>
-            <p>{{ gs_pct|floatformat }}% of all checkins</p>
-        </div> -->
-       <!--  <div class="col-md-2 column summary co2">
-            <h4>Carbon Dioxide</h4>
-            <p>(Number) tons saved</p>
-            <p>(Number unit) per employee</p>
-        </div>
-        <div class="col-md-2 column summary calories">
-            <h4>Calories Burned</h4>
-            <p>(Number) burned</p>
-            <p>(Number unit) per employee</p>
-        </div> -->
-
     </div>
 
-    <!-- <div class="row clearfix">
-        <hr>
-        <div class="col-md-12 column" style="padding: 5px; text-align: center; letter-spacing: 0.25px; font-size: 16px;">
-            <h3>Across all months to date</h3>
-            <p style="font-family: aleolightitalic;">Notes: Green switches happen when you include more green transportation. Make a new trip via bicycle, bus, train… even carpooling or walking count! Green commutes designate those who maintained existing green commuting habits for Walk/Ride day.</p>
-        </div>
-        <div class="col-md-8 column"> 
-            <!-- Where the generated bar chart goes -->
-            <!-- <div id="breakDownGraph" style="height:300px"></div>
-        </div>
-        <div class="col-md-3 column"> 
-            <div id="totalBreakDown">
-            <table class="table table-borderless">
-                <tr>
-                    <th id="totals"><h4>Totals: </h4></th>
-                </tr>
-
-                <tr>
-                    <td><div class="gc text-right">Commutes:</div></td>
-                    <td class="gc" id="total_checkins">{{ ncommutes_total }}</td>
-                </tr>
-                <tr>
-                    <td><div class="text-right">Green Switches:</div></td>
-                    <td class="gstd" id="total_gs">{{ gs_total }}</td>
-                </tr>
-                <tr>
-                    <td><div class="text-right">Green Commutes:</div></td>
-                    <td class="gctd" id="total_gc">{{ gc_total }}</td>
-                </tr>
-                <tr>
-                    <td><div class="text-right">Car Commutes:</div></td>
-                    <td class="cctd" id="total_cc">{{ cc_total }}</td>
-                </tr>
-                <tr>
-                    <td><div class="text-right">Other:</div></td>
-                    <td class="ustd" id="total_us">{{ other_total }}</td>
-                </tr>
-            </table>
-            </div>
-        </div>
-    </div>  -->
+   
     {% endif %}
 
 

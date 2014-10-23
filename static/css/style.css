@@ -1,3 +1,46 @@
+.table td,th {
+   text-align: right;   
+}
+
+.table td:first-child, th:first-child {
+  text-align: left;
+}
+
+td > img {
+  margin-right: 4px;
+}
+
+.domain {
+  fill: none;
+  stroke: black;
+  stroke-width: 2;
+}
+
+svg {
+  font: 1em sans-serif;
+  shape-rendering: crispEdges;
+}
+
+.axis path,
+.axis line {
+    fill: none;
+    stroke: black;
+}
+
+.y .tick line {
+  stroke: black;
+}
+
+/*.barchart-div {
+  position: relative;
+  margin-left: auto;
+  margin-right: auto;
+  width: 800px;
+  height: 500px;
+  margin-top: 100px;
+  border: 1px solid rgb(200,200,200);
+}*/
+
 .leg > label {
   padding: 0 1em;
 }
