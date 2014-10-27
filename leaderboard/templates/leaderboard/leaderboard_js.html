@@ -8,159 +8,8 @@
 
 <script type="text/javascript">
 
-
-    var employer = {{ empNVR | safe }};
-
-    employer.domain = [];
-    employer.stack = [[],[]];
-    employer.checkins.forEach(function(d) {
-      employer.domain.push([ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ][(d.month-5)%12]);
-      d.percent = d.all / employer.size;
-      employer.stack[0].push({'x': d.month-32, 'y': d.all - d.new});
-      employer.stack[1].push({'x': d.month-32, 'y': d.new});
-    });
-
-    //Width and height
-    var margin = {top: 20, right: 120, bottom: 35, left: 65},
-        width = 650 - margin.left - margin.right,
-        height = 350 - margin.top - margin.bottom;
-
-    var stack = d3.layout.stack();
-    stack(employer.stack);
-
-    //Set up scales
-    var xScale = d3.scale.ordinal()
-      .domain(d3.range(employer.stack[0].length))
-      .rangeRoundBands([0, width], 0.01);
-
-    var xAxis = d3.svg.axis()
-      .scale(xScale)
-      .tickFormat(function(d){
-        return [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ][(d+3)%12];
-      })
-      .orient("bottom");
-
-    var yScale = d3.scale.linear()
-      .domain([0,d3.max(employer.stack, function(d) {
-          return d3.max(d, function(d) {
-            return d.y0 + d.y;
-          });
-        })
-      ])
-      .range([height, 0]);
-
-    var yAxis = d3.svg.axis()
-      .scale(yScale)
-      .ticks(5)
-      .orient("left")
-
-    var colors = function(color) {
-        return ['#31a354','#74c476'][color%2];
-    };
-
-    //Create SVG element
-    var svg = d3.select(".barchart")
-          .attr("width", width + margin.left + margin.right)
-          .attr("height", height + margin.top + margin.bottom)
-          .append("g")
-          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-    // Add a group for each row of data
-    var groups = svg.selectAll("g")
-      .data(employer.stack)
-      .enter()
-      .append("g")
-      .style("fill", function(d, i) {
-        return colors(i);
-      });
-
-    // Add a rect for each data value
-    var rects = groups.selectAll("rect")
-      .data(function(d) { return d; })
-      .enter()
-      .append("rect")
-      .attr("x", function(d, i) {
-        return xScale(i);
-      })
-      .attr("y", function(d) {
-        return yScale(d.y) + yScale(d.y0) - height;
-      })
-      .attr("height", function(d) {
-        return height - yScale(d.y);
-      })
-      .attr("width", xScale.rangeBand())
-      .on("mouseover", function() { tooltip.style("display", null); })
-      .on("mouseout", function() { tooltip.style("display", "none"); })
-      .on("mousemove", function(d) {
-        var xPosition = d3.mouse(this)[0] - 15;
-        var yPosition = d3.mouse(this)[1] - 25;
-        tooltip.attr("transform", "translate(" + xPosition + "," + yPosition + ")");
-        tooltip.select("text").text(d.y);
-      });
-
-    svg.append("g")
-        .attr("class", "x-axis")
-        .attr("transform", "translate(0," + height + ")")
-        .call(xAxis);
-
-    svg.append("g")
-        .attr("class", "y-axis")
-        .call(yAxis);
-
-    svg.append("text")
-        .attr("transform", "rotate(-90)")
-        .attr("y", 0 - margin.left)
-        .attr("x",0 - (height / 2))
-        .attr("dy", "1em")
-        .style("text-anchor", "middle")
-        .text("Unique checkins each month");
-
-    var c = [colors(0), colors(1)];
-
-    var legend = svg.selectAll(".legend")
-      .data(c)
-      .enter().append("g")
-      .attr("class", "legend")
-      .attr("transform", function(d, i) { return "translate(30," + i * 19 + ")"; });
-
-    legend.append("rect")
-      .attr("x", width - 18)
-      .attr("width", 18)
-      .attr("height", 18)
-      .style("fill", function(d, i) {return c.slice().reverse()[i];});
-
-    legend.append("text")
-      .attr("x", width + 5)
-      .attr("y", 9)
-      .attr("dy", ".35em")
-      .style("text-anchor", "start")
-      .text(function(d, i) {
-        switch (i) {
-          case 0: return "New";
-          case 1: return "Returning";
-        }
-      });
-
-    // Prep the tooltip bits, initial display is hidden
-    var tooltip = svg.append("g")
-      .attr("class", "tooltip")
-      .style("display", "none");
-
-    tooltip.append("rect")
-      .attr("width", 30)
-      .attr("height", 20)
-      .attr("fill", "white")
-      .style("opacity", 0.5);
-
-    tooltip.append("text")
-      .attr("x", 15)
-      .attr("dy", "1.2em")
-      .style("text-anchor", "middle")
-      .attr("font-size", "12px")
-      .attr("font-weight", "bold");
-
-
 $("document").ready(function() {
+    $('.filteroptions').hide();
     $('button.submitfilter').addClass('disabled'); // Disables visually
     $('button.submitfilter').prop('disabled', true); // Disables visually + functionally
     $('select').change(function(){
@@ -172,6 +21,7 @@ $("document").ready(function() {
 });
 
 function setfilter(filter) {
+    $('.filteroptions').show();
 		if(filter == "size") { 
 			$('#size_filter').show();
 			$('#size_filter').removeAttr('disabled');
@@ -197,222 +47,33 @@ function setfilter(filter) {
 			$('#team_filter').attr('disabled', "true");
 		}
 	}
-</script>
-<script type="text/javascript" src="{% static 'libs/canvasjs.min.js' %}"></script>
 
+  $("#employer_pick").chosen({
+    width: "99%"
+  });
+
+  $("#employer_pick").change(function(){
+      if ($(this).val()!='') {
+        console.log($(this).val());
+        window.location.href='/leaderboard/' + $(this).val() + '/#details';
+      }
+    });
+</script>
+
+{% if empNVR %}
 <script type="text/javascript">
-// var margins = {top: 20, right: 300, bottom: 35, left: 40},
-//     w = 800 - margins.left - margins.right,
-//     h = 500 - margins.top - margins.bottom;
-
-// var datas = JSON.parse('[["n", "b", 32, 26], ["n", "b", 33, 46], ["n", "b", 34, 39], ["n", "b", 35, 39], ["n", "b", 36, 43], ["n", "b", 37, 64], ["n", "da", 32, 20], ["n", "da", 33, 53], ["n", "da", 34, 45], ["n", "da", 35, 58], ["n", "da", 36, 46], ["n", "da", 37, 94], ["n", "dalt", 32, 1], ["n", "dalt", 33, 5], ["n", "dalt", 34, 2], ["n", "dalt", 35, 6], ["n", "dalt", 36, 3], ["n", "dalt", 37, 3], ["n", "o", 35, 1], ["n", "r", 32, 1], ["n", "r", 35, 1], ["n", "t", 32, 49], ["n", "t", 33, 56], ["n", "t", 34, 67], ["n", "t", 35, 55], ["n", "t", 36, 46], ["n", "t", 37, 74], ["n", "tc", 35, 1], ["n", "tc", 36, 1], ["n", "w", 32, 36], ["n", "w", 33, 55], ["n", "w", 34, 75], ["n", "w", 35, 60], ["n", "w", 36, 63], ["n", "w", 37, 101], ["w", "b", 32, 27], ["w", "b", 33, 51], ["w", "b", 34, 39], ["w", "b", 35, 46], ["w", "b", 36, 46], ["w", "b", 37, 70], ["w", "da", 32, 15], ["w", "da", 33, 51], ["w", "da", 34, 45], ["w", "da", 35, 57], ["w", "da", 36, 41], ["w", "da", 37, 90], ["w", "dalt", 32, 1], ["w", "dalt", 33, 5], ["w", "dalt", 34, 2], ["w", "dalt", 35, 4], ["w", "dalt", 36, 3], ["w", "dalt", 37, 3], ["w", "o", 35, 1], ["w", "r", 32, 1], ["w", "r", 33, 1], ["w", "r", 34, 2], ["w", "r", 35, 1], ["w", "r", 36, 1], ["w", "t", 32, 48], ["w", "t", 33, 63], ["w", "t", 34, 69], ["w", "t", 35, 61], ["w", "t", 36, 48], ["w", "t", 37, 80], ["w", "tc", 32, 1], ["w", "tc", 35, 1], ["w", "tc", 36, 4], ["w", "tc", 37, 1], ["w", "w", 32, 46], ["w", "w", 33, 61], ["w", "w", 34, 79], ["w", "w", 35, 64], ["w", "w", 36, 68], ["w", "w", 37, 105]]');
-
-// var datas = {{ checkinsByMode | safe }};
-
-// var stackifyData = function(data, dayType) {
-//     if(dayType !== 'n' && dayType !== 'w') {
-//       return 0;
-//     }
-//     // Extract and organize the relevant data, but in a dict first
-//     var stackDict = {};
-//     data.forEach(function(element) {
-//       if ( element[0] === dayType ) {
-//         try {
-//             stackDict[ element[1] ].push( { "x": element[2] - 32,
-//                                             "y": element[3] });
-//         }
-//         catch (TypeError) {
-//           stackDict[ element[1] ] = [
-//               {
-//                 "x": element[2] - 32,
-//                 "y": element[3]
-//               }
-//           ];
-//         }
-//       }
-//     });
-//     // Get number of months
-//     var numMonths = 0;
-//     for(var key in stackDict) {
-//       if ( stackDict[key].length > numMonths ) {
-//         numMonths = stackDict[key].length;
-//       }
-//     }
-//     // Deal with months in which no one checked in by a certain method
-//     for (var key in stackDict) {
-//         var missing = [];
-//         for(var i = 0; i < numMonths; i++) {
-//             missing.push(i);
-//         }
-//         stackDict[key].forEach(function(value) {
-//             missing.splice(missing.indexOf(value.x), 1);
-//         });
-//       missing.forEach(function(x){
-//         stackDict[key].push({"x": x, "y": 0});
-//       });
-//     }
-//     // Convert into an array
-//     var stack = [];
-//     for(key in stackDict) {
-//       stack.push(stackDict[key]);
-//     }
-//     return stack;
-// }
-
-// var barchart = function(day) {
-//   if(day !== 'w' && day !== 'n'){ console.log('Invalid input.'); return 0; }
-
-//   var stack = d3.layout.stack();
-//   var dataset = stack(stackifyData(datas, day));
-
-//   var xScale = d3.scale.ordinal()
-//     .domain(d3.range(dataset[0].length))
-//     .rangeRoundBands([0, w], 0.05);
-
-//   var xAxis = d3.svg.axis()
-//     .scale(xScale)
-//     .tickFormat(function(d){
-//       return [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ][(d+3)%12];
-//     })
-//     .orient("bottom");
-
-//   var yScale = d3.scale.linear()
-//     .domain([0,
-//       d3.max(dataset, function(d) {
-//         return d3.max(d, function(d) {
-//           return d.y0 + d.y;
-//         });
-//       })
-//     ])
-//     .range([h,0]);
-
-//   var yAxis = d3.svg.axis()
-//     .scale(yScale)
-//     .ticks(5)
-//     .orient("left")
-
-//   var colors = d3.scale.category20c();
-
-//   //Create SVG element
-//   var svg = d3.select(".barchart2")
-//     .attr("width", w + margins.left + margins.right)
-//     .attr("height", h + margins.top + margins.bottom)
-//     .append("g")
-//     .attr("transform", "translate(" + margins.left + "," + margins.top + ")");
-
-//   // Add a group for each row of data
-//   var groups = svg.selectAll("g")
-//     .data(dataset)
-//     .enter()
-//     .append("g")
-//     .style("fill", function(d, i) {
-//       return colors(i);
-//     })
-
-//   // Add a rect for each data value
-//   var rects = groups.selectAll("rect")
-//     .data(function(d) { return d; })
-//     .enter()
-//     .append("rect")
-//     .attr("x", function(d, i) {
-//       return xScale(i);
-//     })
-//     .attr("width", xScale.rangeBand())
-//     .attr("y", function(d) {
-//       //return yScale(d.y0);
-//       return yScale(d.y) + yScale(d.y0) - h;
-//     })
-//     .attr("height", function(d) {
-//       //return yScale(d.y);
-//       return h - yScale(d.y);
-//     })
-//     .on("mouseover", function() { tooltip.style("display", null); })
-//     .on("mouseout", function() { tooltip.style("display", "none"); })
-//     .on("mousemove", function(d) {
-//       var xPosition = d3.mouse(this)[0] - 15;
-//       var yPosition = d3.mouse(this)[1] - 25;
-//       tooltip.attr("transform", "translate(" + xPosition + "," + yPosition + ")");
-//       tooltip.select("text").text(d.y);
-//     })
-
-//   svg.append("g")
-//       .attr("class", "x axis")
-//       .attr("transform", "translate(0," + h + ")")
-//       .call(xAxis);
-
-//   svg.append("g")
-//       .attr("class", "y axis")
-//       .call(yAxis);
-
-//   c = [];
-//   for(var i = 0; i<8; i++){
-//     c.push(colors(i));
-//   }
-
-//   var legend = svg.selectAll(".legend")
-//     .data(c)
-//     .enter().append("g")
-//     .attr("class", "legend")
-//     .attr("transform", function(d, i) { return "translate(30," + i * 19 + ")"; });
-
-//   legend.append("rect")
-//     .attr("x", w - 18)
-//     .attr("width", 18)
-//     .attr("height", 18)
-//     .style("fill", function(d, i) {return c.slice().reverse()[i];});
-
-//   legend.append("text")
-//     .attr("x", w + 5)
-//     .attr("y", 9)
-//     .attr("dy", ".35em")
-//     .style("text-anchor", "start")
-//     .text(function(d, i) {
-//       switch (i) {
-//         case 0: return "Walking";
-//         case 1: return "Telecommuting";
-//         case 2: return "Public Transit";
-//         case 3: return "Running or Jogging";
-//         case 4: return "Other";
-//         case 5: return "Driving Alone (alternate vehicle)";
-//         case 6: return "Driving Alone";
-//         case 7: return "Biking";
-//       }
-//     });
-
-//   // Prep the tooltip bits, initial display is hidden
-//   var tooltip = svg.append("g")
-//     .attr("class", "tooltip")
-//     .style("display", "none");
-
-//   tooltip.append("rect")
-//     .attr("width", 30)
-//     .attr("height", 20)
-//     .attr("fill", "white")
-//     .style("opacity", 0.5);
-
-//   tooltip.append("text")
-//     .attr("x", 15)
-//     .attr("dy", "1.2em")
-//     .style("text-anchor", "middle")
-//     .attr("font-size", "12px")
-//     .attr("font-weight", "bold");
-// }
-
-// d3.selectAll("input")
-//   .on("change", function() {
-//     var val = this.value;
-//     if(val === 'n' || val === 'w') {
-//       d3.select(".barchart2")
-//         .selectAll('g')
-//         .remove();
-//       barchart(val);
-//     }
-//   });
-
-
-// barchart('w');
-
+  var employer = {{ empNVR | safe }};
 </script>
+<script src="{% static 'js/returning.js' %}" type="text/javascript"></script>
+{% endif %}
+
+<!-- {% if checkinsByMode %}
+<script type="text/javascript">
+  var datas = {{ checkinsByMode | safe }};
+</script>
+<script src="{% static 'js/checkinsByMode.js' %}" type="text/javascript"></script>
+{% endif %} -->
+
 {% endblock %}
 
 
@@ -423,67 +84,108 @@ function setfilter(filter) {
         </div>
     </div>
 
-    <div class="row clearfix filters lbcontrols">
+    
+
+      
+
 	<form method="get" action="/leaderboard/redirect" id="filter_form">
-        <div class="col-md-12 column">
-            {% if current_month == 'all' %}<span class="lbmonth">{{ current_month }}</span>{% endif %}
-            {% if current_month != 'all' %}
-            <a href="/leaderboard/{% if empid %}{{ empid }}/{% endif %}{% if filter_by == 'size' and not sectorid %}{{ filter_by }}/{% endif %}{% if filter_by and sectorid %}{{ filter_by }}/{% endif %}{% if sectorid and filter_by == 'sector' %}{{ sectorid }}/{% endif %}{% if filt and filter_by == 'size' %}{{ filt }}/{% endif %}{% if sort %}{{ sort }}/{% endif %}month_all" class="lbmonth">all</a>
-            {% endif %}
-            {% for month in months %}           
-            {% if month.url_month != current_month %}
-            <a href="/leaderboard/{% if empid %}{{ empid }}/{% endif %}{% if filter_by == 'size' and not sectorid %}{{ filter_by }}/{% endif %}{% if filter_by and sectorid %}{{ filter_by }}/{% endif %}{% if sectorid and filter_by == 'sector' %}{{ sectorid }}/{% endif %}{% if filt and filter_by == 'size' %}{{ filt }}/{% endif %}{% if sort %}{{ sort }}/{% endif %}month_{{ month.url_month }}" class="lbmonth">{{ month }}</a>
-            {% endif %} 
-            
-            {% if month.url_month == current_month %}
-            <span class="lbmonth">{{ month }}</span>
-            {% endif %} 
+<div class="row clearfix filters lbcontrols">
+    <!-- ALL COMPANIES -->
+    <div class="col-sm-4 column">
+      <div class="panel teamjump">
+        <p class="lead"><strong>Jump to a team</strong></p>
 
-            {% endfor %}
+        <select class="form-control" id="employer_pick" name="employer_pick" data-placeholder="Find an employer or team">     
+          <option selected></option>
+          {% for employer in active_companies %}
+            {% if employer.is_parent %}
+            <option value="{{ employer.id }}">{{ employer.name|escape }} (with subteams)</option> 
+            {% else %}
+            <option value="{{ employer.id }}">{{ employer.name|escape }}</option> 
+            {% endif %}     
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <div class="col-sm-8 column">
+
+      <div class="filtercategories row">
+        <p class="lead"><strong>View rankings by</strong></p>
+        <div class="col-sm-4">
+          <p><a class="btn btn-default btn-large all-button" href="/leaderboard/">Show all participating companies</a></p>
         </div>
-        <div class="col-md-6 column">
-            <p class="lead"><strong>Filter the companies by</strong></p>
-            <label><input type="radio" name="color" onclick="setfilter('size')" value="size"/> Size</label>
-            <label><input type="radio" name="color" onclick="setfilter('sector')" value="sector"/> Sector</label>
-            <label><input type="radio" name="color" onclick="setfilter('team')" value ="sector"/> Organizations with subteams</label>
+        
+        <div class="col-sm-8">
+          
+          <label><input type="radio" name="color" onclick="setfilter('size')" value="size"/> Size</label>
+          <label><input type="radio" name="color" onclick="setfilter('sector')" value="sector"/> Sector</label>
+          <label><input type="radio" name="color" onclick="setfilter('team')" value ="sector"/> Organizations with subteams</label>
 
-            <div class="col-md-9 col-sm-9 column">
-            <!-- size options -->
-            <select id="size_filter" name="size_filter" class="form-control" style="display: none" disabled="true">
-            <option value="0" selected>Please select size</option>
-            <option value="1" {% if sizecat == "small companies" %}selected{% endif %}>Small (1 - 50 Employees)</option>
-            <option value="2" {% if sizecat == "medium companies" %}selected{% endif %}>Medium (51 - 300 Employees)</option>
-            <option value="3" {% if sizecat == "large companies" %}selected{% endif %}>Large (301 - 2000 Employees)</option>
-            <option value="4" {% if sizecat == "largest companies" %}selected{% endif %}>Largest (&gt; 2000 Employees)</option>
-            </select>
+          <div class="filteroptions row">
 
-            <!-- sector options -->
-            <select class="form-control" id="sector_filter" name="sector_filter" style="display: none" disabled="true">
-            <option value="0">Please select sector</option>
-            <!-- change slice number if number of sectors changes -->
-            {% for sector in sectors|slice:":7" %}<option value="{{ sector.id }}" {% if sector == emp_sector %}selected{% endif %}>{{ sector.name }}</option>{% endfor %}
-            </select>
-            
-            <!-- subteams -->
-            <select class="form-control" id="team_filter" style="display: none" name="sector_filter"  disabled="true">
-            <option value="0">Please select organization</option>
-            {% for team in subteams %}<option value="{{ team.id }}" {% if team == emp_sector %}selected{% endif %}>{{ team.name }}</option>{% endfor %}
-            </select>
+            <div class="col-sm-8">
+              <!-- size options -->
+              <select id="size_filter" name="size_filter" class="form-control" style="display: none" disabled="true">
+              <option value="0" selected>Please select size</option>
+              <option value="1" {% if sizecat == "small companies" %}selected{% endif %}>Small (1 - 50 Employees)</option>
+              <option value="2" {% if sizecat == "medium companies" %}selected{% endif %}>Medium (51 - 300 Employees)</option>
+              <option value="3" {% if sizecat == "large companies" %}selected{% endif %}>Large (301 - 2000 Employees)</option>
+              <option value="4" {% if sizecat == "largest companies" %}selected{% endif %}>Largest (&gt; 2000 Employees)</option>
+              </select>
+
+              <!-- sector options -->
+              <select class="form-control" id="sector_filter" name="sector_filter" style="display: none" disabled="true">
+              <option value="0">Please select sector</option>
+              <!-- change slice number if number of sectors changes -->
+              {% for sector in sectors|slice:":7" %}<option value="{{ sector.id }}" {% if sector == emp_sector %}selected{% endif %}>{{ sector.name }}</option>{% endfor %}
+              </select>
+              
+              <!-- subteams -->
+              <select class="form-control" id="team_filter" style="display: none" name="sector_filter"  disabled="true">
+              <option value="0">Please select organization</option>
+              {% for team in subteams %}<option value="{{ team.id }}" {% if team == emp_sector %}selected{% endif %}>{{ team.name }}</option>{% endfor %}
+              </select>
+
             </div>
-            <div class="col-md-3 col-sm-3 column">
-        {% if sort %}<input type="hidden" name="sort" value="{{ sort }}">{% endif %}
-		<input type="hidden" name="month" value="{{ current_month }}" disabled>
-            <button type="submit" class="btn btn-small btn-success submitfilter">Submit</button>
+
+            <div class="col-sm-4">
+             
+              {% if sort %}<input type="hidden" name="sort" value="{{ sort }}">{% endif %}
+              <input type="hidden" name="month" value="{{ current_month }}" disabled>
+              <button type="submit" class="btn btn-small btn-success submitfilter">Submit</button>
+
             </div>
+
+          </div>
         </div>
+      </div>
 
+      
+
+      <div class="filtermonths row">
+        <hr class="lite">
+          {% if current_month == 'all' %}<span class="lbmonth">All Months</span>{% endif %}
+          {% if current_month != 'all' %}
+          <a href="/leaderboard/{% if empid %}{{ empid }}/{% endif %}{% if filter_by == 'size' and not sectorid %}{{ filter_by }}/{% endif %}{% if filter_by and sectorid %}{{ filter_by }}/{% endif %}{% if sectorid and filter_by == 'sector' %}{{ sectorid }}/{% endif %}{% if filt and filter_by == 'size' %}{{ filt }}/{% endif %}{% if sort %}{{ sort }}/{% endif %}month_all" class="lbmonth">All Months</a>
+          {% endif %}
+          {% for month in months %}           
+          {% if month.url_month != current_month %}
+          <a href="/leaderboard/{% if empid %}{{ empid }}/{% endif %}{% if filter_by == 'size' and not sectorid %}{{ filter_by }}/{% endif %}{% if filter_by and sectorid %}{{ filter_by }}/{% endif %}{% if sectorid and filter_by == 'sector' %}{{ sectorid }}/{% endif %}{% if filt and filter_by == 'size' %}{{ filt }}/{% endif %}{% if sort %}{{ sort }}/{% endif %}month_{{ month.url_month }}" class="lbmonth">{{ month }}</a>
+          {% endif %} 
+          
+          {% if month.url_month == current_month %}
+          <span class="lbmonth">{{ month }}</span>
+          {% endif %} 
+
+          {% endfor %}
+      </div>
+
+    </div>
+
+</div>
 		</form>
-    </div>
-    <div class="row clearfix">
-        <div class="col-md-12 column">
-            
-        </div>
-    </div>
+
 
     <div class="row clearfix">
 
@@ -567,9 +269,15 @@ function setfilter(filter) {
               <svg class="barchart"></svg>
             </div>
 
+            <!-- <h3>Checkins by transportation type</h3>
+
+            <div class="checkins-barchart-div">
+              <svg class="checkins-barchart"></svg>
+            </div> -->
+
 
             <hr>
-                <h3>Breakdowns by transportation type</h3>
+                <h3>Commute legs by transportation type</h3>
                 <p class="lead">Totals for all months in 2014</p>
   
                 <div class="col-sm-8 col-sm-offset-2">
@@ -592,6 +300,14 @@ function setfilter(filter) {
                 </tr>
                 {% endfor %}
 
+                    {% for mode,v in thismodeO.items %}
+                    {% if mode = 'o' %}
+                      <tr><td><img src="{% static 'img/scooter-24.png' %}" height="32" width="32">Other
+                    {% endif %} 
+                </td>
+                <td>{{ v.onmode_n }}</td><td>{{ v.onmode_w }}</td><td>{{ v.diff }}%</td>
+                </tr>
+                {% endfor %}
 
                     {% for mode,v in thismodeY.items %}
                     {% if mode = 'tc' %}
@@ -601,23 +317,11 @@ function setfilter(filter) {
                 <td>{{ v.onmode_n }}</td><td>{{ v.onmode_w }}</td><td>{{ v.diff }}%</td>
                 </tr>
                 {% endfor %}
-
-
-                    {% for mode,v in thismodeR.items %}
+                {% for mode,v in thismodeR.items %}
                     {% if mode = 'dalt' %}
                       <tr class="danger"><td><img src="{% static 'img/car-24.png' %}" height="32" width="32"> Driving alone (alternate vehicle)
                     {% elif mode = 'da' %}
                       <tr class="danger"><td><img src="{% static 'img/car-24.png' %}" height="32" width="32"> Driving alone
-                    {% endif %} 
-                </td>
-                <td>{{ v.onmode_n }}</td><td>{{ v.onmode_w }}</td><td>{{ v.diff }}%</td>
-                </tr>
-                {% endfor %}
-
-
-                    {% for mode,v in thismodeO.items %}
-                    {% if mode = 'o' %}
-                      <tr><td><img src="{% static 'img/scooter-24.png' %}" height="32" width="32">Other
                     {% endif %} 
                 </td>
                 <td>{{ v.onmode_n }}</td><td>{{ v.onmode_w }}</td><td>{{ v.diff }}%</td>

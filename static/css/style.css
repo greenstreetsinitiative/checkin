@@ -1,3 +1,11 @@
+.teamjump {
+  background: white;
+}
+
+a.all-button {
+    white-space: normal;
+}
+
 .table td,th {
    text-align: right;   
 }

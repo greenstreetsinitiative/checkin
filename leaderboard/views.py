@@ -186,7 +186,8 @@ def new_leaderboard(request, empid=0, filter_by='sector', _filter=0, sort='parti
 
         # context['checkinsByMode'] = checkinsByMode
 
-
+    non_companies = [1983,1105,1155] # none, Other employer, self
+    context['active_companies'] = Employer.objects.filter(active=True).exclude(id__in=non_companies)
 
     if _filter == '0':
         _filter = 0
@@ -250,9 +251,10 @@ def new_leaderboard(request, empid=0, filter_by='sector', _filter=0, sort='parti
 
     # if a company detail page, fill in all data for selected company
     if empid != 0:
-        context['chart'] = json.dumps(getCanvasJSChart(emp) )
+        # context['chart'] = json.dumps(getCanvasJSChart(emp) )
         stats_month = getBreakDown(emp, month)
         stats_all = stats_month
+        nsurveys=0
         if month != 'all':
             stats_all = getBreakDown(emp, 'all')
         for count in context['ranks']:
@@ -504,221 +506,221 @@ def getBreakDown(emp, month):
 
     return breakdown
 
-def makeChart():
+# def makeChart():
 
-    return month_breakdown
+#     return month_breakdown
 
 
-def getCanvasJSChart(emp, new=False):
-    if new:
-        chartData = getNvRcJSChartData(emp)
-    else:
-        chartData = getCanvasJSChartData(emp)
-    barChart = {
-            'title': {
-                'text': "Walk Ride Day Participation Over Time",
-                'fontSize': 20 },
-            'data': chartData
-            }
-    if new:
-        barChart['title']['text'] = "New And Returning Walk Ride Day Participation Over Time"
-    return barChart
+# def getCanvasJSChart(emp, new=False):
+#     if new:
+#         chartData = getNvRcJSChartData(emp)
+#     else:
+#         chartData = getCanvasJSChartData(emp)
+#     barChart = {
+#             'title': {
+#                 'text': "Walk Ride Day Participation Over Time",
+#                 'fontSize': 20 },
+#             'data': chartData
+#             }
+#     if new:
+#         barChart['title']['text'] = "New And Returning Walk Ride Day Participation Over Time"
+#     return barChart
 
-def getCanvasJSChartData(emp):
-    chartData = [
-            {
-                'type': "stackedColumn",
-                'color': '#aa0000',
-                'legendText': "Driving alone",
-                'showInLegend': "true",
-                'toolTipContent': '{name}: {y}',
-                'dataPoints': [
-                    ]
-                },
-            {
-                'type': "stackedColumn",
-                'color': '#ff0000',
-                'legendText': "Driving (alt)",
-                'showInLegend': "true",
-                'toolTipContent': '{name}: {y}',
-                'dataPoints': [
-                    ]
-                },
-            {
-                'type': "stackedColumn",
-                'color': '#ff5500',
-                'legendText': "Carpooling",
-                'showInLegend': "true",
-                'toolTipContent': '{name}: {y}',
-                'dataPoints': [
-                    ]
-                },
-            {
-                'type': "stackedColumn",
-                'color': '#00ff00',
-                'legendText': "Walking",
-                'showInLegend': "true",
-                'toolTipContent': '{name}: {y}',
-                'dataPoints': [
-                    ]
-                },
-            {
-                'type': "stackedColumn",
-                'color': '#00bb00',
-                'legendText': "Biking",
-                'showInLegend': "true",
-                'toolTipContent': '{name}: {y}',
-                'dataPoints': [
-                    ]
-                },
-            {
-                'type': "stackedColumn",
-                'color': '#009900',
-                'legendText': "Running/jogging",
-                'showInLegend': "true",
-                'toolTipContent': '{name}: {y}',
-                'dataPoints': [
-                    ]
-                },
-            {
-                'type': "stackedColumn",
-                'color': '#33cc33',
-                'legendText': "Public transit",
-                'showInLegend': "true",
-                'toolTipContent': '{name}: {y}',
-                'dataPoints': [
-                    ]
-                },
-            {
-                'type': "stackedColumn",
-                'color': '#aaaaaa',
-                'legendText': "Other",
-                'showInLegend': "true",
-                'toolTipContent': '{name}: {y}',
-                'dataPoints': [
-                    ]
-                },
-            {
-                'type': "stackedColumn",
-                'color': '#0000aa',
-                'legendText': "Telecommuting",
-                'showInLegend': "true",
-                'toolTipContent': '{name}: {y}',
-                'dataPoints': [
-                    ]
-                }    
+# def getCanvasJSChartData(emp):
+#     chartData = [
+#             {
+#                 'type': "stackedColumn",
+#                 'color': '#aa0000',
+#                 'legendText': "Driving alone",
+#                 'showInLegend': "true",
+#                 'toolTipContent': '{name}: {y}',
+#                 'dataPoints': [
+#                     ]
+#                 },
+#             {
+#                 'type': "stackedColumn",
+#                 'color': '#ff0000',
+#                 'legendText': "Driving (alt)",
+#                 'showInLegend': "true",
+#                 'toolTipContent': '{name}: {y}',
+#                 'dataPoints': [
+#                     ]
+#                 },
+#             {
+#                 'type': "stackedColumn",
+#                 'color': '#ff5500',
+#                 'legendText': "Carpooling",
+#                 'showInLegend': "true",
+#                 'toolTipContent': '{name}: {y}',
+#                 'dataPoints': [
+#                     ]
+#                 },
+#             {
+#                 'type': "stackedColumn",
+#                 'color': '#00ff00',
+#                 'legendText': "Walking",
+#                 'showInLegend': "true",
+#                 'toolTipContent': '{name}: {y}',
+#                 'dataPoints': [
+#                     ]
+#                 },
+#             {
+#                 'type': "stackedColumn",
+#                 'color': '#00bb00',
+#                 'legendText': "Biking",
+#                 'showInLegend': "true",
+#                 'toolTipContent': '{name}: {y}',
+#                 'dataPoints': [
+#                     ]
+#                 },
+#             {
+#                 'type': "stackedColumn",
+#                 'color': '#009900',
+#                 'legendText': "Running/jogging",
+#                 'showInLegend': "true",
+#                 'toolTipContent': '{name}: {y}',
+#                 'dataPoints': [
+#                     ]
+#                 },
+#             {
+#                 'type': "stackedColumn",
+#                 'color': '#33cc33',
+#                 'legendText': "Public transit",
+#                 'showInLegend': "true",
+#                 'toolTipContent': '{name}: {y}',
+#                 'dataPoints': [
+#                     ]
+#                 },
+#             {
+#                 'type': "stackedColumn",
+#                 'color': '#aaaaaa',
+#                 'legendText': "Other",
+#                 'showInLegend': "true",
+#                 'toolTipContent': '{name}: {y}',
+#                 'dataPoints': [
+#                     ]
+#                 },
+#             {
+#                 'type': "stackedColumn",
+#                 'color': '#0000aa',
+#                 'legendText': "Telecommuting",
+#                 'showInLegend': "true",
+#                 'toolTipContent': '{name}: {y}',
+#                 'dataPoints': [
+#                     ]
+#                 }    
             
-            ]
+#             ]
 
-    modes = [ 'da', 'dalt', 'cp', 'w', 'b', 'r', 't', 'o', 'tc' ]
-    # intToModeConversion = ['gs', 'gc', 'cc', 'us' ]
-    # iTMSConv = ['Green Switches','Green Commutes', 'Car Commutes', 'Other', 'Healthy Switch', 'Healthy Commute']
-    for m in Month.objects.active_months().reverse():
-        breakDown = getBreakDown(emp, m.id)
-        for i in range(0, 4):
-            chartData[i]['dataPoints'] += [{ 'label': modes[i], 'y': breakDown[modes[i]], 'name': modes[i] },]
+#     modes = [ 'da', 'dalt', 'cp', 'w', 'b', 'r', 't', 'o', 'tc' ]
+#     # intToModeConversion = ['gs', 'gc', 'cc', 'us' ]
+#     # iTMSConv = ['Green Switches','Green Commutes', 'Car Commutes', 'Other', 'Healthy Switch', 'Healthy Commute']
+#     for m in Month.objects.active_months().reverse():
+#         breakDown = getBreakDown(emp, m.id)
+#         for i in range(0, 4):
+#             chartData[i]['dataPoints'] += [{ 'label': modes[i], 'y': breakDown[modes[i]], 'name': modes[i] },]
 
-    return chartData
+#     return chartData
 
-def getNvRcJSChartData(emp):
-    chartData = [
-            {
-                'type': "stackedColumn",
-                'color': COLOR_SCHEME['ngs'],
-                'legendText': 'New Green Switches',
-                'showInLegend': 'true',
-                'toolTipContent': '{name}: {y}',
-                'dataPoints': [
-                    ],
-                },
-            {
-                'type': "stackedColumn",
-                'color': COLOR_SCHEME['rgs'],
-                'legendText': 'Returning Green Switches',
-                'showInLegend': 'true',
-                'toolTipContent': '{name}: {y}',
-                'dataPoints': [
-                    ],
-                },
-            {
-                'type': "stackedColumn",
-                'color': COLOR_SCHEME['ngc'],
-                'legendText': 'New Green Commutes',
-                'showInLegend': 'true',
-                'toolTipContent': '{name}: {y}',
-                'dataPoints': [
-                    ],
-                },
-            {
-                'type': "stackedColumn",
-                'color': COLOR_SCHEME['rgc'],
-                'legendText': 'Returning Green Commutes',
-                'showInLegend': 'true',
-                'toolTipContent': '{name}: {y}',
-                'dataPoints': [
-                    ],
-                },
-            {
-                'type': "stackedColumn",
-                'color': COLOR_SCHEME['ncc'],
-                'legendText': 'New Car Commutes',
-                'showInLegend': 'true',
-                'toolTipContent': '{name}: {y}',
-                'dataPoints': [
-                    ],
-                },
-            {
-                'type': "stackedColumn",
-                'color': COLOR_SCHEME['rcc'],
-                'legendText': 'Returning Car Commutes',
-                'showInLegend': 'true',
-                'toolTipContent': '{name}: {y}',
-                'dataPoints': [
-                    ],
-                },
-            {
-                'type': "stackedColumn",
-                'color': COLOR_SCHEME['nus'],
-                'legendText': 'New Other Commutes',
-                'showInLegend': 'true',
-                'toolTipContent': '{name}: {y}',
-                'dataPoints': [
-                    ],
-                },
-            {
-                'type': "stackedColumn",
-                'color': COLOR_SCHEME['rus'],
-                'legendText': 'Returning Other Commutes',
-                'showInLegend': 'true',
-                'toolTipContent': '{name}: {y}',
-                'dataPoints': [
-                    ],
-                },
-            ]
-    intToModeConversion = ['ngs', 'rgs', 'ngc', 'rgc', 'ncc', 'rcc', 'nus', 'rus']
-    iTMSConv = ['New Green Switches', 'Returning Green Switches', 'New Green Commutes', 'Returning Green Commutes', 'New Car Commutes', 'Returning Car Commutes', 'New Other', 'Returning Other']
-    for month in reversed(Month.objects.active_months_list()):
-        breakDown = getNewVOldBD(emp, month)
-        for i in range(0, 8):
-            chartData[i]['dataPoints'] += [{ 'label': str(month), 'y': breakDown[intToModeConversion[i]], 'name': str(iTMSConv[i]) },]
-    return chartData
-
-
-
-def leaderboard_bare(request, vol_v_perc='all', month='all', svs='all', sos='1', focusEmployer=None):
-    context = leaderboard_context(request, vol_v_perc, month, svs, sos, focusEmployer)
-    return render(request, 'leaderboard/leaderboard_bare.html', context)
-
-def testchart(request):
-    context = { 'CHART_DATA': getCanvasJSChart(Employer.objects.get(name="Dana-Farber Cancer Institute")) }
-    return render(request, 'leaderboard/testchart.html', context)
+# def getNvRcJSChartData(emp):
+#     chartData = [
+#             {
+#                 'type': "stackedColumn",
+#                 'color': COLOR_SCHEME['ngs'],
+#                 'legendText': 'New Green Switches',
+#                 'showInLegend': 'true',
+#                 'toolTipContent': '{name}: {y}',
+#                 'dataPoints': [
+#                     ],
+#                 },
+#             {
+#                 'type': "stackedColumn",
+#                 'color': COLOR_SCHEME['rgs'],
+#                 'legendText': 'Returning Green Switches',
+#                 'showInLegend': 'true',
+#                 'toolTipContent': '{name}: {y}',
+#                 'dataPoints': [
+#                     ],
+#                 },
+#             {
+#                 'type': "stackedColumn",
+#                 'color': COLOR_SCHEME['ngc'],
+#                 'legendText': 'New Green Commutes',
+#                 'showInLegend': 'true',
+#                 'toolTipContent': '{name}: {y}',
+#                 'dataPoints': [
+#                     ],
+#                 },
+#             {
+#                 'type': "stackedColumn",
+#                 'color': COLOR_SCHEME['rgc'],
+#                 'legendText': 'Returning Green Commutes',
+#                 'showInLegend': 'true',
+#                 'toolTipContent': '{name}: {y}',
+#                 'dataPoints': [
+#                     ],
+#                 },
+#             {
+#                 'type': "stackedColumn",
+#                 'color': COLOR_SCHEME['ncc'],
+#                 'legendText': 'New Car Commutes',
+#                 'showInLegend': 'true',
+#                 'toolTipContent': '{name}: {y}',
+#                 'dataPoints': [
+#                     ],
+#                 },
+#             {
+#                 'type': "stackedColumn",
+#                 'color': COLOR_SCHEME['rcc'],
+#                 'legendText': 'Returning Car Commutes',
+#                 'showInLegend': 'true',
+#                 'toolTipContent': '{name}: {y}',
+#                 'dataPoints': [
+#                     ],
+#                 },
+#             {
+#                 'type': "stackedColumn",
+#                 'color': COLOR_SCHEME['nus'],
+#                 'legendText': 'New Other Commutes',
+#                 'showInLegend': 'true',
+#                 'toolTipContent': '{name}: {y}',
+#                 'dataPoints': [
+#                     ],
+#                 },
+#             {
+#                 'type': "stackedColumn",
+#                 'color': COLOR_SCHEME['rus'],
+#                 'legendText': 'Returning Other Commutes',
+#                 'showInLegend': 'true',
+#                 'toolTipContent': '{name}: {y}',
+#                 'dataPoints': [
+#                     ],
+#                 },
+#             ]
+#     intToModeConversion = ['ngs', 'rgs', 'ngc', 'rgc', 'ncc', 'rcc', 'nus', 'rus']
+#     iTMSConv = ['New Green Switches', 'Returning Green Switches', 'New Green Commutes', 'Returning Green Commutes', 'New Car Commutes', 'Returning Car Commutes', 'New Other', 'Returning Other']
+#     for month in reversed(Month.objects.active_months_list()):
+#         breakDown = getNewVOldBD(emp, month)
+#         for i in range(0, 8):
+#             chartData[i]['dataPoints'] += [{ 'label': str(month), 'y': breakDown[intToModeConversion[i]], 'name': str(iTMSConv[i]) },]
+#     return chartData
 
 
-def nvobreakdown(request, selEmpID=None):
-    if selEmpID is None:
-        context = {'emps': Employer.objects.all()}
-        return render(request, 'leaderboard/chooseEmp.html', context)
-    else:
-        selEmp = Employer.objects.get(id=selEmpID)
-        context = {'CHART_DATA': getCanvasJSChart(selEmp, new=True), 'emp': selEmp}
-        return render(request, 'leaderboard/nvobreakdown.html', context)
+
+# def leaderboard_bare(request, vol_v_perc='all', month='all', svs='all', sos='1', focusEmployer=None):
+#     context = leaderboard_context(request, vol_v_perc, month, svs, sos, focusEmployer)
+#     return render(request, 'leaderboard/leaderboard_bare.html', context)
+
+# def testchart(request):
+#     context = { 'CHART_DATA': getCanvasJSChart(Employer.objects.get(name="Dana-Farber Cancer Institute")) }
+#     return render(request, 'leaderboard/testchart.html', context)
+
+
+# def nvobreakdown(request, selEmpID=None):
+#     if selEmpID is None:
+#         context = {'emps': Employer.objects.all()}
+#         return render(request, 'leaderboard/chooseEmp.html', context)
+#     else:
+#         selEmp = Employer.objects.get(id=selEmpID)
+#         context = {'CHART_DATA': getCanvasJSChart(selEmp, new=True), 'emp': selEmp}
+#         return render(request, 'leaderboard/nvobreakdown.html', context)
