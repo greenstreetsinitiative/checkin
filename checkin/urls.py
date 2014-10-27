@@ -17,12 +17,12 @@ urlpatterns = patterns('',
 
     # Leaderboard
     url(r'^leaderboard/$', 'leaderboard.views.new_leaderboard'),
-    url(r'^leaderboard-bare/$', 'leaderboard.views.leaderboard_bare'),
-    url(r'^test-chart/$', 'leaderboard.views.testchart'),
-    url(r'^emplbreakdown/(?P<month>[-\w]+)/$', 'leaderboardlist.views.empBreakDown'),
-    url(r'^emplbreakdown/$', 'leaderboardlist.views.chooseMonth'),
-    url(r'^nvobreakdown/$', 'leaderboard.views.nvobreakdown'),
-    url(r'^nvobreakdown/(?P<selEmpID>[-\w]+)/$', 'leaderboard.views.nvobreakdown'),
+    # url(r'^leaderboard-bare/$', 'leaderboard.views.leaderboard_bare'),
+    # url(r'^test-chart/$', 'leaderboard.views.testchart'),
+    # url(r'^emplbreakdown/(?P<month>[-\w]+)/$', 'leaderboardlist.views.empBreakDown'),
+    # url(r'^emplbreakdown/$', 'leaderboardlist.views.chooseMonth'),
+    # url(r'^nvobreakdown/$', 'leaderboard.views.nvobreakdown'),
+    # url(r'^nvobreakdown/(?P<selEmpID>[-\w]+)/$', 'leaderboard.views.nvobreakdown'),
 
     # data api
     url(r'^api/survey/$', 'survey.views.api', name='survey_api'),

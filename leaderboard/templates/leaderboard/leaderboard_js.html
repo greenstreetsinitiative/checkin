@@ -9,6 +9,7 @@
 <script type="text/javascript">
 
 $("document").ready(function() {
+    $('.filteroptions').hide();
     $('button.submitfilter').addClass('disabled'); // Disables visually
     $('button.submitfilter').prop('disabled', true); // Disables visually + functionally
     $('select').change(function(){
@@ -20,6 +21,7 @@ $("document").ready(function() {
 });
 
 function setfilter(filter) {
+    $('.filteroptions').show();
 		if(filter == "size") { 
 			$('#size_filter').show();
 			$('#size_filter').removeAttr('disabled');
@@ -45,6 +47,17 @@ function setfilter(filter) {
 			$('#team_filter').attr('disabled', "true");
 		}
 	}
+
+  $("#employer_pick").chosen({
+    width: "99%"
+  });
+
+  $("#employer_pick").change(function(){
+      if ($(this).val()!='') {
+        console.log($(this).val());
+        window.location.href='/leaderboard/' + $(this).val() + '/#details';
+      }
+    });
 </script>
 
 {% if empNVR %}
@@ -71,67 +84,108 @@ function setfilter(filter) {
         </div>
     </div>
 
-    <div class="row clearfix filters lbcontrols">
+    
+
+      
+
 	<form method="get" action="/leaderboard/redirect" id="filter_form">
-        <div class="col-md-12 column">
-            {% if current_month == 'all' %}<span class="lbmonth">{{ current_month }}</span>{% endif %}
-            {% if current_month != 'all' %}
-            <a href="/leaderboard/{% if empid %}{{ empid }}/{% endif %}{% if filter_by == 'size' and not sectorid %}{{ filter_by }}/{% endif %}{% if filter_by and sectorid %}{{ filter_by }}/{% endif %}{% if sectorid and filter_by == 'sector' %}{{ sectorid }}/{% endif %}{% if filt and filter_by == 'size' %}{{ filt }}/{% endif %}{% if sort %}{{ sort }}/{% endif %}month_all" class="lbmonth">all</a>
-            {% endif %}
-            {% for month in months %}           
-            {% if month.url_month != current_month %}
-            <a href="/leaderboard/{% if empid %}{{ empid }}/{% endif %}{% if filter_by == 'size' and not sectorid %}{{ filter_by }}/{% endif %}{% if filter_by and sectorid %}{{ filter_by }}/{% endif %}{% if sectorid and filter_by == 'sector' %}{{ sectorid }}/{% endif %}{% if filt and filter_by == 'size' %}{{ filt }}/{% endif %}{% if sort %}{{ sort }}/{% endif %}month_{{ month.url_month }}" class="lbmonth">{{ month }}</a>
-            {% endif %} 
-            
-            {% if month.url_month == current_month %}
-            <span class="lbmonth">{{ month }}</span>
-            {% endif %} 
+<div class="row clearfix filters lbcontrols">
+    <!-- ALL COMPANIES -->
+    <div class="col-sm-4 column">
+      <div class="panel teamjump">
+        <p class="lead"><strong>Jump to a team</strong></p>
 
-            {% endfor %}
+        <select class="form-control" id="employer_pick" name="employer_pick" data-placeholder="Find an employer or team">     
+          <option selected></option>
+          {% for employer in active_companies %}
+            {% if employer.is_parent %}
+            <option value="{{ employer.id }}">{{ employer.name|escape }} (with subteams)</option> 
+            {% else %}
+            <option value="{{ employer.id }}">{{ employer.name|escape }}</option> 
+            {% endif %}     
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <div class="col-sm-8 column">
+
+      <div class="filtercategories row">
+        <p class="lead"><strong>View rankings by</strong></p>
+        <div class="col-sm-4">
+          <p><a class="btn btn-default btn-large all-button" href="/leaderboard/">Show all participating companies</a></p>
         </div>
-        <div class="col-md-6 column">
-            <p class="lead"><strong>Filter the companies by</strong></p>
-            <label><input type="radio" name="color" onclick="setfilter('size')" value="size"/> Size</label>
-            <label><input type="radio" name="color" onclick="setfilter('sector')" value="sector"/> Sector</label>
-            <label><input type="radio" name="color" onclick="setfilter('team')" value ="sector"/> Organizations with subteams</label>
+        
+        <div class="col-sm-8">
+          
+          <label><input type="radio" name="color" onclick="setfilter('size')" value="size"/> Size</label>
+          <label><input type="radio" name="color" onclick="setfilter('sector')" value="sector"/> Sector</label>
+          <label><input type="radio" name="color" onclick="setfilter('team')" value ="sector"/> Organizations with subteams</label>
 
-            <div class="col-md-9 col-sm-9 column">
-            <!-- size options -->
-            <select id="size_filter" name="size_filter" class="form-control" style="display: none" disabled="true">
-            <option value="0" selected>Please select size</option>
-            <option value="1" {% if sizecat == "small companies" %}selected{% endif %}>Small (1 - 50 Employees)</option>
-            <option value="2" {% if sizecat == "medium companies" %}selected{% endif %}>Medium (51 - 300 Employees)</option>
-            <option value="3" {% if sizecat == "large companies" %}selected{% endif %}>Large (301 - 2000 Employees)</option>
-            <option value="4" {% if sizecat == "largest companies" %}selected{% endif %}>Largest (&gt; 2000 Employees)</option>
-            </select>
+          <div class="filteroptions row">
 
-            <!-- sector options -->
-            <select class="form-control" id="sector_filter" name="sector_filter" style="display: none" disabled="true">
-            <option value="0">Please select sector</option>
-            <!-- change slice number if number of sectors changes -->
-            {% for sector in sectors|slice:":7" %}<option value="{{ sector.id }}" {% if sector == emp_sector %}selected{% endif %}>{{ sector.name }}</option>{% endfor %}
-            </select>
-            
-            <!-- subteams -->
-            <select class="form-control" id="team_filter" style="display: none" name="sector_filter"  disabled="true">
-            <option value="0">Please select organization</option>
-            {% for team in subteams %}<option value="{{ team.id }}" {% if team == emp_sector %}selected{% endif %}>{{ team.name }}</option>{% endfor %}
-            </select>
+            <div class="col-sm-8">
+              <!-- size options -->
+              <select id="size_filter" name="size_filter" class="form-control" style="display: none" disabled="true">
+              <option value="0" selected>Please select size</option>
+              <option value="1" {% if sizecat == "small companies" %}selected{% endif %}>Small (1 - 50 Employees)</option>
+              <option value="2" {% if sizecat == "medium companies" %}selected{% endif %}>Medium (51 - 300 Employees)</option>
+              <option value="3" {% if sizecat == "large companies" %}selected{% endif %}>Large (301 - 2000 Employees)</option>
+              <option value="4" {% if sizecat == "largest companies" %}selected{% endif %}>Largest (&gt; 2000 Employees)</option>
+              </select>
+
+              <!-- sector options -->
+              <select class="form-control" id="sector_filter" name="sector_filter" style="display: none" disabled="true">
+              <option value="0">Please select sector</option>
+              <!-- change slice number if number of sectors changes -->
+              {% for sector in sectors|slice:":7" %}<option value="{{ sector.id }}" {% if sector == emp_sector %}selected{% endif %}>{{ sector.name }}</option>{% endfor %}
+              </select>
+              
+              <!-- subteams -->
+              <select class="form-control" id="team_filter" style="display: none" name="sector_filter"  disabled="true">
+              <option value="0">Please select organization</option>
+              {% for team in subteams %}<option value="{{ team.id }}" {% if team == emp_sector %}selected{% endif %}>{{ team.name }}</option>{% endfor %}
+              </select>
+
             </div>
-            <div class="col-md-3 col-sm-3 column">
-        {% if sort %}<input type="hidden" name="sort" value="{{ sort }}">{% endif %}
-		<input type="hidden" name="month" value="{{ current_month }}" disabled>
-            <button type="submit" class="btn btn-small btn-success submitfilter">Submit</button>
+
+            <div class="col-sm-4">
+             
+              {% if sort %}<input type="hidden" name="sort" value="{{ sort }}">{% endif %}
+              <input type="hidden" name="month" value="{{ current_month }}" disabled>
+              <button type="submit" class="btn btn-small btn-success submitfilter">Submit</button>
+
             </div>
+
+          </div>
         </div>
+      </div>
 
+      
+
+      <div class="filtermonths row">
+        <hr class="lite">
+          {% if current_month == 'all' %}<span class="lbmonth">All Months</span>{% endif %}
+          {% if current_month != 'all' %}
+          <a href="/leaderboard/{% if empid %}{{ empid }}/{% endif %}{% if filter_by == 'size' and not sectorid %}{{ filter_by }}/{% endif %}{% if filter_by and sectorid %}{{ filter_by }}/{% endif %}{% if sectorid and filter_by == 'sector' %}{{ sectorid }}/{% endif %}{% if filt and filter_by == 'size' %}{{ filt }}/{% endif %}{% if sort %}{{ sort }}/{% endif %}month_all" class="lbmonth">All Months</a>
+          {% endif %}
+          {% for month in months %}           
+          {% if month.url_month != current_month %}
+          <a href="/leaderboard/{% if empid %}{{ empid }}/{% endif %}{% if filter_by == 'size' and not sectorid %}{{ filter_by }}/{% endif %}{% if filter_by and sectorid %}{{ filter_by }}/{% endif %}{% if sectorid and filter_by == 'sector' %}{{ sectorid }}/{% endif %}{% if filt and filter_by == 'size' %}{{ filt }}/{% endif %}{% if sort %}{{ sort }}/{% endif %}month_{{ month.url_month }}" class="lbmonth">{{ month }}</a>
+          {% endif %} 
+          
+          {% if month.url_month == current_month %}
+          <span class="lbmonth">{{ month }}</span>
+          {% endif %} 
+
+          {% endfor %}
+      </div>
+
+    </div>
+
+</div>
 		</form>
-    </div>
-    <div class="row clearfix">
-        <div class="col-md-12 column">
-            
-        </div>
-    </div>
+
 
     <div class="row clearfix">
 
