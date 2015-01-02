@@ -6,7 +6,7 @@
 
 {% block javascript %}
 
-<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script> 
 
 <script src="{% static 'libs/jquery.json-2.4.min.js' %}" type="text/javascript"></script>
 <script src="{% static 'libs/simpleStorage.min.js' %}" type="text/javascript"></script>
@@ -22,7 +22,7 @@
 <div class="row">
   <center>
     <h1>Walk/Ride Day Check-In</h1>
-    <h2>December 2014</h2>
+    <h2>{{ wr_day }}</h2>
     <p class="lead">Check in on the last Friday of every month. The Corporate Challenge takes place April through October.</p></center>
   </div>
 
@@ -30,14 +30,14 @@
 
     {% csrf_token %}
 
-    <input type="hidden" id="wr_day_month" name="wr_day_month" value="41">
+    <input type="hidden" id="wr_day_month" name="wr_day_month" value="{{ wr_day.id }}">
 
     <hr>
 
     <div class="form-group">
       <div class="col-sm-12">
 
-        <p>Green Streets Initiative will not share identifying information with any organization, other than with your employer or team, if your workplace is participating in the Challenge.
+        <p>Green Streets Initiative will not share identifying information with any organization, other than with your employer or team, if your workplace is participating in the Challenge. 
 
          <input type="checkbox" id="share"> Please do not share my identifying information with my employer.</p>
 
@@ -66,11 +66,11 @@
       <div class="form-group">
         <label class="control-label col-sm-3 col-xs-2">Your employer or team's name</label>
         <div class="col-sm-9 col-xs-10">
-          <select class="form-control" id="employer" name="employer" data-placeholder="Choose an employer or team">
+          <select class="form-control" id="employer" name="employer" data-placeholder="Choose an employer or team">     
             <option selected></option>
             {% for employer in employers %}
             {% if not employer.is_parent %}
-            <option value="{{ employer.id }}">{{ employer.name|escape }}</option>
+            <option value="{{ employer.id }}">{{ employer.name|escape }}</option>      
             {% endif %}
             {% endfor %}
           </select>
@@ -101,20 +101,20 @@
         </div>
       </div>
 
-      <div class="form-group">
+      <div class="form-group">       
         <label class="control-label  col-sm-3 col-xs-12">Your Commute (examples)
-          <p class="commuteexamples"><strong>For illustrative purposes only.</strong> These routes are automatically generated from the locations typed above.</p>
+          <p class="commuteexamples"><strong>For illustrative purposes only.</strong> These routes are automatically generated from the locations typed above.</p> 
           <div id="commute-distance" class="col-sm-12 col-xs-3"></div>
           <div id="commute-distance3" class="col-sm-12 col-xs-3"></div>
           <div id="commute-distance2" class="col-sm-12 col-xs-3"></div>
         </label>
 
         <div id="map-canvas" class="col-sm-9"></div>
-      </div>
+      </div>          
       {{ surveyform.home_location }}
       {{ surveyform.work_location }}
       {{ surveyform.distance }}
-      {{ surveyform.duration }}
+      {{ surveyform.duration }}  
 
     </fieldset>
 
@@ -124,7 +124,7 @@
 
     <fieldset id="walkride">
 
-      <legend>Walk/Ride Day December 2014</legend>
+      <legend>Walk/Ride Day {{ wr_day }}</legend>
       <h3>Going from <span class="point">home</span> to <span class="point">work</span> on this Walk/Ride Day:</h3>
 
       <!-- begin picking modes of transport -->
@@ -141,7 +141,7 @@
             <option value="t">took public transit</option>
             <option value="b">biked</option>
             <option value="r">jogged or ran</option>
-            <option value="w">walked</option>
+            <option value="w">walked</option>               
             <option value="o">did something else (roller blade, scooter, kayak, etc.)</option>
             <option value="tc">telecommuted</option>
           </select>
@@ -201,7 +201,7 @@
               <option value="t">took public transit</option>
               <option value="b">biked</option>
               <option value="r">jogged or ran</option>
-              <option value="w">walked</option>
+              <option value="w">walked</option>               
               <option value="o">did something else (roller blade, scooter, kayak, etc.)</option>
               <option value="tc">telecommuted</option>
             </select>
@@ -255,7 +255,7 @@
           </label></div>
         </div>
 
-
+        
         <div class="hidden-legs">
           <hr class="lite">
           <div id="n-to-work-legs">
@@ -271,7 +271,7 @@
                 <option value="t">took public transit</option>
                 <option value="b">biked</option>
                 <option value="r">jogged or ran</option>
-                <option value="w">walked</option>
+                <option value="w">walked</option>               
                 <option value="o">did something else (roller blade, scooter, kayak, etc.)</option>
                 <option value="tc">telecommuted</option>
               </select>
@@ -286,7 +286,7 @@
                 <option value="4">45-60 minutes</option>
                 <option value="5">More than an hour</option>
               </select>
-
+              
               <span class="remove" style="padding-left: 1em;"></span>
               <input type="hidden" value="n" name="day">
               <input type="hidden" value="tw" name="direction">
@@ -301,7 +301,7 @@
 
         </div>
 
-      <hr>
+      <hr> 
       <h3>Leaving from <span class="point">work</span> going <span class="point">home</span> on most other days:</h3>
 
       <div class="form-group">
@@ -331,7 +331,7 @@
                 <option value="t">took public transit</option>
                 <option value="b">biked</option>
                 <option value="r">jogged or ran</option>
-                <option value="w">walked</option>
+                <option value="w">walked</option>               
                 <option value="o">did something else (roller blade, scooter, kayak, etc.)</option>
                 <option value="tc">telecommuted</option>
               </select>
@@ -346,7 +346,7 @@
                 <option value="4">45-60 minutes</option>
                 <option value="5">More than an hour</option>
               </select>
-
+              
               <span class="remove" style="padding-left: 1em;"></span>
               <input type="hidden" value="n" name="day">
               <input type="hidden" value="fw" name="direction">
@@ -373,12 +373,12 @@
         <p class="lead">These calculators are conceptual only, and refer only to the longest leg of your commute. Please ignore them if they don't reflect your situation or provide appropriate information.</p>
         <hr class="lite">
 
-
+        
         <div class="form-group">
 
           <div class="col-sm-4">
             <button id="btn-co2" class="btn btn-warning" disabled="disabled">Calculate saved CO2 emissions</button><span class="help-block">Per EPA standards and assumptions, compared to commuting by car alone.</span></div>
-
+            
             <div class="col-sm-8">
               <span class="input uneditable-input form-control" id="saved-co2">Click button to calculate</span></div>
 
@@ -433,7 +433,7 @@
                   <option value="3">Fair</option>
                   <option value="1">Poor</option>
                 </select>
-              </div>
+              </div> 
             </div>
 
             <hr class="lite">
@@ -455,7 +455,7 @@
                 </div>
                 <div class="radio">
                   <label>
-                    <input type="radio" name="gender" value="o"> Another
+                    <input type="radio" name="gender" value="o"> Another 
                   </label>
                 </div>
               </div>
@@ -478,42 +478,42 @@
                   <div class="col-sm-3 col-xs-3"><input type="number" min="0" id="cdays" class="form-control" placeholder="0"></div>
                   <div><p>Driving alone</p></div>
                 </div>
-
+                
                 <div class="col-sm-9">
                   <div class="col-sm-3 col-xs-3"><input type="number" min="0" id="caltdays" class="form-control" placeholder="0"></div>
                   <div><p>Driving alone, alternative vehicle</p></div>
                 </div>
-
+                
                 <div class="col-sm-9">
                   <div class="col-sm-3 col-xs-3"><input type="number" min="0" id="cpdays" class="form-control" placeholder="0"></div>
                   <div><p>Carpool</p></div>
                 </div>
-
+                
                 <div class="col-sm-9">
                   <div class="col-sm-3 col-xs-3"><input type="number" min="0" id="tdays" class="form-control" placeholder="0"> </div>
                   <div><p>Transit</p></div>
                 </div>
-
+                
                 <div class="col-sm-9">
                   <div class="col-sm-3 col-xs-3"><input type="number" min="0" id="bdays" class="form-control" placeholder="0"> </div>
                   <div><p>Bike</p></div>
                 </div>
-
+                
                 <div class="col-sm-9">
                   <div class="col-sm-3 col-xs-3"><input type="number" min="0" id="rdays" class="form-control" placeholder="0"> </div>
                   <div><p>Jog/Run</p></div>
                 </div>
-
+                
                 <div class="col-sm-9">
                   <div class="col-sm-3 col-xs-3"><input type="number" min="0" id="wdays" class="form-control" placeholder="0"> </div>
                   <div><p>Walk</p></div>
                 </div>
-
-                <div class="col-sm-9">
+                
+                <div class="col-sm-9">  
                   <div class="col-sm-3 col-xs-3"><input type="number" min="0" id="odays" class="form-control" placeholder="0"> </div>
                   <div><p>Other (roller blade, scooter, kayak, etc.)</p></div>
                 </div>
-
+                
                 <div class="col-sm-9">
                   <div class="col-sm-3 col-xs-3"><input type="number" min="0" id="tcdays" class="form-control" placeholder="0"></div>
                   <div><p>Telecommute</p></div>
@@ -521,9 +521,9 @@
 
               </div>
             </div>
-
+            
             <hr class="lite">
-
+            
             <div class="form-group">
               <div class="col-sm-3">
                 <label>In the last week, INCLUDING Walk/Ride Day, did you always commute AWAY FROM work in the same way?</label>
@@ -553,49 +553,49 @@
                   <div class="col-sm-3 col-xs-3"><input type="number" min="0" id="cdaysaway" class="form-control" placeholder="0"></div>
                   <div><p>Driving alone</p></div>
                 </div>
-
+                
                 <div class="col-sm-9">
                   <div class="col-sm-3 col-xs-3"><input type="number" min="0" id="caltdaysaway" class="form-control" placeholder="0"></div>
                   <div><p>Driving alone, alternative vehicle</p></div>
                 </div>
-
+                
                 <div class="col-sm-9">
                   <div class="col-sm-3 col-xs-3"><input type="number" min="0" id="cpdaysaway" class="form-control" placeholder="0"></div>
                   <div><p>Carpool</p></div>
                 </div>
-
+                
                 <div class="col-sm-9">
                   <div class="col-sm-3 col-xs-3"><input type="number" min="0" id="tdaysaway" class="form-control" placeholder="0"> </div>
                   <div><p>Transit</p></div>
                 </div>
-
+                
                 <div class="col-sm-9">
                   <div class="col-sm-3 col-xs-3"><input type="number" min="0" id="bdaysaway" class="form-control" placeholder="0"> </div>
                   <div><p>Bike</p></div>
                 </div>
-
+                
                 <div class="col-sm-9">
                   <div class="col-sm-3 col-xs-3"><input type="number" min="0" id="rdaysaway" class="form-control" placeholder="0"> </div>
                   <div><p>Jog/Run</p></div>
                 </div>
-
+                
                 <div class="col-sm-9">
                   <div class="col-sm-3 col-xs-3"><input type="number" min="0" id="wdaysaway" class="form-control" placeholder="0"> </div>
                   <div><p>Walk</p></div>
                 </div>
-
-                <div class="col-sm-9">
+                
+                <div class="col-sm-9">  
                   <div class="col-sm-3 col-xs-3"><input type="number" min="0" id="odaysaway" class="form-control" placeholder="0"> </div>
                   <div><p>Other (roller blade, scooter, kayak, etc.)</p></div>
                 </div>
-
+                
                 <div class="col-sm-9">
                   <div class="col-sm-3 col-xs-3"><input type="number" min="0" id="tcdaysaway" class="form-control" placeholder="0"></div>
                   <div><p>Telecommute</p></div>
                 </div>
               </div>
             </div>
-
+            
             <hr class="lite">
 
             <div class="form-group">
@@ -609,7 +609,7 @@
               <div class="col-sm-12"><p class="lead">How was Walk/Ride Day affected you? Has it affected your transportation habits? Your health? Your thinking about your commute? Your thinking about environmental, health, or community issues? Any additional notes or thoughts?</p>
                 <textarea class="form-control" rows="3" id="affectedyou"></textarea>
               </div>
-            </div>
+            </div> 
 
             <hr class="lite">
             <div class="form-group">
@@ -618,7 +618,7 @@
                   <input type="checkbox" id="volunteer"> I would like to volunteer to help support Green Streets' efforts.
                 </label>
               </div>
-            </div>  <hr>
+            </div>  <hr>                   
           </fieldset> <!-- end extra questions -->
 
           <!-- submit -->
