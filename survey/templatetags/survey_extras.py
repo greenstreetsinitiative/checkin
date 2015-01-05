@@ -18,7 +18,7 @@ def wr_day():
         }
     except Month.DoesNotExist:
         try:
-            next_wr_day = Month.objects.active_months().filter(open_checkin__gt=date.today()).reverse()[0]
+            next_wr_day = Month.objects.filter(open_checkin__gt=date.today()).reverse()[0]
             return {
                 'type': 'next_wr_day',
                 'date': next_wr_day.wr_day.strftime('%A, %B %d, %Y'),
