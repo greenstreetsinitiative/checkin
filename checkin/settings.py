@@ -2,7 +2,7 @@
 
 # For more information on this file, see
 # https://docs.djangoproject.com/en/1.6/topics/settings/
- 
+
 # For the full list of settings and their values, see
 # https://docs.djangoproject.com/en/1.6/ref/settings/
 
@@ -33,7 +33,7 @@ else:
 # Mandrill (https://mandrillapp.com/) is used to email checkin confirmations
 MANDRILL_API_KEY = os.environ['MANDRILL_API_KEY']
 
-# MapQuest 
+# MapQuest
 MAPQUEST_API_KEY = os.environ['MAPQUEST_API_KEY']
 
 # Quick-start development settings - unsuitable for production
@@ -76,6 +76,7 @@ INSTALLED_APPS = (
     'leaderboard',
     'leaderboardlist',
     'retail',
+    'register'
 )
 
 if not ON_OPENSHIFT:

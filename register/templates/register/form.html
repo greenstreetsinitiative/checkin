@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block title %}W/R Day {% now "Y" %} Registration{% endblock %}
+
+{% block body %}
+<p>Hello!</p>
+<form action="." method='POST'>
+    <input type="text" name="q">
+    <input type="submit" value="Search">
+    {% csrf_token %}
+</form>
+{% endblock %}
