@@ -8,7 +8,9 @@ def register(request):
         return form_submission(request)
     else:
         template = loader.get_template('register/form.html')
-        context = RequestContext(request, {})
+        context = RequestContext(request, {
+            'open' : True
+        })
         page = template.render(context)
         return HttpResponse(page)
 

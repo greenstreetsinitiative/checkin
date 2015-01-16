@@ -1,13 +1,135 @@
 {% extends "base.html" %}
 {% load staticfiles %}
-
-{% block title %}W/R Day {% now "Y" %} Registration{% endblock %}
+{% load i18n %}
+{% block title %}Registration{% endblock %}
 
 {% block body %}
-<p>Hello!</p>
-<form action="." method='POST'>
-    <input type="text" name="q">
-    <input type="submit" value="Search">
-    {% csrf_token %}
-</form>
+<link rel="stylesheet" href="{% static 'register/css/style.css' %}">
+<div class="registration">
+    <div id="informational">
+        <h1 class="title">
+            {% if demo %}
+            Demo Registration for W/R Day {% now "Y" %}
+            {% else %}
+            Registration for Walk/Ride Day {% now "Y" %}
+            {% endif %}
+        </h1>
+        <hr>
+        <p>Join leading Boston-area (and beyond!) workplaces by registering your organization to participate in the {% now "Y" %} Workplace Walk/Ride Day Challenge! It will kick off in April and wrap up in October.</p>
+        <h4>How does it work?</h3>
+            <ol>
+                <li><em>Businesses register below</em> by April 15 (incentives for earlier registration) to let us know that they are participating.</li>
+                <li><em>Employees check in</em> their commutes once each month on the last Friday of the month to be counted and eligible for prizes.</li>
+                <li><em>Winning companies are shown on live Leader Boards</em>, segmented by size and sector. Individual winners are selected monthly from leading workplaces, and overall winning workplaces are recognized at an awards celebration, with special ice cream and fruit parties for winning companies by size.</li>
+            </ol>
+        </div>
+        <div id="prizes">
+            <h4>What do you get with your registration?</h4>
+            <ul>
+                <li>Monthly online raffles, End of Year Winners' Parties, Awards Ceremony</li>
+                <li>Monthly results shown on Live Leader Board</li>
+                <li>Monthly staff check-in names and emails, along with disaggregated comments, and other data directly accessible to coordinators</li>
+                <li>Web and print materials explaining Challenge and FAQ's to staff</li>
+                <li>Coordinator support materials</li>
+                <li>Monthly newsletter and announcements to staff</li>
+                <li>Press releases to local media</li>
+                <li>Credit for Bike-Friendly Business status (Boston) and PTDM compliance (Cambridge).</li>
+                <li>Credit toward next year's fees for your organization's President/CEO signing this pledge to participate in this year's Challenge and participating. (10% credit for 100% participation, ie. checking in 7 times, and 5% credit for 70+% ie. Checking in 5 or 6 times). If you're eligible, just subtract the appropriate amount from the total fee. If you're not sure, send us an e-mail at <a href="mailto:info@gogreenstreets.org">info@gogreenstreets.org</a> and we'll check.</li>
+            </ul>
+        </div>
+    </div>
+    <hr>
+    {% if open %}
+    <form action="." method="post" id="registration_form">
+        <div class="form-group">
+            <label for="business_name">Business Name</label>
+            <input name="business_name" type="text" class="form-control" id="business_name" placeholder="Enter business name">
+        </div>
+
+        <div class="form-group">
+            <label for="business_address">Business Address</label>
+            <input name="business_address" type="text" class="form-control" id="business_address" placeholder="Enter business address">
+        </div>
+        <div class="form-group">
+            <label for="business_website">Business Website</label>
+            <input name="business_website" type="url" class="form-control" id="business_website" placeholder="Enter business website">
+            <span id="helpBlock" class="help-block">Leave blank if your organization has no website</span>
+        </div>
+
+        <div class="form-group">
+            <label for="business_size">Business Size</label>
+            <input name="business_size" type="number" class="form-control" id="business_size" placeholder="Enter business size (as a number)">
+        </div>
+
+        <div class="form-group">
+            <label for="subteams">Subteams</label>
+            <span id="subteam_info" class="help-block">Sub-teams are very helpful in creating and raising the level of staff excitement and motivation to check in for the Challenge each month by creating friendly internal – as well as external – competition! Sub-teams can be departments, buildings, floors, sections, branches or sites of an organization that are local or in another city or country. Fees: $50/sub-team.</span>
+            <div class="checkbox">
+                <label>
+                    <input name="has_subteams" type="hidden" value="false">
+                    <input name="has_subteams" type="checkbox" value="true" id="subteams">
+                    Your organization has subteams
+                </label>
+            </div>
+        </div>
+
+        <div class="hidden" id="subteam_num_group">
+            <div class="form-group">
+                <label for="num_subteams">Number of subteams</label>
+                <input type="number" class="form-control" id="num_subteams" placeholder="Enter how many subteams your organization has" name="num_subteams">
+            </div>
+            <div id="subteam_list"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="contact_name">Contact Name</label>
+            <input type="text" class="form-control" id="contact_name" placeholder="Enter contact name" name="contact_name">
+        </div>
+
+        <div class="form-group">
+            <label for="contact_title">Contact Title</label>
+            <input type="text" class="form-control" id="contact_title" placeholder="Enter contact title" name="contact_title">
+        </div>
+
+        <div class="form-group">
+            <label for="contact_phone">Contact Telephone Number</label>
+            <input type="tel" class="form-control" id="contact_phone" placeholder="Enter contact phone number" name="contact_phone">
+        </div>
+
+        <div class="form-group">
+            <label for="contact_email">Contact Email</label>
+            <input type="email" class="form-control" id="contact_email" placeholder="Enter contact email address" name="contact_email">
+        </div>
+
+        <div class="form-group">
+            <label for="wr_heard_about">How did you hear of the Walk/Ride Day Corporate Challenge?</label>
+            <textarea class="form-control" rows="3" id="wr_hear" name="wr_hear"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="wr_goals">What are the goals you hope to accomplish by participating in the 2015 Walk/Ride Day Corporate Challenge?</label>
+            <textarea class="form-control" rows="3" id="wr_goals" name="wr_goals"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="wr_sponsor">Would you like to become a Green Streets sponsor by funding an intern, sponsoring an event, etc.?</label>
+            <textarea class="form-control" rows="3" id="wr_sponsor" name="wr_sponsor"></textarea>
+            <span id="wr_sponsor_help" class="help-block">Participating work places are invited to become a sponsor of the Green Streets and the Walk/Ride Day Corporate Challenge, and will be featured in materials that are seen by thousands in email, website, and other materials.</span>
+        </div>
+        {% csrf_token %}
+        <hr>
+        <p>Total Registration Fee: <span class="fee">$0.00</span></p>
+        <p>We want all organizations to be able to take part in this year’s Challenge. Please contact us at <a href="mailto:info@gogreenstreets.org">info@gogreenstreets.org</a> if you need to discuss particular financial constraints.</p>
+    <hr>
+    <button type="submit" class="btn btn-success center-block submit_button">Submit</button>
+
+    </form>
+    {% else %}
+        <p>Registration close</p>
+    {% endif %}
+</div>
+<script type="text/javascript" src="{% static 'libs/jquery-1.11.0.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'register/js/subteams.js' %}"></script>
+<script type="text/javascript" src="{% static 'register/js/pricing.js' %}"></script>
+<script type="text/javascript" src="{% static 'register/js/form.js' %}"></script>
 {% endblock %}
