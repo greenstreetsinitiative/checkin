@@ -3,6 +3,6 @@ from django.conf import settings
 from register import views
 
 urlpatterns = patterns('',
-    url(r'^$', views.register, name='index'),
+    url(r'^$', views.register_view, name='index'),
     url(r'^post/?$', views.form_submission, name='form'),
 )

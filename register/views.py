@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from django.template import RequestContext, loader
 
 # Create your views here.
-def register(request):
+def register_view(request):
     if request.method == 'POST':
         return form_submission(request)
     else:
@@ -16,4 +16,6 @@ def register(request):
 
 def form_submission(request):
     print request.POST
+
+
     return HttpResponse('post submitted yay')
