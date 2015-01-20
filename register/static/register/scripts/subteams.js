@@ -1,12 +1,8 @@
 /*
  * Returns string containing html for the ith subteam input
  */
-/*var subteamHTML = function(i) {
-    return "<div class=\"form-group\"><label for=\"subteam_"+i+"\">Subteam "+(i+1)+"</label><input type=\"text\" class=\"form-control\" id=\"subteam_"+i+"\" name=\"subteam_"+i+"\" placeholder=\"Enter subteam name\"></div>";
-};*/
-
 var subteamHTML = function(i) {
-    return "<div class=\"form-group\"><span class=\"form-label\">Subteam __i__</span><div class=\"form-inline\"><label for=\"subteam_name___i__\">Name</label><input type=\"text\" class=\"form-control\" id=\"subteam_name___i__\" name=\"subteam___i__\" placeholder=\"Enter subteam name\"><label for=\"subteam_size___i__\">Size</label><input type=\"number\" class=\"form-control\" id=\"subteam_size___i__\" name=\"subteam___i__\" placeholder=\"Enter subteam name\"></div></div>".replace(/__i__/g, i);
+    return "<div class=\"form-group\"><span class=\"form-label\">Subteam {i}</span><div class=\"form-inline\"><label for=\"subteam_name_{i}\">Name</label><input type=\"text\" class=\"form-control\" id=\"subteam_name_{i}\" name=\"subteam_name_{i}\" placeholder=\"Enter subteam name\"><label for=\"subteam_size_{i}\">Size</label><input type=\"number\" class=\"form-control\" id=\"subteam_size_{i}\" name=\"subteam_size_{i}\" placeholder=\"Enter subteam name\"></div></div>".replace(/\{i\}/g, i);
 };
 
 
@@ -24,6 +20,8 @@ var subteamInputHTML = function(n) {
 
 /*
  * Display inputs for how many subteams the company has
+ * Since companies can have variable number of subteams, this has to be
+ * handled dynamically
  */
 var showSubteamInputs = function() {
     $("#num_subteams").change(function() {

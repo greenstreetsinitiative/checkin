@@ -3,6 +3,8 @@ from survey.models import Employer, EmplSector
 
 from django.utils import timezone
 
+from registration import Registration
+
 class Questions(models.Model):
     heard_about = models.TextField()
     goals = models.TextField()
@@ -62,15 +64,13 @@ class Business(models.Model):
 
 
 class Contact(models.Model):
-    name = models.CharField()
-    title = models.CharField()
+    name = models.CharField(max_length=256)
+    title = models.CharField(max_length=256)
     email = models.EmailField()
     phone = models.CharField(max_length=15)
-
-    questions = models.ForeignKey(Questions)
-    employer = models.ForeignKey(Business)
-
     applied = models.DateTimeField(auto_now_add=True)
+    questions = models.ForeignKey(Questions)
+    business = models.ForeignKey(Business)
 
     @property
     def phone_number(self):
@@ -87,4 +87,7 @@ class Contact(models.Model):
 
     @property
     def fee(self):
-        return 0
+        size = self.business.nr_employees
+        num_subteams = self.business.num_subteams
+        registration_date = self.applied
+        return Registration.fee(size, num_subteams, registration_date)
