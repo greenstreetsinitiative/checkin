@@ -28,10 +28,14 @@ class Form(object):
     """
 
     def __init__(self, post):
-        self.post = post
+        """
 
+        The order in which you save the models is important!
+        """
+        self.post = post
         self.save_questions(post)
         self.save_business(post)
+        self.save_contact(post)
 
     def save_questions(self, post):
         """
@@ -91,11 +95,11 @@ class Form(object):
         self.business = b
 
         # Get subteam info
-        if self.business.is_parent:
+        if self.business.employer.is_parent:
             # Create sector for subteams
             s = EmplSector()
             name = self.business.name
-            s.name = ' '.join(name, '(by department)')
+            s.name = ' '.join([name, '(by department)'])
             s.parent = name
             s.save()
 
@@ -103,7 +107,7 @@ class Form(object):
             try:
                 num_subteams = int(post['num_subteams'])
             except ValueError:
-                delete_objects(e, b, s)
+                delete_objects(s, b, e)
                 raise ValidationError(_('Invalid number of subteams.'), \
                     code='bad_num_subteam')
 
@@ -114,7 +118,7 @@ class Form(object):
                     t = Employer()
                     t.name = post['subteam_name_' + str(i)]
                     t.nr_employees = int(post['subteam_size_' + str(i)])
-                    t.active = True
+                    # t.active = True
                     size_cat = size_category_id(t.nr_employees)
                     t.size_cat = EmplSizeCategory.objects.get(id=size_cat)
                     t.sector = s
@@ -126,23 +130,24 @@ class Form(object):
                     raise ValidationError(_('Invalid subteam size'), \
                         code='bad_size')
                 # Save subteams to database
-                for t in subteams:
-                    t.save()
+                for team in subteams:
+                    team.save()
                 self.subteams = subteams
 
     def save_contact(self, post):
-
-        # Get contact info
+        c = Contact()
         try:
-            self.contact = {
-                'name': post['contact_name'],
-                'title': post['contact_title'],
-                'email': post['contact_email'],
-                'phone': post['contact_phone']
-            }
+            c.name = post['contact_name']
+            c.title = post['contact_title']
+            c.email = post['contact_email']
+            c.phone = post['contact_phone']
         except KeyError:
             print 'Contact Error'
 
+        validate_email(c.email)
+        c.questions = self.questions
+        c.business = self.business
+        c.save()
 
     def display(self):
         return json.dumps(self.post, indent=2)
