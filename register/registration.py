@@ -17,14 +17,13 @@ class Registration(object):
         reg_close =  date(year=current_year, month=4, day=15)
         return reg_open < today < reg_close
 
-
     @staticmethod
     def _days_in_month_(year, month):
         """ Returns number of days in a month given month and year """
         if month == 2 and isleap(year):
             return 29
         else:
-            return LastFriday.days_per_month[month-1]
+            return Registration.days_per_month[month-1]
 
     @staticmethod
     def last_friday(year, month):
@@ -32,8 +31,8 @@ class Registration(object):
         Returns the day of the month corresponding to the last Friday of that
         month given a year and a month
         """
-        friday = LastFriday.friday
-        num_days = LastFriday._days_in_month_(month, year)
+        friday = Registration.friday
+        num_days = Registration._days_in_month_(year, month)
 
         # Calculate first Friday of the month
         first_day = date(year, month, 1).weekday()
@@ -46,8 +45,15 @@ class Registration(object):
 
     @staticmethod
     def deadline(month, year=date.today().year):
+        """
+        Registration is open between January and April. On the last Friday of
+        January, February, and March, registration price goes up. This function
+        finds out which is the last Friday of a given month, which coincides
+        with the date where the price goes up (hence, deadline).
+        """
         day = Registration.last_friday(year, month)
-        return timezone.datetime(year=year, month=month, day=day)
+        return timezone.datetime(year=year, month=month, day=day,\
+            tzinfo=timezone.UTC())
 
     @staticmethod
     def early_registration_multiplier(registration_date=timezone.now()):
@@ -64,8 +70,10 @@ class Registration(object):
           subteams
         """
         multiplier = 1
+        cur_year = registration_date.year
         for i in xrange(3):
-            if i <= Registration.deadline(i+1, registration_date.year):
+            deadline = Registration.deadline(i+1, cur_year)
+            if registration_date <= deadline:
                 return multiplier
             multiplier *= 1.1
 

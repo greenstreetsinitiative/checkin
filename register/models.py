@@ -10,6 +10,9 @@ class Questions(models.Model):
     goals = models.TextField()
     sponsor = models.TextField(null=True, blank=True)
 
+    class Meta:
+        verbose_name_plural = "Questions"
+
 
 class Business(models.Model):
     """
@@ -19,6 +22,12 @@ class Business(models.Model):
     website = models.URLField(null=True, blank=True)
     address = models.TextField()
     employer = models.ForeignKey(Employer)
+
+    class Meta:
+        verbose_name_plural = "Businesses"
+
+    def approve(self):
+        self.employer.active = True
 
     @property
     def name(self):
@@ -63,8 +72,8 @@ class Business(models.Model):
             return ''
 
 class Contact(models.Model):
-    name = models.CharField(max_length=256)
-    title = models.CharField(max_length=256)
+    name = models.CharField(max_length=200)
+    title = models.CharField(max_length=200)
     email = models.EmailField()
     phone = models.CharField(max_length=15)
     applied = models.DateTimeField(auto_now_add=True)

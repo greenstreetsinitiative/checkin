@@ -8,6 +8,8 @@ from django.core.exceptions import ValidationError
 
 from django.core.validators import URLValidator, validate_email
 
+import registration
+
 def size_category_id(size):
     if size > 2000:
         return 4
@@ -18,9 +20,8 @@ def size_category_id(size):
     else:
         return 1
 
-def delete_objects(*obj):
-    for o in obj:
-        o.delete()
+def invalid_size(s, length):
+    return False if len(s) < length else True
 
 class Form(object):
     """
@@ -71,11 +72,11 @@ class Form(object):
             e = Employer()
             e.name = post['business_name']
             e.nr_employees = int(post['business_size'])
-            e.active = True
+            e.active = False
             size_cat = size_category_id(e.nr_employees)
             e.size_cat = EmplSizeCategory.objects.get(id=size_cat)
             if 'has_subteams' in post:
-                e.is_parent = post['has_subteams']
+                e.is_parent = True if post['has_subteams'] == 'true' else False
 
             # Get Business model data from form
             if 'business_website' in post:
@@ -89,6 +90,7 @@ class Form(object):
         except ValueError:
             raise ValidationError(_('Non-number business size'), code='badsize')
 
+        self.validate_employer(e)
         e.save()
         b.employer = e
         b.save()
@@ -107,7 +109,11 @@ class Form(object):
             try:
                 num_subteams = int(post['num_subteams'])
             except ValueError:
-                delete_objects(s, b, e)
+                for o in (s, b, e):
+                    try:
+                        o.delete()
+                    except:
+                        print 'Problem deleting', o
                 raise ValidationError(_('Invalid number of subteams.'), \
                     code='bad_num_subteam')
 
@@ -134,20 +140,60 @@ class Form(object):
                     team.save()
                 self.subteams = subteams
 
+    @staticmethod
+    def validate_employer(e):
+        """ Partial validation of Employer model """
+        if invalid_size(e.name, 200):
+            raise ValidationError(_('Business name is too long.'), \
+                code='business_name_too_long')
+
+        if type(e.nr_employees) != int:
+            raise ValidationError(_('Business size must be an integer.'), \
+                code='business_size_not_int')
+
     def save_contact(self, post):
         c = Contact()
         try:
             c.name = post['contact_name']
             c.title = post['contact_title']
             c.email = post['contact_email']
-            c.phone = post['contact_phone']
+            phone = post['contact_phone']
+            formatless_phone = ''.join(c for c in phone if c.isdigit())
+            c.phone = formatless_phone
         except KeyError:
-            print 'Contact Error'
+            raise ValidationError(_('Missing contact information.'), \
+                code='contact_missing')
 
-        validate_email(c.email)
         c.questions = self.questions
         c.business = self.business
+        self.validate_contact(c)
         c.save()
+        self.contact = c
+
+    @staticmethod
+    def validate_contact(contact):
+        validate_email(contact.email)
+
+        if invalid_size(contact.phone, 15):
+            raise ValidationError(_('Invalid phone number.'), \
+                code='bad_phone')
+
+        if invalid_size(contact.name, 200):
+            raise ValidationError(_('Name is too long.'), \
+                code='contact_name_too_long')
+
+        if invalid_size(contact.title, 200):
+            raise ValidationError(_('Title is too long.'), \
+                code='contact_title_too_long')
 
     def display(self):
         return json.dumps(self.post, indent=2)
+
+    @property
+    def fee(self):
+        """ Returns price of registration in $ """
+        return self.contact.fee
+
+    @property
+    def business_has_subteams(self):
+        return self.business.has_subteams
