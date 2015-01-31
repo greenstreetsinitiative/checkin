@@ -37,3 +37,22 @@
     color: red;
     content: "*";
 }
+
+
+.subteam_label {
+    /*padding-bottom: 10px;*/
+}
+
+.subtea_name {
+
+}
+
+.subteam_size {
+
+}
+
+.g-recaptcha {
+    margin: 0 auto;
+    display: block;
+    width: 33.33%;
+}

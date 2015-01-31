@@ -4,8 +4,12 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.template import RequestContext, loader
 from django.core.exceptions import ValidationError
+from django.conf import settings
+
+import mandrill
 
 from register.forms import Form
+from captcha import captcha_invalid
 
 def register_view(request):
     """
@@ -25,7 +29,6 @@ def register_view(request):
             'open': True
         })
 
-
 def form_view(request, context_dict):
     """
     Returns the rendered form for registering
@@ -41,6 +44,7 @@ def form_view(request, context_dict):
     page = template.render(context)
     return HttpResponse(page)
 
+
 def form_submission(request):
     """
     Handles registration submissions.
@@ -48,6 +52,10 @@ def form_submission(request):
     of any errors.
     """
     try:
+        # Deal with reCaptcha
+        if captcha_invalid(request):
+            redirect('/')
+
         f = Form(request.POST)
         template = loader.get_template('register/confirmation.html')
         context = RequestContext(request, {

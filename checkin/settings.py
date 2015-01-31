@@ -30,6 +30,9 @@ else:
     DB_HOST = os.environ['DB_HOST']
     DB_PORT = os.environ['DB_PORT']
 
+
+SECRET_RECAPTCHA_KEY = os.environ['SECRET_RECAPTCHA_KEY']
+
 # Mandrill (https://mandrillapp.com/) is used to email checkin confirmations
 MANDRILL_API_KEY = os.environ['MANDRILL_API_KEY']
 

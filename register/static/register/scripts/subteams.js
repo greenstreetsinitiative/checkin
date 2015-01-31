@@ -1,9 +1,15 @@
 /*
  * Returns string containing html for the ith subteam input
  */
+/*var subteamHTML = function(i) {
+    return "<div class=\"form-group\"><label class=\"form-label subteam_label\">Subteam {i}</label><div class=\"form-inline\"><label for=\"subteam_name_{i}\">Name</label><input type=\"text\" class=\"form-control\" id=\"subteam_name_{i}\" name=\"subteam_name_{i}\" class=\"subteam_name\" placeholder=\"Enter subteam name\"><label for=\"subteam_size_{i}\">Size</label><input type=\"number\" class=\"form-control\" id=\"subteam_size_{i}\" class=\"subteam_size\" name=\"subteam_size_{i}\" placeholder=\"Enter subteam name\"></div></div>".replace(/\{i\}/g, i);
+};*/
+
+
 var subteamHTML = function(i) {
-    return "<div class=\"form-group\"><span class=\"form-label\">Subteam {i}</span><div class=\"form-inline\"><label for=\"subteam_name_{i}\">Name</label><input type=\"text\" class=\"form-control\" id=\"subteam_name_{i}\" name=\"subteam_name_{i}\" placeholder=\"Enter subteam name\"><label for=\"subteam_size_{i}\">Size</label><input type=\"number\" class=\"form-control\" id=\"subteam_size_{i}\" name=\"subteam_size_{i}\" placeholder=\"Enter subteam name\"></div></div>".replace(/\{i\}/g, i);
+    return "<div id=\"subteam_{i}\"><div class=\"form-group\"><label class=\"form-label\" for=\"subteam_name_{i}\">Subteam {i+} Name</label><input type=\"text\" class=\"form-control\" id=\"subteam_name_{i}\" name=\"subteam_name_{i}\" placeholder=\"Enter subteam name\"></div><div class=\"form-group\"><label class=\"form-label\" for=\"subteam_size_{i}\">Subteam {i+} Size</label><input type=\"number\" class=\"form-control\" id=\"subteam_size_{i}\"  name=\"subteam_size_{i}\" placeholder=\"Enter subteam name\"></div></div>".replace(/\{i\+\}/g, i+1).replace(/\{i\}/g, i);
 };
+
 
 
 /*
