@@ -15,16 +15,28 @@
  * Checks if the length of some string n is less than or equal to some
  * integer n.
  */
-str_length_lte = function(s, n) {
+var str_length_lte = function(s, n) {
     return s.length <= n ? true : false;
 };
 
-str_length_gte = function(s, n) {
+var str_length_gte = function(s, n) {
     return s.length >= n ? true : false;
 };
 
 var str_length_range = function(s, lower_bound, upper_bound) {
     return str_length_lte(s, upper_bound) && str_length_gte(s, lower_bound);
+};
+
+var is_positive_number = function(n) {
+    if (isNaN(n)) {
+        return false;
+    } else {
+        return parseInt(n) > 0 ? true : false;
+    }
+};
+
+var exists = function(s) {
+    return str_length_gte(s, 0);
 };
 
 /*
@@ -63,16 +75,19 @@ var business = {
     name: function(name) {
         return str_length_lte(name, 200);
     },
+    address: function(address) {
+        return exists(address);
+    },
     // Business size must be a positive number
     size: function(size) {
-        if(isNaN(size)) {
-            return false;
-        } else {
-            return parseInt(size) > 0 ? true : false;
-        }
+        return is_positive_number(size);
     },
     website: function(url) {
-        return validate_url(url);
+        if (url === ''){
+            return true;
+        } else {
+            return validate_url(url);
+        }
     },
     // Validates subteam information
     subteams: function() {
@@ -102,22 +117,43 @@ var contact = {
     }
 };
 
-/*var validate = {
-    business: business,
-    contact: contact
-};*/
-
-var validate = function(selector, valid) {
-    $(selector).change(function() {
-        var value = this.val;
-        if (valid(value)) {
-            this.addClass('has-error');
+/*
+ * Listen to changes on input with `id` and validate the value
+ * of that input using the validator function
+ */
+var validate = function(id, validator) {
+    var form_input = $(id);
+    var last_value = '';
+    form_input.bind('input', function() {
+        var value = form_input.val();
+        if (validator(value)) {
+            form_input.parent().removeClass('has-error');
         } else {
-            this.removeClass('has-error');
+            form_input.parent().addClass('has-error');
         }
     });
 };
 
+var validate_all = function(arr) {
+    for (var i in arr) {
+        var v = arr[i];
+        validate(v[0], v[1]);
+    }
+};
+
 $(document).ready(function() {
-    validate('#business_size', business.size);
+    validate_all([
+        // Business
+        ['#business_name', business.name],
+        ['#business_address', business.address],
+        ['#business_size', business.size],
+        ['#business_website', business.website],
+        // Subteams
+        // ...
+        // Contact
+        ['#contact_name', contact.name],
+        ['#contact_title', contact.title],
+        ['#contact_phone', contact.phone],
+        ['#contact_email', contact.email]
+    ]);
 });

@@ -4,7 +4,7 @@
 {% block title %}Registration{% endblock %}
 
 {% block body %}
-<link rel="stylesheet" href="{% static 'register/stylesheets/main.css' %}">
+<link rel="stylesheet" href="{% static 'register/css/main.css' %}">
 <div class="registration">
     <div id="informational">
         <h1 class="title">Registration for Walk/Ride Day {% now "Y" %}</h1>
@@ -37,6 +37,7 @@
         <div class="form-group">
             <label for="business_name" class="required">Business Name</label>
             <input name="business_name" type="text" class="form-control" id="business_name" placeholder="Enter business name">
+            <span id="helpBlock" class="help-block">Please limit your business' name to 200 characters.</span>
         </div>
 
         <div class="form-group">
@@ -116,7 +117,7 @@
     <hr>
     <script src='https://www.google.com/recaptcha/api.js'></script>
     <div class="g-recaptcha" data-sitekey="6LeuLQETAAAAABlrihVVbAPQmwQ-lqqFK4cXzw-u"></div>
-    <br>
+    <hr>
     <button type="submit" class="btn btn-success center-block submit_button">Submit</button>
     </form>
     {% else %}
@@ -127,7 +128,7 @@
 
 {% block javascript %}
 <script type="text/javascript" src="{% static 'libs/jquery-1.11.0.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'register/scripts/subteams.js' %}"></script>
-<script type="text/javascript" src="{% static 'register/scripts/pricing.js' %}"></script>
-<script type="text/javascript" src="{% static 'register/scripts/form.js' %}"></script>
+<script type="text/javascript" src="{% static 'register/js/subteams.js' %}"></script>
+<script type="text/javascript" src="{% static 'register/js/pricing.js' %}"></script>
+<script type="text/javascript" src="{% static 'register/js/form.js' %}"></script>
 {% endblock %}

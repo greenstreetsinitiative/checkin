@@ -4,12 +4,11 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.template import RequestContext, loader
 from django.core.exceptions import ValidationError
-from django.conf import settings
-
-import mandrill
 
 from register.forms import Form
 from captcha import captcha_invalid
+from email import send_email_with_form
+from registration import Registration
 
 def register_view(request):
     """
@@ -26,7 +25,7 @@ def register_view(request):
         return form_submission(request)
     else:
         return form_view(request, {
-            'open': True
+            'open': Registration.is_open()
         })
 
 def form_view(request, context_dict):
@@ -52,10 +51,9 @@ def form_submission(request):
     of any errors.
     """
     try:
-        # Deal with reCaptcha
         if captcha_invalid(request):
-            redirect('/')
-
+            return HttpResponse('The captcha gotcha.')
+            #redirect('/')
         f = Form(request.POST)
         template = loader.get_template('register/confirmation.html')
         context = RequestContext(request, {
