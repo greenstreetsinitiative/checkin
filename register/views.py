@@ -7,7 +7,7 @@ from django.core.exceptions import ValidationError
 
 from register.forms import Form
 from captcha import captcha_invalid
-from email import send_email_with_form
+from email import send_email_from_form
 from registration import Registration
 
 def register_view(request):

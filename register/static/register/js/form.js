@@ -121,7 +121,7 @@ var contact = {
  * Listen to changes on input with `id` and validate the value
  * of that input using the validator function
  */
-var validate = function(id, validator) {
+var validate_input = function(id, validator) {
     var form_input = $(id);
     var last_value = '';
     form_input.bind('input', function() {
@@ -137,23 +137,36 @@ var validate = function(id, validator) {
 var validate_all = function(arr) {
     for (var i in arr) {
         var v = arr[i];
-        validate(v[0], v[1]);
+        validate_input(v[0], v[1]);
+    }
+};
+
+var validate = {
+    business: function() {
+        validate_all([
+            ['#business_name', business.name],
+            ['#business_address', business.address],
+            ['#business_size', business.size],
+            ['#business_website', business.website]
+        ]);
+    },
+    subteams: function() {
+        for(var i=0; i <= $('#num_subteams').val(); i++) {
+            //
+        }
+    },
+    contact: function() {
+        validate_all([
+            ['#contact_name', contact.name],
+            ['#contact_title', contact.title],
+            ['#contact_phone', contact.phone],
+            ['#contact_email', contact.email]
+        ]);
     }
 };
 
 $(document).ready(function() {
-    validate_all([
-        // Business
-        ['#business_name', business.name],
-        ['#business_address', business.address],
-        ['#business_size', business.size],
-        ['#business_website', business.website],
-        // Subteams
-        // ...
-        // Contact
-        ['#contact_name', contact.name],
-        ['#contact_title', contact.title],
-        ['#contact_phone', contact.phone],
-        ['#contact_email', contact.email]
-    ]);
+    validate.business();
+    validate.subteams();
+    validate.contact();
 });
