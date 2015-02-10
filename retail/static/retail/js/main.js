@@ -6,12 +6,12 @@
 
 /*
  * 	retailPartnerForm
- *	Object that collects/stores all data from the 
+ *	Object that collects/stores all data from the
  *	join retail partner form
  */
 var retailPartnerForm = function() {
 	this.contact_name = $("#contactname").val();
-	this.contact_email = $("#contactemail").val();		
+	this.contact_email = $("#contactemail").val();
 	this.contact_phone = $("#contactphone").val();
 	this.name = $("#businessname").val();
 	this.address = $("#businessaddress").val();
@@ -25,9 +25,9 @@ var retailPartnerForm = function() {
  *	Attempts to validate data from the form.
  *	This is done mostly by making sure that the data is there
  *	in combination with a few regexes (for email and phone)
- *	
+ *
  *	Return: True is the data appears to be good, false otherwise
- *	Other: 	Alerts user if the data seems to have some issues 
+ *	Other: 	Alerts user if the data seems to have some issues
  */
 retailPartnerForm.prototype.validate = function(){
 	var valid = true;
@@ -43,7 +43,7 @@ retailPartnerForm.prototype.validate = function(){
 		errmsg += "Information is missing from the business section of the form.\n";
 	}
 
-	// Reject names that have numbers or certain special characters in them 
+	// Reject names that have numbers or certain special characters in them
 	if(/[0-9]|[~!@#$%\^&*()_|+=?;:",.<>\{\}\[\]\\\/]+/g.test(this.contact_name)) {
 		errmsg += "Please check the contact name.\n"
 		valid = false
@@ -105,7 +105,7 @@ retailPartnerForm.prototype.submit = function(){
 	// Submit the data
 	$.post('',{'formJSON': JSON.stringify(this)}, function(data){
 		if(data['success']){/* Something */}
-		else {/* Something else */}	
+		else {/* Something else */}
 	});
 }
 
@@ -125,7 +125,7 @@ retailPartnerForm.prototype.submit = function(){
  */
 function haversin(theta) {
 	//return Math.sin(theta/2.0)*Math.sin(theta/2.0);
-	return (1-Math.cos(theta))/2.0;	
+	return (1-Math.cos(theta))/2.0;
 };
 
 /*
@@ -167,7 +167,7 @@ function coordinateDistance(latitude1, longitude1, latitude2, longitude2) {
 /*
  * 	retailPartnerData
  *		Object used to store all the data about retail partners
- *		in addition to the map, a boolean that determines if 
+ *		in addition to the map, a boolean that determines if
  *		the user is on a mobile device, list of cities and cateogires.
  */
 var retailPartnerData = function(data, isMobile, isTablet){
@@ -179,7 +179,7 @@ var retailPartnerData = function(data, isMobile, isTablet){
 				layers: MQ.mapLayer(),
 				center: [42.3581, -71.0636],
 				zoom: 11
-		});		
+		});
 	}
 
 	// Contains custom markers
@@ -241,7 +241,7 @@ var retailPartnerData = function(data, isMobile, isTablet){
 			})
 		};
 	}
-	
+
 	// Sort sponsors alphabetically
 	retailPartners.sort(function(a, b){
 		if(a.name < b.name) {
@@ -260,7 +260,7 @@ var retailPartnerData = function(data, isMobile, isTablet){
 				retailPartners[i].category = 'Other';
 			}
 			retailPartners[i].popup = '<b>'+retailPartners[i].name+'</b><br>'+retailPartners[i].address+'<br>'+retailPartners[i].offer
-			retailPartners[i].marker = new L.marker([retailPartners[i].latitude, retailPartners[i].longitude], 
+			retailPartners[i].marker = new L.marker([retailPartners[i].latitude, retailPartners[i].longitude],
 													{icon:category[retailPartners[i].category], riseOnHover:true, title:retailPartners[i].name})
 			retailPartners[i].marker.addTo(map)
 									.bindPopup(retailPartners[i].popup);
@@ -269,7 +269,7 @@ var retailPartnerData = function(data, isMobile, isTablet){
 	};
 
 	// Get cities and categories from data
-	var cities = [], categories = []; 
+	var cities = [], categories = [];
 	for(var i = 0; i < retailPartners.length; i++) {
 		cities[cities.length] = retailPartners[i].city;
 		categories[categories.length] = retailPartners[i].category;
@@ -278,7 +278,7 @@ var retailPartnerData = function(data, isMobile, isTablet){
 	cities = cities.filter( function( item, index, inputArray ) { // Filters out duplicates & sorts alphabetically
 		   return inputArray.indexOf(item) == index;
 	}).sort();
-	
+
 	categories = categories.filter( function( item, index, inputArray ) { // Filters out duplicates & sorts alphabetically
 		   return inputArray.indexOf(item) == index;
 	}).sort();
@@ -308,18 +308,18 @@ var retailPartnerData = function(data, isMobile, isTablet){
 retailPartnerData.prototype.filterName = function() {
 	// Get data from the searchbox
 	var filterString = this.filters.name;
-	
+
 	// only do stuff if string is not empty
 	if(filterString !== "") {
 		// Make filterString lowercase to get around different formating
 		filterString = filterString.toLowerCase();
-	
+
 		// temporary array to store results
 		var tempArray = [];
-	
+
 		// Go through sponsors of this array
 		for (var i in this.retailPartners){
-		
+
 			// Get the name of the current entry in this array
 			// Make it lowercase to get around differences in formating
 			// Then check to see if the user inputted string shows up
@@ -364,7 +364,7 @@ retailPartnerData.prototype.filterCategory = function(){
 /*
  *	filter
  * 	Resets and reapplies all filters.
- *	
+ *
  *	The filters are reset and all filters are applied to simplify figuring
  *	out which filters have already been applied and how to un-do them.
  *
@@ -398,7 +398,7 @@ retailPartnerData.prototype.sortAddress = function(){
 	if(address) {
 		var latitude, longitude;
 		var key = "Fmjtd%7Cluur2h68n9%2C7x%3Do5-9w2wdz";
-		var mq_url = "http://www.mapquestapi.com/geocoding/v1/address?key="
+		var mq_url = "http://open.mapquestapi.com/geocoding/v1/address?key="
 					+ key
 					+ "&inFormat=kvp&outFormat=json&location="
 					+ address
@@ -408,7 +408,7 @@ retailPartnerData.prototype.sortAddress = function(){
 		$.getJSON(mq_url, function(data) {
 			if(data.results[0].locations[0].latLng.lat !== null){
 				latitude = data.results[0].locations[0].latLng.lat;
-				longitude = data.results[0].locations[0].latLng.lng; 
+				longitude = data.results[0].locations[0].latLng.lng;
 
 				for(var i in proxy.retailPartners){
 					proxy.retailPartners[i].distance = coordinateDistance(proxy.retailPartners[i].latitude, proxy.retailPartners[i].longitude, latitude, longitude);
@@ -548,18 +548,18 @@ retailPartnerData.prototype.addUserMarker = function(latitude, longitude){
 retailPartnerData.prototype.display = function() {
 	$(".retail-partners-list").empty();
 	if(!this.isMobile){
-			this.clearMap();		
+			this.clearMap();
 	}
 	var content = "";
 	for(var i in this.retailPartners) {
 		if(this.retailPartners[i].visible){
 			if(!this.isMobile){
 				this.retailPartners[i].marker.addTo(this.map).bindPopup(this.retailPartners[i].popup);
-				//this.retailPartners[i].marker.setOpacity(1); // Make marker visible				
+				//this.retailPartners[i].marker.setOpacity(1); // Make marker visible
 			}
 
 			content += "<li class=\"rp-object\" id=\"id_" + i + "\">"
-			if(this.retailPartners[i].website === "") { // If the retail partner has a website, add an url to the name		
+			if(this.retailPartners[i].website === "") { // If the retail partner has a website, add an url to the name
 				content += "<p class=\"rp-name\">" + this.retailPartners[i].name + "</p>";
 			}
 			else {
@@ -572,7 +572,7 @@ retailPartnerData.prototype.display = function() {
 			content += "</li>";
 		}
 	}
-	$(".retail-partners-list").append(content);	
+	$(".retail-partners-list").append(content);
 
 	if(!this.isMobile){
 		var proxy = this;
@@ -619,7 +619,7 @@ retailPartnerData.prototype.loadFilters = function(){
 			content += "<br><button type=\"button\" class=\"btn btn-default m-btn city-btn\" value=\""+this.cities[i]+"\">"+this.cities[i]+"</button>";
 		}
 		$(".city-modal-body").append(content);
-	
+
 		// Load categories
 		$(".category-modal-body").empty();
 		var content = "<button type=\"button\" class=\"btn btn-default m-btn category-btn\" value=\"All\">All Categories</button>";
@@ -686,7 +686,7 @@ $(document).ready(function(){
 		data.filters.name = $("#searchbox").val();
 		data.filter();
 		data.display();
-	});	
+	});
 
 	// Regular sort
 	$('#sort').change(function() {
