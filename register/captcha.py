@@ -7,7 +7,7 @@ def get_ip(request):
         return forwarded_for.split(',')[-1].strip()
     return request.META.get('REMOTE_ADDR')
 
-def captcha_invalid(request):
+def captcha_valid(request):
     """ https://developers.google.com/recaptcha/ """
     url = 'https://www.google.com/recaptcha/api/siteverify'
     payload = {

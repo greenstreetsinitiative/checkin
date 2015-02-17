@@ -6,8 +6,8 @@ from django.template import RequestContext, loader
 from django.core.exceptions import ValidationError
 
 from register.forms import Form
-from captcha import captcha_invalid
-from email import send_email_from_form
+from captcha import captcha_valid
+from email import registration_confirmation_email
 from registration import Registration
 
 def register_view(request):
@@ -51,15 +51,16 @@ def form_submission(request):
     of any errors.
     """
     try:
-        if captcha_invalid(request):
+        if not captcha_valid(request):
             return HttpResponse('The captcha gotcha.')
             #redirect('/')
         f = Form(request.POST)
         template = loader.get_template('register/confirmation.html')
         context = RequestContext(request, {
-            'cost': f.fee,
+            'fee': f.fee,
             'subteams': f.business_has_subteams
         })
+        # registration_confirmation_email(form.email())
         return HttpResponse(template.render(context))
     except ValidationError as e:
         return HttpResponse(json.dumps({

@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 
 from register.models import Questions, Business, Contact
 from survey.models import Employer, EmplSector, EmplSizeCategory
@@ -138,7 +139,7 @@ class Form(object):
                 # Save subteams to database
                 for team in subteams:
                     team.save()
-                self.subteams = subteams
+            self.subteams = subteams
 
     @staticmethod
     def validate_employer(e):
@@ -186,9 +187,6 @@ class Form(object):
             raise ValidationError(_('Title is too long.'), \
                 code='contact_title_too_long')
 
-    def display(self):
-        return json.dumps(self.post, indent=2)
-
     @property
     def fee(self):
         """ Returns price of registration in $ """
@@ -197,3 +195,31 @@ class Form(object):
     @property
     def business_has_subteams(self):
         return self.business.has_subteams
+
+
+    def email(self):
+        """
+        Submitted on Friday, January 30, 2015 - 16:09
+        Submitted by anonymous user: [71.232.15.0]
+        Submitted values are:
+
+        Business Name: Volpe Center
+        Business Address: 55 Broadway
+        Contact Name: Andrew Breck
+        Contact Title: Environmental Protection Specialist
+        Contact Telephone Number: 617-494-2213
+        Contact Email: andrew.breck@dot.gov
+        Business Website: www.volpe.dot.gov
+        Current Staff Size: 1,000
+        Number of Subteams: 0
+        EARLY BIRD Base Registration Fee: $800
+        TOTAL Registration Fee: $800
+        How did you hear of the Walk/Ride Day Corporate Challenge? Past participation
+        What are your goals and/or expecations from your organization's participation in this year's Challenge? To improve from last year in terms of participtation and green commutes
+        Do you require an invoice from Green Streets?
+        """
+
+        return ''.join([
+            'Submitted: ', datetime.now(), '\n\n'
+            'Business name:', self.business.name, '\n'
+        ])

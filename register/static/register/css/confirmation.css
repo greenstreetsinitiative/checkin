@@ -1,0 +1,17 @@
+.confirmation {
+    max-width: 80em;
+}
+
+h2 {
+    text-align: center;
+}
+
+.fee {
+    font-weight: bold;
+}
+
+.paypal-button {
+    margin-left: auto;
+    margin-right: auto;
+    width: 86px;
+}

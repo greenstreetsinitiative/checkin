@@ -48,7 +48,7 @@ class Business(models.Model):
         If the business doesn't have subteams, returns an empty string
         """
         if self.has_subteams:
-            sector = EmplSector.objects.get(parent=self.name)
+            sector = EmplSector.objects.filter(parent=self.name)[0]
             subteams = Employer.objects.filter(sector=sector.id)
             return subteams
         else:

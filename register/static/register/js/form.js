@@ -151,9 +151,16 @@ var validate = {
         ]);
     },
     subteams: function() {
-        for(var i=0; i <= $('#num_subteams').val(); i++) {
-            //
-        }
+        console.log('HEY1');
+        $('#num_subteams').change(function(){
+            console.log($('#num_subteams').val());
+            for(var i=0; i < $('#num_subteams').val(); i++) {
+                validate_all([
+                    ['#subteam_name_'+i, business.name],
+                    ['#subteam_size_'+i, business.size]
+                ]);
+            }
+        });
     },
     contact: function() {
         validate_all([
