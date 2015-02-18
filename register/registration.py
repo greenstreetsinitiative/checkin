@@ -76,6 +76,7 @@ class Registration(object):
             if registration_date <= deadline:
                 return multiplier
             multiplier *= 1.1
+        return multiplier
 
     @staticmethod
     def size_fee(size):

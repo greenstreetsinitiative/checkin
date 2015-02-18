@@ -60,7 +60,7 @@ def form_submission(request):
             'fee': f.fee,
             'subteams': f.business_has_subteams
         })
-        # registration_confirmation_email(form.email())
+        registration_confirmation_email(form.email())
         return HttpResponse(template.render(context))
     except ValidationError as e:
         return HttpResponse(json.dumps({

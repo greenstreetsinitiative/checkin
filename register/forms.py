@@ -198,28 +198,27 @@ class Form(object):
 
 
     def email(self):
-        """
-        Submitted on Friday, January 30, 2015 - 16:09
-        Submitted by anonymous user: [71.232.15.0]
-        Submitted values are:
-
-        Business Name: Volpe Center
-        Business Address: 55 Broadway
-        Contact Name: Andrew Breck
-        Contact Title: Environmental Protection Specialist
-        Contact Telephone Number: 617-494-2213
-        Contact Email: andrew.breck@dot.gov
-        Business Website: www.volpe.dot.gov
-        Current Staff Size: 1,000
-        Number of Subteams: 0
-        EARLY BIRD Base Registration Fee: $800
-        TOTAL Registration Fee: $800
-        How did you hear of the Walk/Ride Day Corporate Challenge? Past participation
-        What are your goals and/or expecations from your organization's participation in this year's Challenge? To improve from last year in terms of participtation and green commutes
-        Do you require an invoice from Green Streets?
-        """
-
+        """ Representation of form to send as email """
         return ''.join([
-            'Submitted: ', datetime.now(), '\n\n'
-            'Business name:', self.business.name, '\n'
+            'Submitted: ', self.contact.applied, '\n\n',
+            'Business:\n',
+            'Name:', self.business.name, '\n',
+            'Size': self.business.size, '\n',
+            'Number of subteams: ', self.business.num_subteams, '\n',
+            'Address: ', self.business.address, '\n',
+            'Website: ', self.business.website, '\n',
+            '\n',
+            'Contact:\n',
+            'Name: ', self.contact.name,
+            'Title: ', self.contact.title, '\n',
+            'Email: ', self.contact.email, '\n',
+            'Phone: ', self.contact.phone, '\n',
+            '\n',
+            'Questions:\n',
+            'How did you hear of the Walk/Ride Day Corporate Challenge?\n',
+            "What are your goals and/or expecations from your organization's \
+            participation in this year's Challenge?\n",
+            'Do you require an invoice from Green Streets?\n',
+            '\n',
+            'TOTAL Registration Fee: ', self.business.fee
         ])
