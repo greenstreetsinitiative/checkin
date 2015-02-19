@@ -72,7 +72,7 @@ class Form(object):
             # Sector must be handled manually right now
             e = Employer()
             e.name = post['business_name']
-            e.nr_employees = int(post['business_size'])
+            e.nr_employees = int(float(post['business_size']))
             e.active = False
             size_cat = size_category_id(e.nr_employees)
             e.size_cat = EmplSizeCategory.objects.get(id=size_cat)
@@ -200,16 +200,16 @@ class Form(object):
     def email(self):
         """ Representation of form to send as email """
         return ''.join([
-            'Submitted: ', self.contact.applied, '\n\n',
+            'Submitted: ', str(self.contact.applied), '\n\n',
             'Business:\n',
-            'Name:', self.business.name, '\n',
-            'Size': self.business.size, '\n',
-            'Number of subteams: ', self.business.num_subteams, '\n',
+            'Name: ', self.business.name, '\n',
+            'Size: ', str(self.business.nr_employees), '\n',
+            'Number of subteams: ', str(self.business.num_subteams), '\n',
             'Address: ', self.business.address, '\n',
             'Website: ', self.business.website, '\n',
             '\n',
             'Contact:\n',
-            'Name: ', self.contact.name,
+            'Name: ', self.contact.name, '\n',
             'Title: ', self.contact.title, '\n',
             'Email: ', self.contact.email, '\n',
             'Phone: ', self.contact.phone, '\n',
@@ -220,5 +220,5 @@ class Form(object):
             participation in this year's Challenge?\n",
             'Do you require an invoice from Green Streets?\n',
             '\n',
-            'TOTAL Registration Fee: ', self.business.fee
+            'TOTAL Registration Fee: $', str(self.contact.fee)
         ])

@@ -25,5 +25,5 @@ def send_email(body, subject, from_, to):
 def registration_confirmation_email(body):
     send_email(body, \
         'New Walk/Ride Registrant!',\
-        'registration@gogreenstreets.org'\
+        'registration@gogreenstreets.org',\
         'gustavo@gogreenstreets.org')

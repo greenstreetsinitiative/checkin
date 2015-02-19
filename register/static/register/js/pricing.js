@@ -96,7 +96,7 @@ var subteamFee = function() {
 var registrationFee = function() {
     var price = sizeFee() + subteamFee();
     $(".fee").empty();
-    $(".fee").append('$'+price+'.00');
+    $(".fee").append('$'+Math.round(price)+'.00');
 };
 
 $(document).ready(function() {
