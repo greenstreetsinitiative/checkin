@@ -1,7 +1,7 @@
 from django.conf import settings
 import mandrill
 
-def send_email(body, subject, from_, from_name to):
+def send_email(body, subject, from_, to):
     mandrill_client = mandrill.Mandrill(settings.MANDRILL_API_KEY)
     message = {
     	'from_email': from_,
