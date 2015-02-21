@@ -1,5 +1,5 @@
+from datetime import timedelta, date
 from django.utils import timezone
-from datetime import date
 from calendar import isleap
 
 class Registration(object):
@@ -14,7 +14,7 @@ class Registration(object):
         """
         current_year = today.year
         reg_open = date(year=current_year, month=1, day=1)
-        reg_close =  date(year=current_year, month=4, day=15)
+        reg_close =  date(year=current_year, month=4, day=16) # Closes April 15
         return reg_open < today < reg_close
 
     @staticmethod
@@ -51,7 +51,9 @@ class Registration(object):
         finds out which is the last Friday of a given month, which coincides
         with the date where the price goes up (hence, deadline).
         """
-        day = Registration.last_friday(year, month)
+        # Add 1 day to deadline because last_friday will return the day at
+        # midnight
+        day = Registration.last_friday(year, month) + timedelta(days=1)
         return timezone.datetime(year=year, month=month, day=day,\
             tzinfo=timezone.UTC())
 

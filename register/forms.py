@@ -11,6 +11,8 @@ from django.core.validators import URLValidator, validate_email
 
 import registration
 
+validate_website = URLValidator(message='Please enter a valid website')
+
 def size_category_id(size):
     if size > 2000:
         return 4
@@ -100,12 +102,10 @@ class Form(object):
             if 'business_website' in post and post['business_website']:
                 b.website = post['business_website']
                 if 'http' not in b.website:
-                    valid = URLValidator('http://' + b.website)
+                    url = 'http://' + b.website
                 else:
-                    valid = URLValidator(b.website)
-                if valid.code == 'invalid':
-                    raise ValidationError(_('Please enter a valid website'),
-                        code='invalid_url')
+                    url = b.website
+                validate_website(url)
     
             b.address = post['business_address']
 
