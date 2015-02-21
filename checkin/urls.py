@@ -10,7 +10,7 @@ urlpatterns = patterns('',
 
     # Home
     url(r'^$', TemplateView.as_view(template_name='survey/index.html'), name='home'),
-    
+
     # Commuterform
     url(r'^commuterform/$', 'survey.views.commuter', name='commuterform'),
     url(r'^commuterform/complete/$', TemplateView.as_view(template_name='survey/thanks.html'), name='complete'),
@@ -29,6 +29,7 @@ urlpatterns = patterns('',
 
     # Retail Partners
     url(r'^retail/$', include('retail.urls', namespace='retail')),
+    url(r'^register/', include('register.urls', namespace='register')),
 
     # Examples:
     # url(r'^$', 'django_test.views.home', name='home'),

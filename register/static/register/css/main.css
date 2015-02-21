@@ -1,0 +1,51 @@
+a[title="Green Streets Initiative"] img {
+    max-width: 100%;
+    height: auto;
+}
+
+.registration {
+    border: #EEEEEE 1px solid;
+    border-radius: 0.5em;
+    padding: 1em;
+    max-width: 100%;
+}
+
+.title {
+    text-align: center;
+}
+
+.submit_button {
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 1.5em;
+}
+
+.clear_float {
+    clear: both;
+    visibility: hidden;
+}
+
+.fee {
+    font-weight: bold;
+}
+
+.registration_closed {
+    text-align: center;
+}
+
+.hidden {
+    visibility: hidden;
+}
+
+.required:after {
+    vertical-align: super;
+    font-size: smaller;
+    color: red;
+    content: "*";
+}
+
+.g-recaptcha {
+    margin: 0 auto;
+    display: block;
+    width: 304px;
+}

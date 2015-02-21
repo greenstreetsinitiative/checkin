@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load i18n %}
+{% block title %}Registration{% endblock %}
+
+{% block body %}
+<link rel="stylesheet" href="{% static 'register/css/confirmation.css' %}">
+<div class="confirmation">
+    <h2>Thank you for registering your organization for Walk/Ride Day {% now "Y" %}!</h2>
+    <p>All that remains is remains is the registration fee, which adds up to <span class="fee">${{ fee }}</span></p>
+    <p>If the CEO of your organization participated in last year's Walk/Ride day challenge, you might be elligible for a discount of 10% (for 100% participation) or 5% (at least 70% participation).</p>
+    <p>We want all organizations to be able to take part in this year’s Challenge. Please contact us at <a href="mailto:info@gogreenstreets.org">info@gogreenstreets.org</a> if you need to discuss particular financial constraints.</p>
+    <p>
+        You can send send in all appropriate attachments
+        with payment to:<br>
+        The Green Streets Initiative<br>
+        166A Elm Street, N. Cambridge MA 02140
+    </p>
+    <p>
+        Alternatively, you can pay right now with PayPal:
+        {% include 'register/paypal.html' %}
+        <span class="social social-paypal"></span>
+    </p>
+</div>
+{% endblock %}
