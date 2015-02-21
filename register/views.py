@@ -10,7 +10,14 @@ from captcha import captcha_valid
 from email import registration_confirmation_email
 from registration import Registration
 
-def register_view(request):
+def format_error(error):
+    try:
+        return ''.join([c for c in str(error) if c not in '[]'])[2:-1]
+    except IndexError:
+        return ''
+
+
+def register_view(request, error=False):
     """
     Handles requests to /register
 
@@ -22,10 +29,11 @@ def register_view(request):
     Otherwise, just returns the registration page.
     """
     if request.method == 'POST':
-        return form_submission(request)
+        return form_post(request)
     else:
         return form_view(request, {
-            'open': Registration.is_open()
+            'open': Registration.is_open(),
+            'error': error
         })
 
 def form_view(request, context_dict):
@@ -44,7 +52,7 @@ def form_view(request, context_dict):
     return HttpResponse(page)
 
 
-def form_submission(request):
+def form_post(request):
     """
     Handles registration submissions.
     If there's a problem, return user to the registration page and alert them
@@ -52,8 +60,7 @@ def form_submission(request):
     """
     try:
         if not captcha_valid(request):
-            return HttpResponse('The captcha gotcha.')
-            #redirect('/')
+            return form_failure(request, 'Invalid Captcha')
         f = Form(request.POST)
         template = loader.get_template('register/confirmation.html')
         context = RequestContext(request, {
@@ -63,7 +70,10 @@ def form_submission(request):
         registration_confirmation_email(f.email())
         return HttpResponse(template.render(context))
     except ValidationError as e:
-        return HttpResponse(json.dumps({
-            'error': str(e),
-            'post': request.POST
-        }))
+        return form_failure(request, format_error(e))
+
+def form_failure(request, error_message):
+    return form_view(request, {
+        'open': Registration.is_open(),
+        'error': error_message
+    })

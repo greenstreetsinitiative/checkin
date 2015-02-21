@@ -151,7 +151,6 @@ var validate = {
         ]);
     },
     subteams: function() {
-        console.log('HEY1');
         $('#num_subteams').change(function(){
             console.log($('#num_subteams').val());
             for(var i=0; i < $('#num_subteams').val(); i++) {

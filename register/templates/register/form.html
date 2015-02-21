@@ -45,7 +45,7 @@
             <input name="business_address" type="text" class="form-control" id="business_address" placeholder="Enter business address">
         </div>
         <div class="form-group">
-            <label for="business_website" class="required">Business Website</label>
+            <label for="business_website">Business Website</label>
             <input name="business_website" type="url" class="form-control" id="business_website" placeholder="Enter business website">
             <span id="helpBlock" class="help-block">Leave blank if your organization has no website</span>
         </div>
@@ -110,6 +110,28 @@
             <textarea class="form-control" rows="3" id="wr_sponsor" name="wr_sponsor"></textarea>
             <span id="wr_sponsor_help" class="help-block">Participating work places are invited to become a sponsor of the Green Streets and the Walk/Ride Day Corporate Challenge, and will be featured in materials that are seen by thousands in email, website, and other materials.</span>
         </div>
+
+        <div>
+            <div class="form-group">
+                <label for="invoice">Invoice</label>
+                <span id="invoice_info" class="help-block">To streamline our bookkeeping, we prefer not to invoice businesses. If your organization requires an invoice, please let us know what kind of information you need, and we will email it to you promptly.</span>
+                <div class="checkbox">
+                    <label>
+                        <input name="invoice" type="hidden" value="false">
+                        <input name="invoice" type="checkbox" value="true" id="invoice">
+                        Do you require an invoice from Green Streets?
+                    </label>
+                </div>
+            </div>
+
+            <div class="hidden" id="invoice_container">
+                <div class="form-group">
+                    <label for="wr_invoice">What information do you need?</label>
+                    <textarea class="form-control" rows="3" id="wr_invoice" name="wr_invoice"></textarea>
+                </div>
+            </div>
+        </div>
+
         {% csrf_token %}
         <hr>
         <p>Total Registration Fee: <span class="fee">$0.00</span></p>
@@ -121,14 +143,22 @@
     <button type="submit" class="btn btn-success center-block submit_button">Submit</button>
     </form>
     {% else %}
-        <p>Registration close</p>
+        <h1 class="title">Sorry, but registration for Walk/Ride Day {% now "Y" %} is closed</h1>
     {% endif %}
 </div>
 {% endblock %}
 
 {% block javascript %}
+{% if error %}
+<script>
+$(document).ready(function(){
+    alert("{{ error|safe }}");
+});
+</script>
+{% endif %}
 <script type="text/javascript" src="{% static 'libs/jquery-1.11.0.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'register/js/subteams.js' %}"></script>
+<script type="text/javascript" src="{% static 'register/js/invoice.js' %}"></script>
 <script type="text/javascript" src="{% static 'register/js/pricing.js' %}"></script>
 <script type="text/javascript" src="{% static 'register/js/form.js' %}"></script>
 {% endblock %}

@@ -26,18 +26,25 @@ def invalid_size(s, length):
 
 class Form(object):
     """
-    Django does have built in support for forms,
+    Class to extract data from registration form and save it to the database
+
+    Note: Django does have built in support for forms, but I wasn't sure how to
+    handle the fact that you can have any number of subteams
     """
 
     def __init__(self, post):
         """
-
-        The order in which you save the models is important!
+        Extracts data from POST request and saves them to the database
+        Note: The order in which you save the models is important!
         """
         self.post = post
-        self.save_questions(post)
-        self.save_business(post)
-        self.save_contact(post)
+        try:
+            self.save_business(post)
+            self.save_questions(post)
+            self.save_contact(post)
+        except ValidationError as e:
+            self.remove_from_db()
+            raise e
 
     def save_questions(self, post):
         """
@@ -50,12 +57,19 @@ class Form(object):
         q = Questions()
         try:
             q.heard_about = post['wr_hear']
-            q.goals = post['wr_goals']
+            if not q.heard_about:
+                 raise ValidationError(_('Please answer the question about \
+                    how you heard about Walk/Ride Day'), \
+                    code='missing_question')
+            if 'wr_goals' in post:
+                q.goals = post['wr_goals']
             if 'wr_sponsor' in post:
                 q.sponsor = post['wr_sponsor']
+            if 'wr_invoice' in post:
+                q.invoice = post['wr_invoice']
         except KeyError:
-            print 'Missing questions from form'
-            raise ValidationError(_('Missing questions'), code='missing')
+            raise ValidationError(_('Missing questions from the bottom \
+                of the form'), code='missing_question')
         q.save()
         self.questions = q
 
@@ -72,6 +86,9 @@ class Form(object):
             # Sector must be handled manually right now
             e = Employer()
             e.name = post['business_name']
+            if not e.name:
+                raise ValidationError(_('Business name is missing'), \
+                    code='missing')
             e.nr_employees = int(float(post['business_size']))
             e.active = False
             size_cat = size_category_id(e.nr_employees)
@@ -80,16 +97,24 @@ class Form(object):
                 e.is_parent = True if post['has_subteams'] == 'true' else False
 
             # Get Business model data from form
-            if 'business_website' in post:
+            if 'business_website' in post and post['business_website']:
                 b.website = post['business_website']
-                URLValidator(b.website)
+                if 'http' not in b.website:
+                    valid = URLValidator('http://' + b.website)
+                else:
+                    valid = URLValidator(b.website)
+                if valid.code == 'invalid':
+                    raise ValidationError(_('Please enter a valid website'),
+                        code='invalid_url')
+    
             b.address = post['business_address']
 
         except KeyError:
             raise ValidationError(_('Missing business info'), code='missing')
 
         except ValueError:
-            raise ValidationError(_('Non-number business size'), code='badsize')
+            raise ValidationError(_('Missing or invalid business size'),
+                code='badsize')
 
         self.validate_employer(e)
         e.save()
@@ -110,13 +135,7 @@ class Form(object):
             try:
                 num_subteams = int(post['num_subteams'])
             except ValueError:
-                for o in (s, b, e):
-                    try:
-                        o.delete()
-                    except:
-                        print 'Problem deleting', o
-                raise ValidationError(_('Invalid number of subteams.'), \
-                    code='bad_num_subteam')
+                raise ValidationError(_('Please enter a valid number of subteams.'), code='bad_num_subteam')
 
             # Create an Employer object for each subteam
             subteams = []
@@ -125,17 +144,14 @@ class Form(object):
                     t = Employer()
                     t.name = post['subteam_name_' + str(i)]
                     t.nr_employees = int(post['subteam_size_' + str(i)])
-                    # t.active = True
                     size_cat = size_category_id(t.nr_employees)
                     t.size_cat = EmplSizeCategory.objects.get(id=size_cat)
                     t.sector = s
                     subteams.append(t)
                 except KeyError:
-                    raise ValidationError(_('Subteam information missing'), \
-                        code='missing_subteam')
+                    raise ValidationError(_('Some subteam information is missing'), code='missing_subteam')
                 except ValueError:
-                    raise ValidationError(_('Invalid subteam size'), \
-                        code='bad_size')
+                    raise ValidationError(_('Please enter a valid subteam size'), code='bad_size')
                 # Save subteams to database
                 for team in subteams:
                     team.save()
@@ -145,11 +161,11 @@ class Form(object):
     def validate_employer(e):
         """ Partial validation of Employer model """
         if invalid_size(e.name, 200):
-            raise ValidationError(_('Business name is too long.'), \
+            raise ValidationError(_('Please limit business name to 200 characters'),
                 code='business_name_too_long')
 
         if type(e.nr_employees) != int:
-            raise ValidationError(_('Business size must be an integer.'), \
+            raise ValidationError(_('Please enter a valid number for the size'),
                 code='business_size_not_int')
 
     def save_contact(self, post):
@@ -162,7 +178,7 @@ class Form(object):
             formatless_phone = ''.join(c for c in phone if c.isdigit())
             c.phone = formatless_phone
         except KeyError:
-            raise ValidationError(_('Missing contact information.'), \
+            raise ValidationError(_('Please enter all contact information.'), \
                 code='contact_missing')
 
         c.questions = self.questions
@@ -176,16 +192,14 @@ class Form(object):
         validate_email(contact.email)
 
         if invalid_size(contact.phone, 15):
-            raise ValidationError(_('Invalid phone number.'), \
+            raise ValidationError(_('Please enter a valid phone number'), \
                 code='bad_phone')
 
         if invalid_size(contact.name, 200):
-            raise ValidationError(_('Name is too long.'), \
-                code='contact_name_too_long')
+            raise ValidationError(_('Please limit the contact name to 200 characters'), code='contact_name_too_long')
 
         if invalid_size(contact.title, 200):
-            raise ValidationError(_('Title is too long.'), \
-                code='contact_title_too_long')
+            raise ValidationError(_('Please limit the contact\'s title to 200 characters'), code='contact_title_too_long')
 
     @property
     def fee(self):
@@ -196,29 +210,55 @@ class Form(object):
     def business_has_subteams(self):
         return self.business.has_subteams
 
-
     def email(self):
         """ Representation of form to send as email """
+        invoice = self.questions.invoice
+        invoice = 'Yes\n' + invoice if invoice else 'No.'
+
         return ''.join([
-            'Submitted: ', str(self.contact.applied), '\n\n',
-            'Business:\n',
-            'Name: ', self.business.name, '\n',
-            'Size: ', str(self.business.nr_employees), '\n',
-            'Number of subteams: ', str(self.business.num_subteams), '\n',
-            'Address: ', self.business.address, '\n',
-            'Website: ', self.business.website, '\n',
-            '\n',
-            'Contact:\n',
-            'Name: ', self.contact.name, '\n',
-            'Title: ', self.contact.title, '\n',
-            'Email: ', self.contact.email, '\n',
-            'Phone: ', self.contact.phone, '\n',
-            '\n',
-            'Questions:\n',
-            'How did you hear of the Walk/Ride Day Corporate Challenge?\n',
-            "What are your goals and/or expecations from your organization's \
-            participation in this year's Challenge?\n",
-            'Do you require an invoice from Green Streets?\n',
-            '\n',
-            'TOTAL Registration Fee: $', str(self.contact.fee)
+            'Submitted: ', str(self.contact.applied), '\n',
+            '\nBusiness:',
+            '\nName: ', self.business.name,
+            '\nSize: ', str(self.business.nr_employees),
+            '\nNumber of subteams: ', str(self.business.num_subteams),
+            '\nAddress: ', self.business.address,
+            '\nWebsite: ', self.business.website,
+            '\n\nContact:',
+            '\nName: ', self.contact.name,
+            '\nTitle: ', self.contact.title,
+            '\nEmail: ', self.contact.email,
+            '\nPhone: ', self.contact.phone,
+            '\n\nQuestions:',
+            '\nHow did you hear of the Walk/Ride Day Corporate Challenge?\n',
+            self.questions.heard_about,
+            "\n\nWhat are your goals and/or expecations from your organization's participation in this year's Challenge?\n",
+            self.questions.goals,
+            '\n\nWould you like to become a Green Streets sponsor by funding an intern, sponsoring an event, etc.?\n',
+            self.questions.sponsor,
+            '\n\nDo you require an invoice from Green Streets?\n',
+            invoice,
+            '\n\nTOTAL Registration Fee: $', str(self.contact.fee)
         ])
+
+    def remove_from_db(self):
+        """
+        Removes all models associated with this form from the database
+        Call this when you detect an error somewhere
+        """
+        if 'contact' in self.__dict__:
+            self.contact.delete()
+
+        # Need to delete emplsector, employer, and subteams
+        if 'business' in self.__dict__:
+            subteams = self.subteams
+            if len(subteams) > 0:
+                sector = subteams[0].sector
+                sector.delete()
+            for team in subteams:
+                team.delete()
+            employer = self.business.employer
+            self.business.delete()
+            employer.delete()
+
+        if 'questions' in self.__dict__:
+            self.questions.delete()

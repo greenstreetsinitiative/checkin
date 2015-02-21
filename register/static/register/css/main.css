@@ -1,7 +1,13 @@
+a[title="Green Streets Initiative"] img {
+    max-width: 100%;
+    height: auto;
+}
+
 .registration {
     border: #EEEEEE 1px solid;
     border-radius: 0.5em;
     padding: 1em;
+    max-width: 100%;
 }
 
 .title {

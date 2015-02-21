@@ -7,12 +7,21 @@ from registration import Registration
 
 class Questions(models.Model):
     heard_about = models.TextField()
-    goals = models.TextField()
+    goals = models.TextField(null=True, blank=True)
     sponsor = models.TextField(null=True, blank=True)
+    invoice = models.TextField(null=True, blank=True)
 
     class Meta:
         verbose_name_plural = "Questions"
 
+    @property
+    def contact_name(self):
+        return Contact.objects.get(questions_id=self.id).name
+
+    @property
+    def business_name(self):
+        contact = Contact.objects.get(questions_id=self.id)
+        return contact.business.name
 
 class Business(models.Model):
     """
@@ -70,6 +79,16 @@ class Business(models.Model):
             return ', '.join((subteam.name for subteam in self.subteams))
         else:
             return ''
+
+    def make_active(self, boolean):
+        """ Activates employer and its subteams """
+        for e in [self.employer] + [st for st in self.subteams]:
+            e.active = boolean
+            e.save()
+
+    @property
+    def active(self):
+        return self.employer.active
 
 class Contact(models.Model):
     name = models.CharField(max_length=200)
