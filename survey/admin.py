@@ -7,7 +7,7 @@ from django.db.models import Sum, Count
 
 from django.forms import ModelForm
 
-from survey.models import Commutersurvey, Employer, EmplSector, EmplSizeCategory, Leg, Month
+from survey.models import Commutersurvey, Employer, EmplSector, EmplSizeCategory, Leg, Month, Mode, Team
 # from django.contrib import admin
 from django.contrib.gis import admin
 # disable deletion of records
@@ -30,12 +30,12 @@ def export_as_csv(modeladmin, request, queryset):
     response = HttpResponse(mimetype='text/csv')
     response['Content-Disposition'] = 'attachment; filename=%s.csv' % unicode(opts).replace('.', '_')
     writer = csv.writer(response)
-    
+
     field_names = [field.name for field in opts.fields]
-    
+
     # Write a first row with header information
     writer.writerow(field_names)
-    
+
     # Write data rows
     for obj in queryset:
         try:
@@ -68,14 +68,14 @@ class EmployerSectorAdmin(admin.ModelAdmin):
 
 class CommutersurveyAdmin(admin.OSMGeoAdmin):
     fieldsets = [
-        (None, 
+        (None,
             {'fields': ['wr_day_month', 'name', 'email', 'employer', 'share', 'comments', ]}),
-        ('Commute', 
+        ('Commute',
             {'fields': ['home_address', 'work_address', 'from_work_switch', 'to_work_switch']}),
-        ('Optional Questions', 
+        ('Optional Questions',
             {'fields': ['health', 'weight', 'height', 'gender', 'gender_other', 'outsidechanges', 'affectedyou', 'volunteer', 'cdays', 'caltdays', 'cpdays', 'tdays', 'bdays', 'rdays', 'wdays', 'odays', 'tcdays', 'lastweek', 'cdaysaway', 'caltdaysaway', 'cpdaysaway', 'tdaysaway', 'bdaysaway', 'rdaysaway', 'wdaysaway', 'odaysaway', 'tcdaysaway', ]}),
     ]
-    list_display = ('id', 'wr_day_month', 'email', 'name', 'share', 'employer', 'from_work_switch', 'to_work_switch', 'home_address', 'work_address', )
+    list_display = ('id', 'wr_day_month', 'email', 'name', 'share', 'employer', 'home_address', 'work_address', )
     list_filter = ['wr_day_month', 'employer', 'share', 'volunteer']
     search_fields = ['name', 'email', 'employer__name']
     actions = [export_as_csv]
@@ -91,6 +91,15 @@ class MonthsAdmin(admin.ModelAdmin):
     list_editable = ['wr_day', 'open_checkin', 'close_checkin', 'active']
     actions = [export_as_csv]
 
+class ModesAdmin(admin.ModelAdmin):
+    list_display = ['id', 'mode', 'met', 'carb', 'speed', 'green']
+    list_editable = ['mode', 'met', 'carb', 'speed','green']
+    actions = [export_as_csv]
+
+class TeamsAdmin(admin.ModelAdmin):
+    list_display = ['id', 'name', 'company']
+    list_editable = ['name', 'company']
+    actions = [export_as_csv]
 
 admin.site.register(Commutersurvey, CommutersurveyAdmin)
 admin.site.register(Employer, EmployerAdmin)
@@ -98,3 +107,6 @@ admin.site.register(EmplSizeCategory, EmployerLookupAdmin)
 admin.site.register(EmplSector, EmployerSectorAdmin)
 admin.site.register(Month, MonthsAdmin)
 admin.site.register(Leg, LegAdmin)
+admin.site.register(Mode, ModesAdmin)
+admin.site.register(Team, TeamsAdmin)
+

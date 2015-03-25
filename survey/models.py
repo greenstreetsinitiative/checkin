@@ -7,7 +7,7 @@ from django.db.models import Sum
 from django.utils.translation import ugettext_lazy as _
 from collections import namedtuple
 
-# south introspection rules 
+# south introspection rules
 try:
     from south.modelsinspector import add_introspection_rules
     add_introspection_rules([], ['^django\.contrib\.gis\.db\.models\.fields\.PointField'])
@@ -16,37 +16,6 @@ try:
 except ImportError:
     pass
 
-
-COMMUTER_MODES = (
-    ('c', _('Car')),
-    ('cp', _('Carpool')),
-    ('da', _('Driving alone')),
-    ('dalt', _('Driving alone, alternative vehicle')),
-    ('w', _('Walk')),
-    ('b', _('Bike')),
-    ('t', _('Transit (bus, subway, etc.)')),
-    ('o', _('Other (skate, canoe, etc.)')),
-    ('r', _('Jog/Run')),
-    ('tc', _('Telecommuting')),
-)
-
-LEG_DIRECTIONS = (
-    ('tw', _('to work')),
-    ('fw', _('from work')),
-)
-
-LEG_DAYS = (
-    ('w', _('Walk/Ride Day')),
-    ('n', _('Normal day')),
-)
-
-LEG_DURATIONS = (
-    (1, _('Less than 15 minutes')),
-    (2, _('15-30 minutes')),
-    (3, _('30-45 minutes')),
-    (4, _('45-60 minutes')),
-    (5, _('More than an hour')),
-)
 
 HEALTH_CHOICES = (
     (5, _('Excellent')),
@@ -62,14 +31,6 @@ GENDER_CHOICES = (
     ('o', _('Other')),
 )
 
-SWITCH_CHOICES = (
-    (0, _('no data')),
-    (1, _('unhealthy switch')),
-    (2, _('car commute')),
-    (3, _('green commute')),
-    (4, _('green switch')),
-)
-
 class MonthManager(models.Manager):
     def active_months(self):
         return super(MonthManager, self).get_queryset().filter(active=True).order_by('-wr_day')
@@ -83,7 +44,7 @@ class Month(models.Model):
     wr_day = models.DateField('W/R Day Date', null=True)
     open_checkin = models.DateField(null=True)
     close_checkin = models.DateField(null=True)
-        
+
     objects = MonthManager()
 
     def __unicode__(self):
@@ -91,7 +52,7 @@ class Month(models.Model):
 
     class Meta:
         ordering = ['wr_day']
-    
+
     @property
     def month(self):
         return self.wr_day.strftime(u'%B %Y'.encode('utf-8')).decode('utf-8')
@@ -103,11 +64,11 @@ class Month(models.Model):
     @property
     def short_name(self):
         return self.wr_day.strftime(u'%b\' %y'.encode('utf-8')).decode('utf-8')
-    
+
     @property
     def wr_day_humanized(self):
         return self.wr_day.strftime('%A, %B %d, %Y')
-    
+
 
 class EmplSizeCategory(models.Model):
     name = models.CharField(max_length=50)
@@ -126,7 +87,7 @@ class EmplSector(models.Model):
         verbose_name = _('Employer Sector')
         verbose_name_plural = _('Employer Sectors')
 
-    @property 
+    @property
     def url_name(self):
         return slugify(self.name)
     def __unicode__(self):
@@ -136,6 +97,13 @@ def makeParent(empName):
     emp = Employer.objects.get(name=empName)
     emp.is_parent = True
     emp.save()
+
+class Team(models.Model):
+  name = models.CharField("Team", max_length=100)
+  company = models.ForeignKey('Employer', null=True, blank=True)
+
+  def __str__(self):
+    return self.name
 
 class Employer(models.Model):
     """ Greens Streets Initiative Employer list """
@@ -154,9 +122,22 @@ class Employer(models.Model):
     def __unicode__(self):
         return self.name
 
+
+    @property
+    def carbon_diff(self):
+        return Commutersurvey.objects.filter(employer=self).annotate(Sum('carbon_change')).values()
+
+    @property
+    def teams(self):
+        return Team.objects.filter(employer=self)
+
     @property
     def nr_surveys(self):
         return Commutersurvey.objects.filter(employer=self).count()
+
+    @property
+    def nr_participants(self):
+        return Commutersurvey.objects.filter(employer=self).distinct('email','name').count()
 
     def get_surveys(self, month):
         if self.is_parent:
@@ -221,18 +202,13 @@ class Commutersurvey(models.Model):
     distance = models.DecimalField(max_digits=10, decimal_places=1, blank=True, null=True)
     duration = models.DecimalField(max_digits=10, decimal_places=1, blank=True, null=True)
 
-    # 1 ... unhealthy switch
-    # 2 ... car commute
-    # 3 ... green commute
-    # 4 ... green switch
-    from_work_switch = models.IntegerField(default=0, choices=SWITCH_CHOICES)
-    to_work_switch = models.IntegerField(default=0, choices=SWITCH_CHOICES)
 
     name = models.CharField(max_length=50, blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
     share = models.BooleanField('Don\'t share', default=False, help_text='Please do not share my identifying information with my employer.')
     employer_legacy = models.CharField(max_length=100, blank=True, null=True)
     employer = models.ForeignKey(Employer, null=True)
+    # team = models.ForeignKey(Team, null=True, blank=True, default='')
     comments = models.TextField(null=True, blank=True)
 
     ip = models.IPAddressField('IP Address', blank=True, null=True)
@@ -270,17 +246,13 @@ class Commutersurvey(models.Model):
 
     objects = models.GeoManager()
 
-    def __unicode__(self): 
-        return u'%s' % (self.id)   
+    def __unicode__(self):
+        return u'%s' % (self.id)
 
     class Meta:
         verbose_name = 'Commuter Survey'
-        verbose_name_plural = 'Commuter Surveys'   
+        verbose_name_plural = 'Commuter Surveys'
 
-    def save(self, *args, **kwargs):
-        # backward compatibility
-        self.month = self.wr_day_month.month
-        super(Commutersurvey, self).save(*args, **kwargs)
 
     def save_with_legs(self, *args, **kwargs):
         """
@@ -290,58 +262,222 @@ class Commutersurvey(models.Model):
         legs = kwargs['legs']
         del kwargs['legs']
 
+        # Leg.objects.bulk_create([Leg(commutersurvey=self, **l) for l in legs])
+        ###### won't call the leg save method
+
+        # switch = self.switch_analysis()
+        # self.from_work_switch = switch['fw']
+        # self.to_work_switch = switch['tw']
+
+        for l in legs:
+            # creates the leg object, associates it with this commute, returns newly created leg
+            obj = self.leg_set.create(**l)
+
+
         super(Commutersurvey, self).save(*args, **kwargs)
 
-        Leg.objects.bulk_create([Leg(commutersurvey=self, **l) for l in legs])
+    def calculate_carbon_and_calories(self):
+        legs = self.leg_set.all()
 
-        switch = self.switch_analysis()
-        self.from_work_switch = switch['fw']
-        self.to_work_switch = switch['tw']
+        difference = {'carbon': 0.000, 'calories': 0.000 }
+
+        for leg in legs:
+            if leg.day == 'w':
+                difference["carbon"] += leg.carbon
+                difference["calories"] += leg.calories
+            elif leg.day == 'n':
+                difference["carbon"] -= leg.carbon
+                difference["calories"] -= leg.calories
+
+        return difference
+
+    carbon_change = models.FloatField(blank=True, null=True, default=0.0)
+    calorie_change = models.FloatField(blank=True, null=True, default=0.0)
+
+    CHANGE_CHOICES = (
+        ('p', _('Positive change')),
+        ('g', _('Green change')),
+        ('h', _('Healthy change')),
+        ('n', _('No change')),
+    )
+
+    change_type = models.CharField('Type of change', max_length=1, null=True, blank=True, choices=CHANGE_CHOICES)
+
+    def change_analysis(self):
+        if self.carbon_change < 0:
+            if self.calorie_change > 0:
+                return 'p' # positive change!
+            else:
+                return 'g' # green change
+        else:
+            if self.calorie_change > 0:
+                return 'h' # healthy change
+            else:
+                return 'n' # no change
+
+    already_green = models.BooleanField(default=False)
+
+    def check_green(self):
+        if self.leg_set.filter(day='n',new_mode__green=True).exists():
+            return True
+        else:
+            return False
+
+    def save(self, *args, **kwargs):
+        # backward compatibility
+        self.month = self.wr_day_month.month
+
+        changes = self.calculate_carbon_and_calories()
+        self.carbon_change = changes["carbon"]
+        self.calorie_change = changes["calories"]
+        self.change_type = self.change_analysis()
+        self.already_green = self.check_green()
+
         super(Commutersurvey, self).save(*args, **kwargs)
-    
+
     @property
     def legs(self):
         return self.leg_set.all()
 
-    def green_legs_duration(self):
-        green_legs_duration = {}
-        for direction in [d[0] for d in LEG_DIRECTIONS]:
-            green_legs_duration[direction] = {}
-            for day in [d[0] for d in LEG_DAYS]:
-                duration = self.legs.exclude(mode__in=['c', 'da']).filter(direction=direction, day=day).aggregate(Sum('duration'))
-                green_legs_duration[direction][day] = duration['duration__sum'] or 0
-        return green_legs_duration
+    def _active_months():
+        return Month.objects.active_months().exclude(open_checkin__gt=date.today())
 
-    def switch_analysis(self):
-        switch = {}
-        green_legs_duration = self.green_legs_duration()
-        for direction in [d[0] for d in LEG_DIRECTIONS]:
-            if green_legs_duration[direction]['w'] == 0:
-                switch[direction] = 2 # car commute
-            if green_legs_duration[direction]['w'] > 0:
-                switch[direction] = 3 # green commute
-            if green_legs_duration[direction]['w'] > green_legs_duration[direction]['n']:
-                switch[direction] = 4 # green switch
-            if green_legs_duration[direction]['w'] < green_legs_duration[direction]['n']:
-                switch[direction] = 1 # unhealthy switch
-        return switch
+    def active_months():
+        months = _active_months().values_list('id', flat=True)
+        return (min(months), max(months))
 
+    def get_surveys(employer_id=None, months=None):
+        surveys = Commutersurvey.objects.all()
+        # Filter out months
+        if months and isinstance(months, int):
+            surveys = surveys.filter(wr_day_month_id=months)
+        elif months:
+            min_month, max_month = months
+            surveys = surveys.filter(wr_day_month__gte=min_month, wr_day_month__lte=max_month)
+        # Filter out employer (accounts for subteams)
+        if employer_id:
+            employer = Employer.objects.get(id=employer_id)
+            if employer.is_parent:
+                # I can't use a get here because I can't guarantee that we'll
+                # never get duplicate sector names, so I have to filter and get
+                # the first element instead
+                sector = EmplSector.objects.filter(parent=employer.name)[0]
+                subteams = Employer.objects.filter(sector=sector)
+                surveys = surveys.filter(employer__in=subteams)
+            else:
+                surveys = surveys.filter(employer_id=employer_id)
+        return surveys
+
+    def get_legs(employer_id=None, months=None):
+        surveys = get_surveys(employer_id, months)
+        legs = Leg.objects.filter(commutersurvey_id=surveys)
+        return legs
+
+
+
+
+class Mode(models.Model):
+  mode = models.CharField("Mode", max_length=35)
+  met = models.FloatField(blank=True, null=True)
+  carb = models.FloatField(blank=True, null=True)
+  speed = models.FloatField(blank=True, null=True)
+  green = models.BooleanField(default=False)
+
+  def __str__(self):
+    return self.mode
 
 class Leg(models.Model):
     """
-    A leg (part) of a commute. One commute can be composed of multiple legs of 
+    A leg (part) of a commute. One commute can be composed of multiple legs of
     different transportation modes.
     """
 
+    LEG_DIRECTIONS = (
+        ('tw', _('to work')),
+        ('fw', _('from work')),
+    )
+
+    LEG_DAYS = (
+        ('w', _('Walk/Ride Day')),
+        ('n', _('Normal day')),
+    )
+
+    LEG_DURATIONS = (
+        (1, _('Less than 15 minutes')),
+        (2, _('15-30 minutes')),
+        (3, _('30-45 minutes')),
+        (4, _('45-60 minutes')),
+        (5, _('More than an hour')),
+    )
+
+    COMMUTER_MODES = (
+        ('c', _('Car')),
+        ('cp', _('Carpool')),
+        ('da', _('Driving alone')),
+        ('dalt', _('Driving alone, alternative vehicle')),
+        ('w', _('Walk')),
+        ('b', _('Bike')),
+        ('t', _('Transit (bus, subway, etc.)')),
+        ('o', _('Other (skate, canoe, etc.)')),
+        ('r', _('Jog/Run')),
+        ('tc', _('Telecommuting')),
+    )
+
+    new_mode = models.ForeignKey(Mode)
     mode = models.CharField(blank=True, null=True, max_length=4, choices=COMMUTER_MODES)
     direction = models.CharField(blank=True, null=True, max_length=2, choices=LEG_DIRECTIONS)
     duration = models.IntegerField(blank=True, null=True, choices=LEG_DURATIONS)
     day = models.CharField(blank=True, null=True, max_length=1, choices=LEG_DAYS)
     commutersurvey = models.ForeignKey(Commutersurvey)
+    carbon = models.FloatField(blank=True, null=True, default=0.0)
+    calories = models.FloatField(blank=True, null=True, default=0.0)
+
+    def calc_calories(self):
+
+        c = float(self.new_mode.met) # kcal/(kg*hour) from this mode
+
+        calories = 0.0
+
+        if c > 0.0:
+
+            m = (self.duration * 15) - 7.5 # estimated minutes spent on leg
+            if m < 0 : m = 0
+
+            # amount of calories (kcal) burned by this leg using average American weight of 81 kg
+            calories = c * (m/60) * 81
+
+        return calories
+
+
+    def calc_carbon(self):
+
+        c = float(self.new_mode.carb) # grams carbon dioxide per passenger-mile on this mode
+
+        carbon = 0.0
+
+        if c > 0.0:
+
+            s = float(self.new_mode.speed) # average speed of this mode in mph
+
+            m = (self.duration * 15) - 7.5 # estimated minutes spent on leg
+            if m < 0 : m = 0
+
+            # amount of carbon in kilograms expended by this leg
+            carbon = (c/1000) * s * (m/60)
+
+        return carbon
+
+    def save(self, *args, **kwargs):
+        # save carbon change
+        self.carbon = self.calc_carbon()
+        self.calories = self.calc_calories()
+        super(Leg, self).save(*args, **kwargs)
 
     class Meta:
         verbose_name = _('Leg')
         verbose_name_plural = _('Legs')
 
     def __unicode__(self):
-        return u'%s' % (self.mode) 
+        return u'%s' % (self.mode)
+
+
