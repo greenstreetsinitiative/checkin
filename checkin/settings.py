@@ -77,7 +77,6 @@ INSTALLED_APPS = (
     # Project apps
     'survey',
     'leaderboard',
-    'leaderboardlist',
     'retail',
     'register'
 )
