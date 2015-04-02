@@ -5,7 +5,7 @@ from django.http import HttpResponse
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.forms.models import inlineformset_factory
 
-from survey.models import Commutersurvey, Employer, Leg, Month
+from survey.models import Commutersurvey, Employer, Leg, Month, Team, Mode
 from survey.forms import CommuterForm
 
 import json
@@ -14,18 +14,18 @@ from datetime import date
 
 
 def process_request(request):
-    """ 
+    """
     Sets 'REMOTE_ADDR' to 'HTTP_X_REAL_IP', if the latter is set.
     'HTTP_X_REAL_IP' is specified in Nginx config.
     """
     if 'HTTP_X_REAL_IP' in request.META:
         request.META['REMOTE_ADDR'] = request.META['HTTP_X_REAL_IP']
     return request
-      
+
 
 def commuter(request):
     """
-    Renders Commuterform or saves it in case of POST request. 
+    Renders Commuterform or saves it in case of POST request.
     """
 
     request = process_request(request)
@@ -36,7 +36,9 @@ def commuter(request):
         return redirect('/')
 
     survey = Commutersurvey()
-    employers = Employer.objects.filter(active=True, is_parent=False)
+    employers = Employer.objects.filter(active=True)
+    teams = Team.objects.all()
+    modes = Mode.objects.all()
 
     return render_to_response('survey/commuterform.html', locals(), context_instance=RequestContext(request))
 
@@ -68,7 +70,7 @@ def api(request):
             del data['legs']
         except KeyError:
             legs = []
-        
+
         try:
             data['wr_day_month'] = Month.objects.get(pk=data['wr_day_month'])
         except Month.DoesNotExist:
@@ -80,7 +82,7 @@ def api(request):
             return HttpResponse('No such Employer.', status=500)
 
         survey = Commutersurvey(**data)
-        
+
         # check for existing survey
         try:
             existing_survey = Commutersurvey.objects.get(wr_day_month=data['wr_day_month'], email=data['email'])
@@ -96,14 +98,14 @@ def api(request):
 
         try:
             survey.save_with_legs(legs=legs)
-            
+
             try:
                 next_wr_day = 'Remember to check-in for next month\'s Walk/Ride Day on %s.' % Month.objects.active_months().filter(wr_day__gt=survey.wr_day_month.wr_day).reverse()[0].wr_day_humanized
             except IndexError:
                 next_wr_day = 'Remember to check-in again next season.'
-            
+
             template_content = [{
-                'content': survey.name or survey.email, 
+                'content': survey.name or survey.email,
                 'name': 'salutation'
             }, {
                 'content': survey.wr_day_month.month,
@@ -118,8 +120,8 @@ def api(request):
                 'metadata': {'website': 'checkin.gogreenstreets.org'},
                 'subject': 'Walk/Ride Day %s Checkin' % survey.wr_day_month.month,
                 'to': [
-                    {'email': survey.email, 
-                    'name': survey.name or survey.email, 
+                    {'email': survey.email,
+                    'name': survey.name or survey.email,
                     'type': 'to'}
                 ],
                 'track_opens': True
@@ -130,10 +132,10 @@ def api(request):
             # email error details to Trello
             # FIXME: this could be done with the Trello API
             template_content = [{
-                'content': request.META.get('HTTP_USER_AGENT'), 
+                'content': request.META.get('HTTP_USER_AGENT'),
                 'name': 'browser'
             }, {
-                'content': json.dumps(request.POST), 
+                'content': json.dumps(request.POST),
                 'name': 'form_data'
             }]
             message = {
@@ -142,8 +144,8 @@ def api(request):
                 'metadata': {'website': 'checkin.gogreenstreets.org'},
                 'subject': 'Checkin Error for %s' % request.POST['email'],
                 'to': [{
-                    'email': 'cspanring+qkkzwxbq8tvfsfyfk8wz@boards.trello.com', 
-                    'name': 'Checkin', 
+                    'email': 'cspanring+qkkzwxbq8tvfsfyfk8wz@boards.trello.com',
+                    'name': 'Checkin',
                     'type': 'to'
                 }]
             }

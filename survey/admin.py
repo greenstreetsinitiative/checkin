@@ -7,7 +7,7 @@ from django.db.models import Sum, Count
 
 from django.forms import ModelForm
 
-from survey.models import Commutersurvey, Employer, EmplSector, EmplSizeCategory, Leg, Month, Mode, Team
+from survey.models import Commutersurvey, Employer, Sector, EmplSizeCategory, Leg, Month, Mode, Team
 # from django.contrib import admin
 from django.contrib.gis import admin
 # disable deletion of records
@@ -50,7 +50,7 @@ export_as_csv.short_description = "Export selected rows as csv file"
 class EmployerAdmin(admin.ModelAdmin):
     search_fields = ['name']
     list_display_links = ['id']
-    list_display = ['id', 'name', 'active', 'nr_employees', 'size_cat', 'sector', 'nr_surveys']
+    list_display = ['id', 'name', 'active', 'nr_employees', 'size_cat', 'sector']
     list_editable = ['name', 'active', 'nr_employees', 'size_cat', 'sector', ]
     list_filter = ['size_cat', 'sector', 'active']
     actions = [export_as_csv]
@@ -61,9 +61,9 @@ class EmployerLookupAdmin(admin.ModelAdmin):
     list_editable = ['name']
     actions = [export_as_csv]
 
-class EmployerSectorAdmin(admin.ModelAdmin):
-	list_display = ['id', 'name', 'parent']
-	list_editable = ['name', 'parent']
+class SectorAdmin(admin.ModelAdmin):
+	list_display = ['id', 'name', 'description']
+	list_editable = ['name', 'description']
 	actions = [export_as_csv]
 
 class CommutersurveyAdmin(admin.OSMGeoAdmin):
@@ -72,8 +72,6 @@ class CommutersurveyAdmin(admin.OSMGeoAdmin):
             {'fields': ['wr_day_month', 'name', 'email', 'employer', 'share', 'comments', ]}),
         ('Commute',
             {'fields': ['home_address', 'work_address', 'from_work_switch', 'to_work_switch']}),
-        ('Optional Questions',
-            {'fields': ['health', 'weight', 'height', 'gender', 'gender_other', 'outsidechanges', 'affectedyou', 'volunteer', 'cdays', 'caltdays', 'cpdays', 'tdays', 'bdays', 'rdays', 'wdays', 'odays', 'tcdays', 'lastweek', 'cdaysaway', 'caltdaysaway', 'cpdaysaway', 'tdaysaway', 'bdaysaway', 'rdaysaway', 'wdaysaway', 'odaysaway', 'tcdaysaway', ]}),
     ]
     list_display = ('id', 'wr_day_month', 'email', 'name', 'share', 'employer', 'home_address', 'work_address', )
     list_filter = ['wr_day_month', 'employer', 'share', 'volunteer']
@@ -81,9 +79,9 @@ class CommutersurveyAdmin(admin.OSMGeoAdmin):
     actions = [export_as_csv]
 
 class LegAdmin(admin.ModelAdmin):
-    list_display = ['id', 'mode', 'direction', 'day', 'commutersurvey', ]
+    list_display = ['id', 'mode', 'duration', 'direction', 'day', 'commutersurvey', 'carbon', 'calories' ]
     list_filter = ('commutersurvey__wr_day_month', )
-    readonly_fields = ('commutersurvey', )
+    readonly_fields = ('commutersurvey', 'carbon', 'calories' )
     actions = [export_as_csv]
 
 class MonthsAdmin(admin.ModelAdmin):
@@ -92,8 +90,8 @@ class MonthsAdmin(admin.ModelAdmin):
     actions = [export_as_csv]
 
 class ModesAdmin(admin.ModelAdmin):
-    list_display = ['id', 'mode', 'met', 'carb', 'speed', 'green']
-    list_editable = ['mode', 'met', 'carb', 'speed','green']
+    list_display = ['id', 'name', 'met', 'carb', 'speed', 'green']
+    list_editable = ['name', 'met', 'carb', 'speed','green']
     actions = [export_as_csv]
 
 class TeamsAdmin(admin.ModelAdmin):
@@ -104,7 +102,7 @@ class TeamsAdmin(admin.ModelAdmin):
 admin.site.register(Commutersurvey, CommutersurveyAdmin)
 admin.site.register(Employer, EmployerAdmin)
 admin.site.register(EmplSizeCategory, EmployerLookupAdmin)
-admin.site.register(EmplSector, EmployerSectorAdmin)
+admin.site.register(Sector, SectorAdmin)
 admin.site.register(Month, MonthsAdmin)
 admin.site.register(Leg, LegAdmin)
 admin.site.register(Mode, ModesAdmin)

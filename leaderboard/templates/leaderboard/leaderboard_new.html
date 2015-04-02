@@ -11,6 +11,16 @@
 {% block body %}
 
 
+  {% for key, value in ranks.items %}
+  <h2>{{ key }}</h2>
+  <ol>
+    {% for company in value %}
+      <li> {{ company }} </li>
+    {% endfor %}
+  </ol>
+  {% endfor %}
+
+
   {% for key, value in context_dict.items %}
     <h2>{{ key }}</h2>
     <ul>
@@ -19,6 +29,8 @@
       {% endfor %}
     </ul>
   {% endfor %}
+
+
 
 
 {% endblock %}

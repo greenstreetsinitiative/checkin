@@ -2,7 +2,7 @@ import json
 from datetime import datetime
 
 from register.models import Questions, Business, Contact
-from survey.models import Employer, EmplSector, EmplSizeCategory
+from survey.models import Employer, Sector, EmplSizeCategory
 
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ValidationError
@@ -106,7 +106,7 @@ class Form(object):
                 else:
                     url = b.website
                 validate_website(url)
-    
+
             b.address = post['business_address']
 
         except KeyError:
@@ -125,7 +125,7 @@ class Form(object):
         # Get subteam info
         if self.business.employer.is_parent:
             # Create sector for subteams
-            s = EmplSector()
+            s = Sector()
             name = self.business.name
             s.name = ' '.join([name, '(by department)'])
             s.parent = name

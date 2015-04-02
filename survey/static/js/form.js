@@ -37,20 +37,20 @@ $(function() {
   });
 
   // read cache or use empty value for employer
-  cs = simpleStorage.get('commutersurvey') || { 
+  cs = simpleStorage.get('commutersurvey') || {
     employer: ''
   };
   // fix for accidently cached W/R month
   if (cs.wr_day_month) delete cs.wr_day_month;
 
   // remove cached optional questions
-  var optionalquestions = ['comments', 'health', 'weight', 'height', 'gender', 'gender_other', 'cdays', 'caltdays', 'cpdays', 'tdays', 'bdays', 'rdays', 'wdays', 'odays', 'tcdays', 'lastweek', 'cdaysaway', 'caltdaysaway', 'cpdaysaway', 'tdaysaway', 'bdaysaway', 'rdaysaway', 'wdaysaway', 'odaysaway', 'tcdaysaway', 'outsidechanges', 'affectedyou', 'contact', 'volunteer'];
-  
+  var optionalquestions = ['comments', 'volunteer'];
+
   $.each(optionalquestions, function(i,q) {
     if (cs[q]) delete cs[q];
   });
 
- 
+
   map = new google.maps.Map(document.getElementById('map-canvas'), {
     zoom: 11,
     mapTypeId: google.maps.MapTypeId.TERRAIN,
@@ -62,13 +62,13 @@ $(function() {
   // geocode address
   function geocodeAddress($address) {
     geocoder.geocode({address: $address.val()}, function(results, status) {
-      var marker, $helptxt, 
+      var marker, $helptxt,
           location = $address.attr('id').replace('address', 'location');
 
       $address.next('.text-danger').remove();
 
       if (status == google.maps.GeocoderStatus.OK) {
-        
+
         $address.val(results[0]['formatted_address']);
 
         cs[location] = cs[location] || {};
@@ -84,7 +84,7 @@ $(function() {
         } else {
           cs[location].marker.setPosition(results[0].geometry.location);
         }
-        
+
         if (cs.home_location && cs.work_location) {
           setCommuteGeom(cs.home_location.position, cs.work_location.position);
           setCommuteGeom2(cs.home_location.position, cs.work_location.position);
@@ -240,7 +240,7 @@ $(function() {
   // toggle more legs options
   $('input.morelegs:radio').on('change', function(event) {
     var targetLegs = $(this).attr('name'),
-        $targetLegsContainer = $('#' + targetLegs).parent(); 
+        $targetLegsContainer = $('#' + targetLegs).parent();
     $targetLegsContainer.toggle(100);
   });
 
@@ -334,90 +334,15 @@ $(function() {
     }[legType]();
   }
 
-  // calculate CO2 for Walk/Ride day
-  // approximation by using duration for non-car legs 
-  // to estimate proportional non-car distance
-  $('#btn-co2').on('click', function(event) {
-    event.preventDefault();
-    var legs = collectAllLegs(),
-        wLegs, distanceNoCar, savedCO2,
-        durationTotal = 0, 
-        durationNoCar = 0;
-
-    wLegs = $.grep(legs, function(l,i) {
-      return l.day === 'w';
-    });
-    $.each(wLegs, function(i,l) {
-      durationTotal += parseInt(l.duration);
-      if ($.inArray(l.mode, ['da', 'dalt', 'cp']) === -1) durationNoCar += parseInt(l.duration);
-    });
-    if (durationNoCar === 0) {
-      $('#saved-co2').text('You didn\'t save CO2 emissions on Walk/Ride Day');
-    } else {
-      distanceNoCar = ( parseInt(cs.distance) * 2 / durationTotal ) * durationNoCar;
-      // EPA standard: 0.41kg CO2 per mile driven 
-      // (convert to lbs and meters)
-      savedCO2 = 0.41 * 2.20462262 * distanceNoCar / 1609.344;
-      $('#saved-co2').text('You saved ' + Math.round(savedCO2) + ' lbs CO2 emissions on Walk/Ride Day');
-    }
-  });
-
-  // calculate calories: kcal = METS * hours * kg
-  // http://en.wikipedia.org/wiki/Metabolic_equivalent
-  $('#btn-cal').on('click', function(event) {
-    event.preventDefault();
-    var legs = collectAllLegs(),
-        weight, METS, wlegs,
-        calories = 0;
-
-    METS = {
-      'b': 4.0,
-      'r': 7.0,
-      'w': 3.3,
-      'o': 3.5
-    };
-    weight = parseInt($('#weight_cal').val());
-    wLegs = $.grep(legs, function(l,i) {
-      return l.day === 'w';
-    });
-    $.each(wLegs, function(i,l) {
-      calories += (METS[l.mode] || 0) * ((l.duration || 0) * 0.25) * (weight * 0.4536);
-    });
-    if (calories > 0) {
-      $('#burned-cal').text('You burned ' + Math.round(calories) + ' extra calories on Walk/Ride Day');
-    } else {
-      $('#burned-cal').text('You didn\'t burn extra calories on Walk/Ride Day');
-    }
-  });
-
-  //toggle additional checkin questions
-  $('#button_submit_optional').on('click', function(e){
-    e.preventDefault();
-
-    $('fieldset#optional').show();
-
-    $('p#optional').hide();
-    $('#button_submit_optional').hide();
-
-  });
-
-  // in optional question section
-  function duplicateLastWeek(data) {
-    var lastWeekDays = ['caltdays', 'cpdays', 'tdays', 'tdays', 'bdays', 'rdays', 'wdays', 'odays', 'tcdays'];
-    $.each(lastWeekDays, function(i,v) {
-      data[v + 'away'] = data[v];
-    });
-    return data;
-  }
 
   function collectFormData() {
-    var fields = ['wr_day_month', 'share', 'name', 'email', 'employer', 'home_address', 'work_address', 'comments', 'health', 'weight', 'height', 'gender', 'gender_other', 'cdays', 'caltdays', 'cpdays', 'tdays', 'bdays', 'rdays', 'wdays', 'odays', 'tcdays', 'lastweek', 'cdaysaway', 'caltdaysaway', 'cpdaysaway', 'tdaysaway', 'bdaysaway', 'rdaysaway', 'wdaysaway', 'odaysaway', 'tcdaysaway', 'outsidechanges', 'affectedyou', 'contact', 'volunteer'],
+    var fields = ['wr_day_month', 'share', 'name', 'email', 'employer', 'home_address', 'work_address', 'comments', 'contact', 'volunteer'],
         formData = {};
 
     $.each(fields, function(i,f) {
       var $field = $('#' + f);
       if ($field.attr('type') === 'checkbox') {
-        formData[f] = $field.prop('checked'); 
+        formData[f] = $field.prop('checked');
       } else if ($('input[name=' + f + ']').attr('type') === 'radio') {
         formData[f] = $('input[name=' + f + ']:radio:checked').val();
       } else {
@@ -494,7 +419,7 @@ $(function() {
   function cache(data) {
     var noCacheKeys = ['wr_day_month', 'home_location', 'work_location', 'geom'],
         cacheData = $.extend(true, {}, data);
-    
+
     $.each(noCacheKeys, function(i,v) {
       if (cacheData[v]) delete cacheData[v];
     });
@@ -503,7 +428,6 @@ $(function() {
 
   // remove empty values, invalid numbers and stringify JSON objects
   function djangofy(data) {
-    var intFields = ['health', 'cdays', 'caltdays', 'cpdays', 'tdays', 'bdays', 'rdays', 'wdays', 'odays', 'tcdays', 'cdaysaway', 'caltdaysaway', 'cpdaysaway', 'tdaysaway', 'bdaysaway', 'rdaysaway', 'wdaysaway', 'odaysaway', 'tcdaysaway'];
 
     delete data['home_location'];
     delete data['work_location'];
@@ -524,23 +448,13 @@ $(function() {
   $('button.btn-form-submit').on('click', function(event) {
     event.preventDefault();
     var surveyData;
-    
+
     surveyData = $.extend({}, cs, collectFormData());
 
     if (!validate(surveyData)) return;
 
-    // show optional questions and exit
-    if ($(this).hasClass('optional')) {
-      $('input[name=lastweek]:radio').on('change', function() {
-        $('#lastweekaway').toggle(100);
-      });
-      $('#optional-questions').show(100);
-      $('button.btn-form-submit.optional').remove();
-      return;
-    }
-
     // set local cache
-    cache(surveyData); 
+    cache(surveyData);
 
     // POST data
     $.ajaxSetup({
@@ -559,7 +473,7 @@ $(function() {
       window.location.href = '/commuterform/complete/';
     }).fail(function() {
       alert('An error occured and your checkin could not be saved, please try again. Green Streets Support has been notified. We are sorry for the inconvenience.');
-    }); 
+    });
   });
 
   // apply cached data
@@ -571,11 +485,11 @@ $(function() {
           'ntw': 'n-to-work-legs',
           'nfw': 'n-from-work-legs'
         };
-    
+
     if (f !== 'legs') {
       $field = $('#' + f);
       if ($field.attr('type') === 'checkbox') {
-        $field.prop('checked', v); 
+        $field.prop('checked', v);
       } else if ($('input[name=' + f + ']').attr('type') === 'radio') {
         $('input[name=' + f + '][value=' + v + ']:radio').prop('checked', true);
       } else {
@@ -595,7 +509,7 @@ $(function() {
         $('input.morelegs.yes[name=' + legContainerId + ']').prop('checked', false);
       });
     }
-    if (cs.home_address && cs.work_address) { 
+    if (cs.home_address && cs.work_address) {
       setCommuteGeom(cs.home_address, cs.work_address);
       setCommuteGeom2(cs.home_address, cs.work_address);
       setCommuteGeom3(cs.home_address, cs.work_address);
