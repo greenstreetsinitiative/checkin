@@ -71,11 +71,9 @@ class CommutersurveyAdmin(admin.OSMGeoAdmin):
         (None, 
             {'fields': ['wr_day_month', 'name', 'email', 'employer', 'share', 'comments', ]}),
         ('Commute', 
-            {'fields': ['home_address', 'work_address', 'from_work_switch', 'to_work_switch']}),
-        ('Optional Questions', 
-            {'fields': ['health', 'weight', 'height', 'gender', 'gender_other', 'outsidechanges', 'affectedyou', 'volunteer', 'cdays', 'caltdays', 'cpdays', 'tdays', 'bdays', 'rdays', 'wdays', 'odays', 'tcdays', 'lastweek', 'cdaysaway', 'caltdaysaway', 'cpdaysaway', 'tdaysaway', 'bdaysaway', 'rdaysaway', 'wdaysaway', 'odaysaway', 'tcdaysaway', ]}),
+            {'fields': ['home_address', 'work_address']})
     ]
-    list_display = ('id', 'wr_day_month', 'email', 'name', 'share', 'employer', 'from_work_switch', 'to_work_switch', 'home_address', 'work_address', )
+    list_display = ('id', 'wr_day_month', 'email', 'name', 'share', 'employer', 'home_address', 'work_address', )
     list_filter = ['wr_day_month', 'employer', 'share', 'volunteer']
     search_fields = ['name', 'email', 'employer__name']
     actions = [export_as_csv]
