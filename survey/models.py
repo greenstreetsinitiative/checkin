@@ -103,57 +103,41 @@ class Employer(models.Model):
         return self.name
 
     @property
-    def nr_surveys(self):
-        return Commutersurvey.objects.filter(employer=self).count()
+    def teams(self):
+        return self.team_set.all()
 
-    def get_surveys(self, month):
-        if self.is_parent:
-            sectorEmps = Employer.objects.filter(sector=EmplSector.objects.get(parent=self.name))
-            if month != 'all':
-                return Commutersurvey.objects.filter(month=month, employer__in=sectorEmps)
-            else:
-                return Commutersurvey.objects.filter(month__in=Month.objects.active_months_list(), employer__in=sectorEmps)
-        else:
-            if month != 'all':
-                return Commutersurvey.objects.filter(month=month, employer=self)
-            else:
-                return Commutersurvey.objects.filter(month__in=Month.objects.active_months_list(), employer=self)
+    @property
+    def surveys(self):
+        return self.commutersurvey_set.all()
 
-    def get_nr_surveys(self, month):
-        if self.is_parent:
-            sectorEmps = Employer.objects.filter(sector=EmplSector.objects.get(parent=self.name)).values_list('name', flat=True)
-            if month != 'all':
-                return Commutersurvey.objects.filter(month=month, employer__in=sectorEmps).count()
-            else:
-                return Commutersurvey.objects.filter(month__in=Month.objects.active_months_list(), employer__in=sectorEmps).count()
-        else:
-            if month != 'all':
-                return Commutersurvey.objects.filter(month=month, employer__exact=self.name).count()
-            else:
-                return Commutersurvey.objects.filter(month__in=Month.objects.active_months_list(), employer__exact=self.name).count()
+    @property
+    def nr_already_green(self):
+        return self.commutersurvey_set.filter(already_green=True).count()
 
-    def get_new_surveys(self, month):
-        monthObject = Month.objects.get(month=month)
-        newSurveys = []
-        previousMonths = monthObject.prior_months
-        for survey in Commutersurvey.objects.filter(month=month, employer=self.name):
-            if not Commutersurvey.objects.filter(email=survey.email, month__in=previousMonths).exists():
-                newSurveys += [survey,]
-        return newSurveys
+    @property
+    def nr_green_switches(self):
+        return self.commutersurvey_set.filter(change_type='g').count()
 
-    def get_returning_surveys(self, month):
-        monthObject = Month.objects.get(month=month)
-        returningSurveys = []
-        previousMonths = monthObject.prior_months
-        for survey in Commutersurvey.objects.filter(month=month, employer=self.name):
-            if Commutersurvey.objects.filter(email=survey.email, month__in=previousMonths).exists():
-                returningSurveys += [survey,]
-        return returningSurveys
+    @property
+    def nr_healthy_switches(self):
+        return self.commutersurvey_set.filter(change_type='h').count()
+
+    @property
+    def nr_positive_switches(self):
+        return self.commutersurvey_set.filter(change_type='p').count()
+
+    @property
+    def nr_participants(self):
+        return self.commutersurvey_set.distinct('email', 'name').only('email','name').count()
 
 class Team(models.Model):
     name = models.CharField("Team", max_length=100)
     company = models.ForeignKey('Employer', null=True, blank=True)
 
+    @property
+    def surveys(self):
+        return self.commutersurvey_set.all()
+        
     def __str__(self):
         return self.name
 
@@ -192,7 +176,7 @@ class Commutersurvey(models.Model):
     objects = models.GeoManager()
 
     def calculate_carbon_and_calories(self):
-        legs = self.leg_set.all()
+        legs = self.leg_set.only('carbon','calories','day').all()
 
         difference = {'carbon': 0.000, 'calories': 0.000 }
 
@@ -241,10 +225,8 @@ class Commutersurvey(models.Model):
                 return 'n' # no change
 
     def check_green(self):
-        if self.leg_set.filter(day='n',new_mode__green=True).exists():
-            return True
-        else:
-            return False
+        # if any leg on a normal day commute is green
+        return self.leg_set.filter(day='n',mode__green=True).exists()
 
     def save(self, *args, **kwargs):
         # backward compatibility
@@ -266,24 +248,11 @@ class Commutersurvey(models.Model):
         legs = kwargs['legs']
         del kwargs['legs']
 
-        super(Commutersurvey, self).save(*args, **kwargs)
-
-        # Leg.objects.bulk_create([Leg(commutersurvey=self, **l) for l in legs])
-        ###### won't call the leg save method
-
-        # switch = self.switch_analysis()
-        # self.from_work_switch = switch['fw']
-        # self.to_work_switch = switch['tw']
-
         for l in legs:
             # creates the leg object, SAVES IT, associates it with this commute, returns newly created leg
             obj = self.leg_set.create(**l)
 
         super(Commutersurvey, self).save(*args, **kwargs)
-    
-    @property
-    def legs(self):
-        return self.leg_set.all()
 
 class Mode(models.Model):
     mode = models.CharField("Mode", max_length=35)
@@ -333,38 +302,33 @@ class Leg(models.Model):
     carbon = models.FloatField(blank=True, null=True, default=0.0)
     calories = models.FloatField(blank=True, null=True, default=0.0)
 
-    def calc_calories(self):
+    def calc_metrics(self):
         calories = 0.0
-        if self.new_mode:
-            c = float(self.new_mode.met) # kcal/(kg*hour) from this mode
-            
-            if c > 0.0:
-                m = (self.duration * 15) - 7.5 # estimated minutes spent on leg
-                if m < 0 : m = 0
-                # amount of calories (kcal) burned by this leg using average American weight of 81 kg
-                calories = c * (m/60) * 81
-
-        return calories
-
-
-    def calc_carbon(self):
         carbon = 0.0
+
         if self.new_mode:
-            c = float(self.new_mode.carb) # grams carbon dioxide per passenger-mile on this mode
+            kcal = float(self.new_mode.met) # kcal/(kg*hour) from this mode
 
-            if c > 0.0:
+            if kcal > 0.0:
+                # amount of calories (kcal) burned by this leg using average American weight of 81 kg based on a duration in minutes
+                calories = kcal * (self.duration/60) * 81
+
+            coo = float(self.new_mode.carb) # grams carbon dioxide per passenger-mile on this mode
+
+            if coo > 0.0:
+
                 s = float(self.new_mode.speed) # average speed of this mode in mph
-                m = (self.duration * 15) - 7.5 # estimated minutes spent on leg
-                if m < 0 : m = 0
-                # amount of carbon in kilograms expended by this leg
-                carbon = (c/1000) * s * (m/60)
 
-        return carbon
+                # amount of carbon in kilograms expended by this leg based on a duration in minutes
+                carbon = (coo/1000) * s * (self.duration/60)
+
+        return {'carbon': carbon, 'calories': calories }
 
     def save(self, *args, **kwargs):
         # save carbon change
-        self.carbon = self.calc_carbon()
-        self.calories = self.calc_calories()
+        metrics = self.calc_metrics()
+        self.carbon = metrics['carbon']
+        self.calories = metrics['calories']
         super(Leg, self).save(*args, **kwargs)
 
     class Meta:

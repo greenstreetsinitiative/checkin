@@ -17,7 +17,7 @@ urlpatterns = patterns('',
 
     # Leaderboard
     url(r'^legacy-leaderboard/$', 'leaderboard.views.new_leaderboard'),
-    url(r'^leaderboard/$', 'leaderboard.views.new_leaderboard'),
+    url(r'^leaderboard/$', 'leaderboard.views.latest_leaderboard'),
     # url(r'^leaderboard-bare/$', 'leaderboard.views.leaderboard_bare'),
     # url(r'^test-chart/$', 'leaderboard.views.testchart'),
     # url(r'^emplbreakdown/(?P<month>[-\w]+)/$', 'leaderboardlist.views.empBreakDown'),
