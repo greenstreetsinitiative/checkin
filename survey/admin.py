@@ -7,7 +7,7 @@ from django.db.models import Sum, Count
 
 from django.forms import ModelForm
 
-from survey.models import Commutersurvey, Employer, EmplSector, EmplSizeCategory, Leg, Month
+from survey.models import Commutersurvey, Employer, EmplSector, EmplSizeCategory, Leg, Month, Mode
 # from django.contrib import admin
 from django.contrib.gis import admin
 # disable deletion of records
@@ -79,14 +79,19 @@ class CommutersurveyAdmin(admin.OSMGeoAdmin):
     actions = [export_as_csv]
 
 class LegAdmin(admin.ModelAdmin):
-    list_display = ['id', 'mode', 'direction', 'day', 'commutersurvey', ]
-    list_filter = ('commutersurvey__wr_day_month', )
-    readonly_fields = ('commutersurvey', )
+    list_display = ['id', 'direction', 'day', 'commutersurvey', 'new_mode']
+    list_filter = ('commutersurvey__wr_day_month', 'new_mode__mode' )
+    readonly_fields = ('commutersurvey', 'new_mode' )
     actions = [export_as_csv]
 
 class MonthsAdmin(admin.ModelAdmin):
     list_display = ['id', 'wr_day', 'open_checkin', 'close_checkin', 'active', 'url_month', 'short_name']
     list_editable = ['wr_day', 'open_checkin', 'close_checkin', 'active']
+    actions = [export_as_csv]
+
+class ModeAdmin(admin.ModelAdmin):
+    list_display = ['id', 'mode', 'met', 'carb', 'speed', 'green' ]
+    list_editable = ['mode', 'met', 'carb', 'speed', 'green']
     actions = [export_as_csv]
 
 
@@ -96,3 +101,4 @@ admin.site.register(EmplSizeCategory, EmployerLookupAdmin)
 admin.site.register(EmplSector, EmployerSectorAdmin)
 admin.site.register(Month, MonthsAdmin)
 admin.site.register(Leg, LegAdmin)
+admin.site.register(Mode, ModeAdmin)
