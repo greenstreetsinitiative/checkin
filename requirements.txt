@@ -4,3 +4,4 @@ django-debug-toolbar==1.0.1
 django-grappelli==2.5.2
 psycopg2>=2.4.5
 mandrill==1.0.53
+django-aggregate-if==0.5

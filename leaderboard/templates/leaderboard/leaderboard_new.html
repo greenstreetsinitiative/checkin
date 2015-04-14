@@ -10,23 +10,35 @@
 
 {% block body %}
 
-  {% for key, value in ranks.items %}
+  {% for key, value in totals.items %}
+    <h1><strong>{{key}}</strong> {{value}}</h1>
+  {% endfor %}
+
+  <!-- {% for key, value in ranks.items %}
   <h2>{{ key }}</h2>
   <ol>
     {% for company in value %}
       <li> {{ company }} </li>
     {% endfor %}
   </ol>
+  {% endfor %} -->
+
+  {% for key, values in ranks.items %}
+    <h2>{{key}}</h2>
+    {% for v in values %}
+    <strong>{{ v.0 }}</strong> {{ v.1 }}<br>
+    {% endfor %}
+
   {% endfor %}
 
-  {% for key, value in context_dict.items %}
-    <h2>{{ key }}</h2>
+  <!-- {% for key, value in context_dict.items %}
+    <h3>{{ key }}</h3>
     <ul>
       {% for k, v in value.items %}
       <li> {{ k }}: {{ v }} </li>
       {% endfor %}
     </ul>
-  {% endfor %}
+  {% endfor %} -->
 
 
 {% endblock %}

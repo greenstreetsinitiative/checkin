@@ -3,32 +3,38 @@ from __future__ import division
 from survey.models import Commutersurvey, Employer, Leg, Month, Team, Mode
 from django.shortcuts import render_to_response
 from django.template import RequestContext
-from django.db.models import Sum,Count
+# from django.db.models import Sum,Count
+from django.db.models import Q
+from aggregate_if import Count, Sum
+
 
 def calculate_metrics(company):
+
+    #### TODO: Cap the percentages at 100.
+
     employee_engagement = {}
-    employee_engagement["checkins"] = company.nr_checkins
-    employee_engagement["num_participants"] = company.nr_participants
+    employee_engagement["checkins"] = company.num_checkins
+    employee_engagement["num_participants"] = company.num_participants
 
     if company.nr_employees > 0:
         employee_engagement["perc_participants"] = employee_engagement["num_participants"]*100 / company.nr_employees
     else:
-        employee_engagement["perc_participants"] = ''
+        employee_engagement["perc_participants"] = 0
 
     # TODO: How does this update as the challenge goes? Use all challenges that have happened so far instead of 7
     # TODO count participants even if without an email or name OR make name and email required fields
-    if company.nr_participants > 0:
+    if company.num_participants > 0:
         employee_engagement["avg_frequency"] = employee_engagement["checkins"] / (employee_engagement["num_participants"] * 7)
     else: 
-        employee_engagement["avg_frequency"] = ''
+        employee_engagement["avg_frequency"] = 0
 
     green_momentum = {}
-    green_momentum["num_already_green"] = company.nr_already_green
+    green_momentum["num_already_green"] = company.num_already_green
 
-    if company.nr_checkins > 0:
-        green_momentum["perc_already_green"] = green_momentum["num_already_green"]*100 / company.nr_checkins
+    if company.num_checkins > 0:
+        green_momentum["perc_already_green"] = green_momentum["num_already_green"]*100 / company.num_checkins
     else:
-        green_momentum["perc_already_green"] = ''
+        green_momentum["perc_already_green"] = 0
 
     green_momentum["carbon_saved"] = company.overall_carbon
 
@@ -36,22 +42,18 @@ def calculate_metrics(company):
 
     behavior_change["calories_burned"] = company.overall_calories
 
-    behavior_change["green_switches"] = company.nr_green_switches
+    behavior_change["green_switches"] = company.num_switch_green
 
-    behavior_change["healthy_switches"] = company.nr_healthy_switches
+    behavior_change["healthy_switches"] = company.num_switch_healthy
 
-    behavior_change["positive_switches"] = company.nr_positive_switches
+    if company.num_checkins > 0:
+        behavior_change["perc_green"] = behavior_change["green_switches"]*100 / company.num_checkins
 
-    if company.nr_checkins > 0:
-        behavior_change["perc_green"] = behavior_change["green_switches"]*100 / company.nr_checkins
+        behavior_change["perc_healthy"] = behavior_change["healthy_switches"]*100 / company.num_checkins
 
-        behavior_change["perc_healthy"] = behavior_change["healthy_switches"]*100 / company.nr_checkins
-
-        behavior_change["perc_positive"] = behavior_change["positive_switches"]*100 / company.nr_checkins
     else:
-        behavior_change["perc_green"] = ''
-        behavior_change["perc_healthy"] = ''
-        behavior_change["perc_positive"] = ''
+        behavior_change["perc_green"] = 0
+        behavior_change["perc_healthy"] = 0
 
     return {'engagement': employee_engagement, 'green': green_momentum, 'behavior': behavior_change }
 
@@ -62,34 +64,61 @@ def latest_leaderboard(request):
 
     d = {}
 
-    companies = Employer.objects.only('id','name').filter(active=True).annotate(overall_carbon=Sum('commutersurvey__carbon_change'),overall_calories=Sum('commutersurvey__calorie_change'),nr_checkins=Count('commutersurvey'))
+    ### TODO - filter related commutersurveys by MONTH
+
+    companies = Employer.objects.only('id','name').filter(active=True).annotate(
+        overall_carbon=Sum('commutersurvey__carbon_change'),
+        overall_calories=Sum('commutersurvey__calorie_change'),
+        num_checkins=Count('commutersurvey'),
+        num_participants=Count('commutersurvey__email', distinct=True),
+        num_already_green=Count('commutersurvey', only=Q(commutersurvey__already_green=True)),
+        num_switch_green=Count('commutersurvey', only=Q(commutersurvey__change_type='g')),
+        num_switch_healthy=Count('commutersurvey', only=Q(commutersurvey__change_type='h'))
+    )
+
+    totals = companies.aggregate(
+        total_carbon=Sum('overall_carbon'),
+        total_calories=Sum('overall_calories'),
+        total_checkins=Sum('num_checkins')
+    )
 
     for company in companies:
         d[str(company.name)] = calculate_metrics(company)
 
     ranks = {}
-    # returns top 10 employers for checkins
-    ranks['top_checkins'] = sorted(d.keys(), key=lambda x: d[x]['engagement']['checkins'], reverse=True)[:10]
 
-    # returns top 10 employers for % of company participating
-    ranks['top_perc_participants'] = sorted(d.keys(), key=lambda x: d[x]['engagement']['perc_participants'], reverse=True)[:10]
+    top_checkins = sorted(d.keys(), key=lambda x: d[x]['engagement']['checkins'], reverse=True)[:10]
+    ranks['most checkins'] = []
+    for key in top_checkins:
+        ranks['most checkins'].append([key, d[key]['engagement']['checkins']])
 
-    # returns top 10 employers for carbon dioxide saved
-    ranks['top_carbon'] = sorted(d.keys(), key=lambda x: d[x]['green']['carbon_saved'], reverse=True)[:10]
+    top_percent_green = sorted(d.keys(), key=lambda x: d[x]['green']['perc_already_green'], reverse=True)[:10]
+    ranks['percent green commuters'] = []
+    for key in top_percent_green:
+        ranks['percent green commuters'].append([key, d[key]['green']['perc_already_green']])
 
-    # returns top 10 employers for calories burned
-    ranks['top_calories'] = sorted(d.keys(), key=lambda x: d[x]['behavior']['calories_burned'], reverse=True)[:10]
+    top_participation = sorted(d.keys(), key=lambda x: d[x]['engagement']['perc_participants'], reverse=True)[:10]
+    ranks['percent participation'] = []
+    for key in top_participation:
+        ranks['percent participation'].append([key, d[key]['engagement']['perc_participants']])
 
-    # returns top 10 employers for green switches
-    ranks['top_green'] =sorted(d.keys(), key=lambda x: d[x]['behavior']['green_switches'], reverse=True)[:10]
+    # TODO alter to represent carbon saved as if everyone drove.
+    top_carbon = sorted(d.keys(), key=lambda x: d[x]['green']['carbon_saved'], reverse=True)[:10]
+    ranks['most carbon saved'] = []
+    for key in top_carbon:
+        ranks['most carbon saved'].append([key, d[key]['green']['carbon_saved']])
 
-    # returns top 10 employers for healthy switches
-    ranks['top_healthy'] = sorted(d.keys(), key=lambda x: d[x]['behavior']['healthy_switches'], reverse=True)[:10]
+    top_calories = sorted(d.keys(), key=lambda x: d[x]['behavior']['calories_burned'], reverse=True)[:10]
+    ranks['most calories burned'] = []
+    for key in top_calories:
+        ranks['most calories burned'].append([key, d[key]['behavior']['calories_burned']])
 
-    # returns top 10 employers for positive switches
-    ranks['top_positive'] = sorted(d.keys(), key=lambda x: d[x]['behavior']['positive_switches'], reverse=True)[:10]
+    # # returns top 10 employers for green switches
+    # ranks['top_green'] =sorted(d.keys(), key=lambda x: d[x]['behavior']['green_switches'], reverse=True)[:10]
 
+    # # returns top 10 employers for healthy switches
+    # ranks['top_healthy'] = sorted(d.keys(), key=lambda x: d[x]['behavior']['healthy_switches'], reverse=True)[:10]
 
-    return render_to_response('leaderboard/leaderboard_new.html', {'context_dict': d, 'ranks': ranks }, context)
+    return render_to_response('leaderboard/leaderboard_new.html', { 'ranks': ranks, 'totals': totals }, context)
 
 
