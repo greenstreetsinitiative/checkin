@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block style %}
+<link rel="stylesheet" href="{% static 'jquery.dropdown.css' %}">
+{% endblock %}
+
+{% block body %}
+<div>
+<form name="form" method="post" action="{{request.path}}">
+  <fieldset>
+  {% csrf_token %}
+
+    <h2>Personal information</h2>
+
+    {% for field in form %}
+
+      {% if field.label = "Don't share" %}
+
+        <div class="form-group">
+          {{ field.label_tag }}
+          <div class="checkbox radio-primary">
+            <label>
+              <input id="id_share" name="share" type="checkbox">
+            </label>
+          </div>
+
+          {% if field.errors %}
+              <span class="help-block">
+              {% for error in field.errors %}
+                {{ error|escape }}<br>
+              {% endfor %}
+              </span>
+          {% endif %}
+        </div>
+
+      {% else %}
+
+        <div class="form-group">
+          {{ field.label_tag }}
+          {{ field }}
+          {% if field.errors %}
+            <span class="help-block">
+            {% for error in field.errors %}
+              {{ error|escape }}<br>
+            {% endfor %}
+            </span>
+          {% endif %}
+        </div>
+
+      {% endif %}
+
+    {% endfor %}
+
+    <h2>Commute</h2>
+
+    <table>
+        {{ leg_formset }}
+    </table>
+
+    <button class="btn btn-primary" type="submit" name="action" value="action">
+      Submit <i class="mdi-content-send right"></i>
+    </button>
+
+  </fieldset>
+</form>
+
+</div>
+
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript" src="{% static 'jquery.dropdown.js' %}"></script>
+<script type="text/javascript">
+  $( function() {
+    $.material.init();
+    $("select").dropdown({ "autoinit" : ".select" });
+  } );
+</script>
+{% endblock %}

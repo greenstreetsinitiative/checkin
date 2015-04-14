@@ -12,7 +12,8 @@ urlpatterns = patterns('',
     url(r'^$', TemplateView.as_view(template_name='survey/index.html'), name='home'),
 
     # Commuterform
-    url(r'^commuterform/$', 'survey.views.commuter', name='commuterform'),
+    # url(r'^commuterform/$', 'survey.views.commuter', name='commuterform'),
+    url(r'^commuterform/$', 'survey.views.add_checkin', name='commuterform'),
     url(r'^commuterform/complete/$', TemplateView.as_view(template_name='survey/thanks.html'), name='complete'),
 
     # Leaderboard

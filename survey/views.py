@@ -12,6 +12,36 @@ import json
 import mandrill
 from datetime import date
 
+from django.shortcuts import render
+from django.http import HttpResponseRedirect
+from django.forms.formsets import formset_factory
+
+from survey.forms import CommuterForm, LegForm
+
+def add_checkin(request):
+
+  # if this is a POST request we need to process the form data
+  if request.method == 'POST':
+    # create a form populated with data from the request
+    commute_form = CommuterForm(request.POST)
+
+    if commute_form.is_valid():
+      obj = commute_form.save(commit=False)
+      obj.save()
+      # todo - more processing, actually save everything
+      return HttpResponseRedirect('/')
+
+  else:
+    # make a blank form
+    commute_form = CommuterForm()
+
+  # use the formset factory to instantiate 2 forms, allow up to 5 forms
+  MakeLegs = formset_factory(LegForm, extra=2, max_num=5)
+  leg_formset = MakeLegs()
+
+  return render(request, "survey/new_checkin.html", {'form': commute_form, 'leg_formset': leg_formset })
+
+
 
 def process_request(request):
     """ 
