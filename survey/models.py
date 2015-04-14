@@ -106,29 +106,6 @@ class Employer(models.Model):
     def teams(self):
         return self.team_set.all()
 
-    @property
-    def surveys(self):
-        return self.commutersurvey_set.all()
-
-    @property
-    def nr_already_green(self):
-        return self.commutersurvey_set.filter(already_green=True).count()
-
-    @property
-    def nr_green_switches(self):
-        return self.commutersurvey_set.filter(change_type='g').count()
-
-    @property
-    def nr_healthy_switches(self):
-        return self.commutersurvey_set.filter(change_type='h').count()
-
-    @property
-    def nr_positive_switches(self):
-        return self.commutersurvey_set.filter(change_type='p').count()
-
-    @property
-    def nr_participants(self):
-        return self.commutersurvey_set.distinct('email', 'name').only('email','name').count()
 
 class Team(models.Model):
     name = models.CharField("Team", max_length=100)
@@ -270,18 +247,18 @@ class Leg(models.Model):
     different transportation modes.
     """
 
-    COMMUTER_MODES = (
-        ('c', _('Car')),
-        ('cp', _('Carpool')),
-        ('da', _('Driving alone')),
-        ('dalt', _('Driving alone, alternative vehicle')),
-        ('w', _('Walk')),
-        ('b', _('Bike')),
-        ('t', _('Transit (bus, subway, etc.)')),
-        ('o', _('Other (skate, canoe, etc.)')),
-        ('r', _('Jog/Run')),
-        ('tc', _('Telecommuting')),
-    )
+    # COMMUTER_MODES = (
+    #     ('c', _('Car')),
+    #     ('cp', _('Carpool')),
+    #     ('da', _('Driving alone')),
+    #     ('dalt', _('Driving alone, alternative vehicle')),
+    #     ('w', _('Walk')),
+    #     ('b', _('Bike')),
+    #     ('t', _('Transit (bus, subway, etc.)')),
+    #     ('o', _('Other (skate, canoe, etc.)')),
+    #     ('r', _('Jog/Run')),
+    #     ('tc', _('Telecommuting')),
+    # )
 
     LEG_DIRECTIONS = (
         ('tw', _('to work')),
@@ -293,8 +270,8 @@ class Leg(models.Model):
         ('n', _('Normal day')),
     )
 
-    mode = models.CharField(blank=True, null=True, max_length=4, choices=COMMUTER_MODES)
-    new_mode = models.ForeignKey(Mode, blank=True, null=True)
+    # mode = models.CharField(blank=True, null=True, max_length=4, choices=COMMUTER_MODES)
+    transport_mode = models.ForeignKey(Mode, blank=True, null=True)
     duration = models.IntegerField("Time in minutes", blank=True, null=True, default=0)
     direction = models.CharField(blank=True, null=True, max_length=2, choices=LEG_DIRECTIONS)
     day = models.CharField(blank=True, null=True, max_length=1, choices=LEG_DAYS)
@@ -306,18 +283,18 @@ class Leg(models.Model):
         calories = 0.0
         carbon = 0.0
 
-        if self.new_mode:
-            kcal = float(self.new_mode.met) # kcal/(kg*hour) from this mode
+        if self.transport_mode:
+            kcal = float(self.transport_mode.met) # kcal/(kg*hour) from this mode
 
             if kcal > 0.0:
                 # amount of calories (kcal) burned by this leg using average American weight of 81 kg based on a duration in minutes
                 calories = kcal * (self.duration/60) * 81
 
-            coo = float(self.new_mode.carb) # grams carbon dioxide per passenger-mile on this mode
+            coo = float(self.transport_mode.carb) # grams carbon dioxide per passenger-mile on this mode
 
             if coo > 0.0:
 
-                s = float(self.new_mode.speed) # average speed of this mode in mph
+                s = float(self.transport_mode.speed) # average speed of this mode in mph
 
                 # amount of carbon in kilograms expended by this leg based on a duration in minutes
                 carbon = (coo/1000) * s * (self.duration/60)
@@ -336,4 +313,4 @@ class Leg(models.Model):
         verbose_name_plural = _('Legs')
 
     # def __unicode__(self):
-    #     return u'%s' % (self.new_mode.name | '') 
+    #     return u'%s' % (self.transport_mode.name | '') 

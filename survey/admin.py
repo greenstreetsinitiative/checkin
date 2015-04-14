@@ -79,9 +79,9 @@ class CommutersurveyAdmin(admin.OSMGeoAdmin):
     actions = [export_as_csv]
 
 class LegAdmin(admin.ModelAdmin):
-    list_display = ['id', 'direction', 'day', 'commutersurvey', 'new_mode']
-    list_filter = ('commutersurvey__wr_day_month', 'new_mode__mode' )
-    readonly_fields = ('commutersurvey', 'new_mode' )
+    list_display = ['id', 'direction', 'day', 'commutersurvey', 'transport_mode']
+    list_filter = ('commutersurvey__wr_day_month', 'transport_mode__mode' )
+    readonly_fields = ('commutersurvey', 'transport_mode' )
     actions = [export_as_csv]
 
 class MonthsAdmin(admin.ModelAdmin):

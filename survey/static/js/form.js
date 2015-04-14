@@ -285,11 +285,11 @@ $(function() {
   function collectAllLegs() {
     var legs = [];
     $('div.leg:visible').each(function() {
-      var mode = $('select[name=mode]', this).val(),
+      var transport_mode = $('select[name=transport_mode]', this).val(),
           duration = $('select[name=duration]', this).val();
-      if (mode && duration) {
+      if (transport_mode && duration) {
         legs.push({
-          mode: mode,
+          transport_mode: transport_mode,
           duration: duration,
           day: $('input[name=day]', this).val(),
           direction: $('input[name=direction]', this).val()
@@ -349,7 +349,7 @@ $(function() {
     });
     $.each(wLegs, function(i,l) {
       durationTotal += parseInt(l.duration);
-      if ($.inArray(l.mode, ['da', 'dalt', 'cp']) === -1) durationNoCar += parseInt(l.duration);
+      if ($.inArray(l.transport_mode, ['da', 'dalt', 'cp']) === -1) durationNoCar += parseInt(l.duration);
     });
     if (durationNoCar === 0) {
       $('#saved-co2').text('You didn\'t save CO2 emissions on Walk/Ride Day');
@@ -381,7 +381,7 @@ $(function() {
       return l.day === 'w';
     });
     $.each(wLegs, function(i,l) {
-      calories += (METS[l.mode] || 0) * ((l.duration || 0) * 0.25) * (weight * 0.4536);
+      calories += (METS[l.transport_mode] || 0) * ((l.duration || 0) * 0.25) * (weight * 0.4536);
     });
     if (calories > 0) {
       $('#burned-cal').text('You burned ' + Math.round(calories) + ' extra calories on Walk/Ride Day');
@@ -587,8 +587,8 @@ $(function() {
         addLeg(legContainerId, l);
         console.log(l);
         // FIXME: detect wtw pattern and compare
-        // array.push(mode+duration).reverse.join
-        // combination of mode+duration
+        // array.push(transport_mode+duration).reverse.join
+        // combination of transport_mode+duration
         // to only toggle yes/no questions instead of showing everything
         $('#' + legContainerId).parent().show(100);
         $('input.morelegs[name=' + legContainerId + ']').prop('checked', true);
