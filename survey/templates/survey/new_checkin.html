@@ -27,15 +27,40 @@
 </div>
 
 
-<form name="form" method="post" action="{{request.path}}">
+<form name="form" method="post" action="{{request.path}}" class="form-horizontal">
   <fieldset>
   {% csrf_token %}
 
     <h2>Personal information</h2>
-    {{ form.as_p }}
+    <!-- {{ form.as_p }} -->
+    {% for field in form %}
+      <div class="form-group {% if field.errors %}has-error{% endif %}">
+        <div class="col-sm-3">
+          {{ field.label_tag }}
+        </div>
+        <div class="col-sm-9">
+          {{ field }}
+          {% if field.errors %}
+            <div class="help-block">
+            {% for error in field.errors %}
+              {{ error|escape }}<br>
+            {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+        
+      </div>
+    {% endfor %}
+
 
     <h2>Your commute</h2>
-    {{ leg_formset.as_p }}
+    <p>Please enter all parts of your commute. You may also include time spent walking (e.g. walking from the bus stop to a connecting train).</p>
+    
+    {% for form in leg_formset %}
+      {{ form.as_table }}
+      <hr>
+    {% endfor %}
+
 
     <button class="btn btn-primary" type="submit" name="action" value="action">
       Submit
