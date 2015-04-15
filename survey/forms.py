@@ -18,7 +18,7 @@ class CommuterForm(ModelForm):
   def __init__(self, *args, **kwargs):
       super(CommuterForm, self).__init__(*args, **kwargs)
 
-      # add CSS classes and data attributes onto the generated form elements for bootstrap-material-design to play with
+      # add CSS classes for bootstrap
       self.fields['name'].widget.attrs['class'] = 'form-control'
       self.fields['email'].widget.attrs['class'] = 'form-control'
       self.fields['email'].widget.attrs['data-hint'] = 'A valid email should contain an @ symbol'
@@ -29,6 +29,7 @@ class CommuterForm(ModelForm):
       self.fields['employer'].widget.attrs['class'] = 'form-control'
       self.fields['team'].widget.attrs['class'] = 'form-control'
       self.fields['team'].required = False
+      self.fields['email'].required = True
     
 class LegForm(ModelForm):
 
@@ -40,11 +41,16 @@ class LegForm(ModelForm):
   def __init__(self, *args, **kwargs):
       super(LegForm, self).__init__(*args, **kwargs)
 
-      # add CSS classes and data attributes onto the generated form elements for bootstrap-material-design to play with
+      # add CSS classes for bootstrap
       self.fields['transport_mode'].widget.attrs['class'] = 'form-control'
       self.fields['duration'].widget.attrs['class'] = 'form-control'
       self.fields['direction'].widget.attrs['class'] = 'form-control'
       self.fields['day'].widget.attrs['class'] = 'form-control'
+      # make it required
+      self.fields['transport_mode'].required = True
+      self.fields['duration'].required = True
+      self.fields['direction'].required = True
+      self.fields['day'].required = True
 
-MakeLegs = inlineformset_factory(Commutersurvey, Leg, form=LegForm, can_delete=False, extra=5)
+MakeLegs = inlineformset_factory(Commutersurvey, Leg, form=LegForm, can_delete=False, extra=2)
 

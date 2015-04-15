@@ -31,8 +31,6 @@
   <fieldset>
   {% csrf_token %}
 
-    <h2>Personal information</h2>
-    <!-- {{ form.as_p }} -->
     {% for field in form %}
       <div class="form-group {% if field.errors %}has-error{% endif %}">
         <div class="col-sm-3">
@@ -52,21 +50,60 @@
       </div>
     {% endfor %}
 
+    <p class="center">Please enter all parts of your commute. You may also include time spent walking (e.g. walking from the bus stop to a connecting train).</p>
 
-    <h2>Your commute</h2>
-    <p>Please enter all parts of your commute. You may also include time spent walking (e.g. walking from the bus stop to a connecting train).</p>
-    
-    {% for form in leg_formset %}
-      {{ form.as_table }}
+    <div class="row to-work commute">
+      <div class="col-sm-6 normal-day">
+        <center><h3>Normal Commute</h3>
+        <h4>To Work</h4></center>
+        {% for form in leg_formset %}
+            {{ form.as_table }}
+            <hr class="lite">
+        {% endfor %}
+        <center><button class="btn btn-primary" name="add" value="add"> + </button></center>
       <hr>
-    {% endfor %}
+      </div>
+      <div class="col-sm-6 wr-day">
+        <center><h3>Walk/Ride Day</h3>
+        <h4>To Work</h4></center>
+        {% for form in leg_formset %}
+            {{ form.as_table }}
+            <hr class="lite">
+
+        {% endfor %}
+        <center><button class="btn btn-primary" name="add" value="add"> + </button></center>
+      <hr>
+      </div>
+    </div>
+    <div class="row from-work commute">
+      <div class="col-sm-6 normal-day">
+        <center><h3>Normal Commute</h3>
+        <h4>From Work</h4></center>
+        {% for form in leg_formset %}
+            {{ form.as_table }}
+            <hr class="lite">
+        {% endfor %}
+        <center><button class="btn btn-primary" name="add" value="add"> + </button></center>
+      <hr>
+      </div>
+      <div class="col-sm-6 wr-day">
+        <center><h3>Walk/Ride Day</h3>
+        <h4>From Work</h4></center>
+        {% for form in leg_formset %}
+            {{ form.as_table }}
+            <hr class="lite">
+        {% endfor %}
+        <center><button class="btn btn-primary" name="add" value="add"> + </button></center>
+      <hr>
+      </div>
+    </div>
 
     {{ leg_formset.management_form }}
 
 
-    <button class="btn btn-primary" type="submit" name="action" value="action">
-      Submit
-    </button>
+    <center><button class="btn btn-success btn-lg" type="submit" name="action" value="action">
+      Submit your checkin!
+    </button></center>
 
   </fieldset>
 </form>

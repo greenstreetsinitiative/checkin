@@ -10,13 +10,13 @@ from django.utils.translation import ugettext_lazy as _
 from collections import namedtuple
 
 # south introspection rules 
-try:
-    from south.modelsinspector import add_introspection_rules
-    add_introspection_rules([], ['^django\.contrib\.gis\.db\.models\.fields\.PointField'])
-    add_introspection_rules([], ['^django\.contrib\.gis\.db\.models\.fields\.MultiPolygonField'])
-    add_introspection_rules([], ['^django\.contrib\.gis\.db\.models\.fields\.MultiLineStringField'])
-except ImportError:
-    pass
+# try:
+#     from south.modelsinspector import add_introspection_rules
+#     add_introspection_rules([], ['^django\.contrib\.gis\.db\.models\.fields\.PointField'])
+#     add_introspection_rules([], ['^django\.contrib\.gis\.db\.models\.fields\.MultiPolygonField'])
+#     add_introspection_rules([], ['^django\.contrib\.gis\.db\.models\.fields\.MultiLineStringField'])
+# except ImportError:
+#     pass
 
 class MonthManager(models.Manager):
     def active_months(self):
@@ -140,8 +140,6 @@ class Commutersurvey(models.Model):
 
     contact = models.BooleanField("Contact me", default=False)
     volunteer = models.BooleanField('Available to volunteer', default=False)
-
-    objects = models.GeoManager()
 
     def calculate_carbon_and_calories(self):
         legs = self.leg_set.only('carbon','calories','day').all()
