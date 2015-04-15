@@ -9,25 +9,42 @@
 {% endblock %}
 
 {% block body %}
-  <h2>Total impact across everyone as of
-    <br> {% now "jS F H:i:s" %} UTC</h2>
-  <div>
+
+<div class="row clearfix">
+    <div class="col-md-12 column">
+        <center><h1>Walk/Ride Day 2015 <br>Corporate Challenge Leaderboard</h1>
+    </div>
+</div>
+
+  <center><h3>Total impact across everyone as of {% now "SHORT_DATETIME_FORMAT" %} UTC</h3></center>
+
+  <div class="row" style="padding: 15px 0px;">
     {% for key, value in totals.items %}
-      <div style="display: inline-block; font-size: 18px;"><p>{{key}} <strong>{{value}}</strong></p></div>
+      <div class="col-sm-4" style="padding-top: 10px; padding-bottom: 10px; border: 1px #99ff99 solid; background: #ccffcc; font-size: 18px;"><p>{{key}} <strong>{{value}}</strong></p></div>
     {% endfor %}
   </div>
 
-  <a class="btn btn-default" href="{% url 'all' %}">Everyone</a>
-  <a class="btn btn-primary" href="{% url 'small' %}">Small</a>
-  <a class="btn btn-danger" href="{% url 'medium' %}">Medium</a>
-  <a class="btn btn-success" href="{% url 'large' %}">Large</a>
+  <div class="row" style="padding: 15px 0px;">
+    <center>
+    <a class="btn btn-default" href="{% url 'all' %}">Everyone</a>
+    <a class="btn btn-primary" href="{% url 'small' %}">Small</a>
+    <a class="btn btn-danger" href="{% url 'medium' %}">Medium</a>
+    <a class="btn btn-success" href="{% url 'large' %}">Large</a>
+    </center>
+  </div>
 
+<div class="row" style="padding: 15px 0px;">
   {% for key, values in ranks.items %}
-    <h3>{{key}}</h3>
+  <div class="col-sm-3">
+    <h4>{{key}}</h4>
+
+    <ol class="lbrank">
     {% for v in values %}
-    <strong>{{ v.0 }}</strong> {{ v.1 }}<br>
+      <li><a class="list-group-item company" href="#">{{ v.0 }}<span class="badge">{{ v.1 }}</span></a></li> 
     {% endfor %}
+    </ol>
 
+  </div>
   {% endfor %}
-
+</div>
 {% endblock %}
