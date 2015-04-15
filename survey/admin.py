@@ -7,7 +7,7 @@ from django.db.models import Sum, Count
 
 from django.forms import ModelForm
 
-from survey.models import Commutersurvey, Employer, EmplSector, EmplSizeCategory, Leg, Month, Mode
+from survey.models import Commutersurvey, Employer, EmplSector, EmplSizeCategory, Leg, Month, Mode, Team
 # from django.contrib import admin
 from django.contrib.gis import admin
 # disable deletion of records
@@ -89,6 +89,11 @@ class MonthsAdmin(admin.ModelAdmin):
     list_editable = ['wr_day', 'open_checkin', 'close_checkin', 'active']
     actions = [export_as_csv]
 
+class TeamAdmin(admin.ModelAdmin):
+    list_display = ['id', 'name', 'company']
+    list_editable = ['name', 'company']
+    actions = [export_as_csv]
+
 class ModeAdmin(admin.ModelAdmin):
     list_display = ['id', 'mode', 'met', 'carb', 'speed', 'green' ]
     list_editable = ['mode', 'met', 'carb', 'speed', 'green']
@@ -102,3 +107,4 @@ admin.site.register(EmplSector, EmployerSectorAdmin)
 admin.site.register(Month, MonthsAdmin)
 admin.site.register(Leg, LegAdmin)
 admin.site.register(Mode, ModeAdmin)
+admin.site.register(Team, TeamAdmin)
