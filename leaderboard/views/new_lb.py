@@ -70,7 +70,7 @@ def latest_leaderboard(request):
     ### TODO - filter related commutersurveys by MONTH
 
     companies = Employer.objects.only('id','name').filter(
-        active2015=False, 
+        active2015=True, 
         commutersurvey__created__gte=datetime.date(2015, 04, 15), 
         commutersurvey__created__lte=datetime.date(2015, 11, 01)).annotate(
         overall_carbon=Sum('commutersurvey__carbon_change'),
@@ -138,7 +138,7 @@ def latest_leaderboard_small(request):
 
     companies = Employer.objects.only('id','name').filter(
         nr_employees__lt=500,
-        active2015=False, 
+        active2015=True, 
         commutersurvey__created__gte=datetime.date(2015, 04, 15), 
         commutersurvey__created__lte=datetime.date(2015, 11, 01)).annotate(
         overall_carbon=Sum('commutersurvey__carbon_change'),
@@ -207,7 +207,7 @@ def latest_leaderboard_medium(request):
     companies = Employer.objects.only('id','name').filter(
         nr_employees__gte=500,
         nr_employees__lt=2000,
-        active2015=False, 
+        active2015=True, 
         commutersurvey__created__gte=datetime.date(2015, 04, 15), 
         commutersurvey__created__lte=datetime.date(2015, 11, 01)).annotate(
         overall_carbon=Sum('commutersurvey__carbon_change'),
@@ -275,7 +275,7 @@ def latest_leaderboard_large(request):
 
     companies = Employer.objects.only('id','name').filter(
         nr_employees__gte=2000,
-        active2015=False, 
+        active2015=True, 
         commutersurvey__created__gte=datetime.date(2015, 04, 15), 
         commutersurvey__created__lte=datetime.date(2015, 11, 01)).annotate(
         overall_carbon=Sum('commutersurvey__carbon_change'),

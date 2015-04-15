@@ -23,11 +23,11 @@ def add_checkin(request):
 
     request = process_request(request)
 
-    # try:
-    #     wr_day = Month.objects.get(open_checkin__lte=date.today(), close_checkin__gte=date.today())
-    # except Month.DoesNotExist:
-    #     return redirect('/')
-    wr_day = Month.objects.get(pk=46)
+    try:
+        wr_day = Month.objects.get(open_checkin__lte=date.today(), close_checkin__gte=date.today())
+    except Month.DoesNotExist:
+        return redirect('/')
+    # wr_day = Month.objects.get(pk=46)
 
     commute_form = CommuterForm()
     leg_formset = MakeLegs(instance=Commutersurvey())
