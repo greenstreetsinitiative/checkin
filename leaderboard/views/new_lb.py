@@ -79,8 +79,8 @@ def latest_leaderboard(request):
         num_checkins=Count('commutersurvey'),
         num_participants=Count('commutersurvey__email', distinct=True),
         num_already_green=Count('commutersurvey', only=Q(commutersurvey__already_green=True)),
-        num_switch_green=Count('commutersurvey', only=Q(commutersurvey__change_type='g')),
-        num_switch_healthy=Count('commutersurvey', only=Q(commutersurvey__change_type='h'))
+        num_switch_green=Count('commutersurvey', only=Q(commutersurvey__change_type__in=['g','p'])),
+        num_switch_healthy=Count('commutersurvey', only=Q(commutersurvey__change_type__in=['h','p']))
     )
 
     totals = companies.aggregate(
@@ -156,8 +156,8 @@ def latest_leaderboard_small(request):
         num_checkins=Count('commutersurvey'),
         num_participants=Count('commutersurvey__email', distinct=True),
         num_already_green=Count('commutersurvey', only=Q(commutersurvey__already_green=True)),
-        num_switch_green=Count('commutersurvey', only=Q(commutersurvey__change_type='g')),
-        num_switch_healthy=Count('commutersurvey', only=Q(commutersurvey__change_type='h'))
+        num_switch_green=Count('commutersurvey', only=Q(commutersurvey__change_type__in=['g','p'])),
+        num_switch_healthy=Count('commutersurvey', only=Q(commutersurvey__change_type__in=['h','p']))
     )
 
     totals = companies.aggregate(
@@ -213,8 +213,8 @@ def latest_leaderboard_medium(request):
         num_checkins=Count('commutersurvey'),
         num_participants=Count('commutersurvey__email', distinct=True),
         num_already_green=Count('commutersurvey', only=Q(commutersurvey__already_green=True)),
-        num_switch_green=Count('commutersurvey', only=Q(commutersurvey__change_type='g')),
-        num_switch_healthy=Count('commutersurvey', only=Q(commutersurvey__change_type='h'))
+        num_switch_green=Count('commutersurvey', only=Q(commutersurvey__change_type__in=['g','p'])),
+        num_switch_healthy=Count('commutersurvey', only=Q(commutersurvey__change_type__in=['h','p']))
     )
 
     totals = companies.aggregate(
@@ -269,8 +269,8 @@ def latest_leaderboard_large(request):
         num_checkins=Count('commutersurvey'),
         num_participants=Count('commutersurvey__email', distinct=True),
         num_already_green=Count('commutersurvey', only=Q(commutersurvey__already_green=True)),
-        num_switch_green=Count('commutersurvey', only=Q(commutersurvey__change_type='g')),
-        num_switch_healthy=Count('commutersurvey', only=Q(commutersurvey__change_type='h'))
+        num_switch_green=Count('commutersurvey', only=Q(commutersurvey__change_type__in=['g','p'])),
+        num_switch_healthy=Count('commutersurvey', only=Q(commutersurvey__change_type__in=['h','p']))
     )
 
     totals = companies.aggregate(
