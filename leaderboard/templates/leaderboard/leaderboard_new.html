@@ -5,40 +5,29 @@
 {% block title %}Statistics{% endblock %}
 
 {% block javascript %}
-<script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
+<!-- <script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script> -->
 {% endblock %}
 
 {% block body %}
-
-  {% for key, value in totals.items %}
-    <h1><strong>{{key}}</strong> {{value}}</h1>
-  {% endfor %}
-
-  <!-- {% for key, value in ranks.items %}
-  <h2>{{ key }}</h2>
-  <ol>
-    {% for company in value %}
-      <li> {{ company }} </li>
+  <h2>Total impact across everyone as of
+    <br> {% now "jS F H:i:s" %} UTC</h2>
+  <div>
+    {% for key, value in totals.items %}
+      <div style="display: inline-block; font-size: 18px;"><p>{{key}} <strong>{{value}}</strong></p></div>
     {% endfor %}
-  </ol>
-  {% endfor %} -->
+  </div>
+
+  <a class="btn btn-default" href="{% url 'all' %}">Everyone</a>
+  <a class="btn btn-primary" href="{% url 'small' %}">Small</a>
+  <a class="btn btn-danger" href="{% url 'medium' %}">Medium</a>
+  <a class="btn btn-success" href="{% url 'large' %}">Large</a>
 
   {% for key, values in ranks.items %}
-    <h2>{{key}}</h2>
+    <h3>{{key}}</h3>
     {% for v in values %}
     <strong>{{ v.0 }}</strong> {{ v.1 }}<br>
     {% endfor %}
 
   {% endfor %}
-
-  <!-- {% for key, value in context_dict.items %}
-    <h3>{{ key }}</h3>
-    <ul>
-      {% for k, v in value.items %}
-      <li> {{ k }}: {{ v }} </li>
-      {% endfor %}
-    </ul>
-  {% endfor %} -->
-
 
 {% endblock %}
