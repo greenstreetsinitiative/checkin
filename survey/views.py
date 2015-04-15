@@ -15,33 +15,40 @@ from datetime import date
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.forms.formsets import formset_factory
+from django.forms.models import modelform_factory
 
-from survey.forms import CommuterForm, LegForm
+from survey.forms import CommuterForm, LegForm, MakeLegs
 
 def add_checkin(request):
 
-  # if this is a POST request we need to process the form data
-  if request.method == 'POST':
-    # create a form populated with data from the request
-    commute_form = CommuterForm(request.POST)
+    request = process_request(request)
 
-    if commute_form.is_valid():
-      obj = commute_form.save(commit=False)
-      obj.save()
-      # todo - more processing, actually save everything
-      return HttpResponseRedirect('/')
+    # try:
+    #     wr_day = Month.objects.get(open_checkin__lte=date.today(), close_checkin__gte=date.today())
+    # except Month.DoesNotExist:
+    #     return redirect('/')
+    wr_day = Month.objects.get(pk=46)
 
-  else:
-    # make a blank form
     commute_form = CommuterForm()
+    leg_formset = MakeLegs(instance=Commutersurvey())
 
-  # use the formset factory to instantiate 2 forms, allow up to 5 forms
-  MakeLegs = formset_factory(LegForm, extra=2, max_num=5)
-  leg_formset = MakeLegs()
+    if request.POST:
+        commute_form = CommuterForm(request.POST)
 
-  return render(request, "survey/new_checkin.html", {'form': commute_form, 'leg_formset': leg_formset })
+        if commute_form.is_valid():
+            commutersurvey = commute_form.save(commit=False)
+            leg_formset = MakeLegs(request.POST, instance=commutersurvey)
 
+            if leg_formset.is_valid():
+                commutersurvey.wr_day_month = wr_day
+                commutersurvey.employer = commute_form.cleaned_data['employer']
+                commutersurvey.team = commute_form.cleaned_data['team']
+                commutersurvey.save()
+                leg_formset.save()
 
+                return HttpResponseRedirect('complete/')
+        
+    return render(request, "survey/new_checkin.html", { 'wr_day': wr_day, 'form': commute_form, 'leg_formset': leg_formset })
 
 def process_request(request):
     """ 
@@ -53,22 +60,22 @@ def process_request(request):
     return request
       
 
-def commuter(request):
-    """
-    Renders Commuterform or saves it in case of POST request. 
-    """
+# def commuter(request):
+#     """
+#     Renders Commuterform or saves it in case of POST request. 
+#     """
 
-    request = process_request(request)
+#     request = process_request(request)
 
-    try:
-        wr_day = Month.objects.get(open_checkin__lte=date.today(), close_checkin__gte=date.today())
-    except Month.DoesNotExist:
-        return redirect('/')
+#     try:
+#         wr_day = Month.objects.get(open_checkin__lte=date.today(), close_checkin__gte=date.today())
+#     except Month.DoesNotExist:
+#         return redirect('/')
 
-    survey = Commutersurvey()
-    employers = Employer.objects.filter(active=True, is_parent=False)
+#     survey = Commutersurvey()
+#     employers = Employer.objects.filter(active=True, is_parent=False)
 
-    return render_to_response('survey/commuterform.html', locals(), context_instance=RequestContext(request))
+#     return render_to_response('survey/commuterform.html', locals(), context_instance=RequestContext(request))
 
 def update_existing_survey(survey, survey_id, created):
     survey.id = survey_id

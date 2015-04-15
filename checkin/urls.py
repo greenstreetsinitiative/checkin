@@ -18,7 +18,10 @@ urlpatterns = patterns('',
 
     # Leaderboard
     url(r'^legacy-leaderboard/$', 'leaderboard.views.new_leaderboard'),
-    url(r'^leaderboard/$', 'leaderboard.views.latest_leaderboard'),
+    url(r'^leaderboard/$', 'leaderboard.views.latest_leaderboard', name="all"),
+    url(r'^leaderboard/small/$', 'leaderboard.views.latest_leaderboard_small', name="small"),
+    url(r'^leaderboard/medium/$', 'leaderboard.views.latest_leaderboard_medium', name="medium"),
+    url(r'^leaderboard/large/$', 'leaderboard.views.latest_leaderboard_large', name="large"),
     # url(r'^leaderboard-bare/$', 'leaderboard.views.leaderboard_bare'),
     # url(r'^test-chart/$', 'leaderboard.views.testchart'),
     # url(r'^emplbreakdown/(?P<month>[-\w]+)/$', 'leaderboardlist.views.empBreakDown'),

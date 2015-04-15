@@ -93,6 +93,7 @@ class Employer(models.Model):
     size_cat = models.ForeignKey(EmplSizeCategory, null=True, blank=True, verbose_name=u'Size Category')
     sector = models.ForeignKey(EmplSector, null=True, blank=True)
     is_parent = models.BooleanField(default=False)
+    active2015 = models.BooleanField("Show in 2015 Commuter-Form", default=False)
 
     class Meta:
         verbose_name = _('Employer')
@@ -123,31 +124,21 @@ class Commutersurvey(models.Model):
     Questions for adults about their commute work
     and Green Streets interest.
     """
-
-    # TODO: legacy field, remove it, requires leaderboard refactoring
-    month = models.CharField('Walk/Ride Day Month', max_length=50)
     wr_day_month = models.ForeignKey(Month)
 
-    home_address = models.CharField(max_length=200)
-    work_address = models.CharField(max_length=200)
+    home_address = models.CharField("Home address", max_length=200)
+    work_address = models.CharField("Office address", max_length=200)
 
-    geom = models.MultiLineStringField('Commute', geography=True, blank=True, null=True)
-
-    distance = models.DecimalField(max_digits=10, decimal_places=1, blank=True, null=True)
-    duration = models.DecimalField(max_digits=10, decimal_places=1, blank=True, null=True)
-
-    name = models.CharField(max_length=50, blank=True, null=True)
-    email = models.EmailField(blank=True, null=True)
-    share = models.BooleanField('Don\'t share', default=False, help_text='Please do not share my identifying information with my employer.')
-    employer_legacy = models.CharField(max_length=100, blank=True, null=True)
-    employer = models.ForeignKey(Employer, null=True)
+    name = models.CharField("Full name", max_length=50, blank=True, null=True)
+    email = models.EmailField("Work email address", blank=True, null=True)
+    share = models.BooleanField(default=False, help_text='Please do not share my identifying information with my employer.')
+    employer = models.ForeignKey(Employer, null=True, verbose_name="the organization you are registered for")
     team = models.ForeignKey(Team, null=True, blank=True)
     comments = models.TextField(null=True, blank=True)
 
-    ip = models.IPAddressField('IP Address', blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
 
-    contact = models.BooleanField(default=False)
+    contact = models.BooleanField("Contact me", default=False)
     volunteer = models.BooleanField('Available to volunteer', default=False)
 
     objects = models.GeoManager()
@@ -170,7 +161,6 @@ class Commutersurvey(models.Model):
     carbon_change = models.FloatField(blank=True, null=True, default=0.0)
     calorie_change = models.FloatField(blank=True, null=True, default=0.0)
 
-
     CHANGE_CHOICES = (
         ('p', _('Positive change')),
         ('g', _('Green change')),
@@ -180,7 +170,6 @@ class Commutersurvey(models.Model):
 
     change_type = models.CharField('Type of change', max_length=1, null=True, blank=True, choices=CHANGE_CHOICES)
     already_green = models.BooleanField(default=False)
-
 
     def __unicode__(self): 
         return u'%s' % (self.id)   
@@ -203,32 +192,37 @@ class Commutersurvey(models.Model):
 
     def check_green(self):
         # if any leg on a normal day commute is green
-        return self.leg_set.filter(day='n',mode__green=True).exists()
+        return self.leg_set.filter(day='n',transport_mode__green=True).exists()
+
+    carbon_savings = models.FloatField("Carbon saved if commuter normally drives", blank=True, null=True, default=0.0)
+
+    def extreme_carbon(self):
+        normal_car_carbon = 0.0
+        wr_day_carbon = 0.0
+
+        legs = self.leg_set.only('carbon','day').all()
+
+        for leg in legs:
+            if leg.day == 'n':
+                car_speed = Mode.objects.get(mode="Driving alone").speed
+                car_carbon = Mode.objects.get(mode="Driving alone").carb/1000
+                carbon = car_carbon * car_speed * leg.duration/60
+                normal_car_carbon += carbon
+            elif leg.day == 'w':
+                wr_day_carbon += leg.carbon
+
+        carbon_saved = wr_day_carbon - normal_car_carbon
+
+        return carbon_saved
+
 
     def save(self, *args, **kwargs):
-        # backward compatibility
-        self.month = self.wr_day_month.month
-
         changes = self.calculate_carbon_and_calories()
         self.carbon_change = changes["carbon"]
         self.calorie_change = changes["calories"]
         self.change_type = self.change_analysis()
         self.already_green = self.check_green()
-
-        super(Commutersurvey, self).save(*args, **kwargs)
-
-    def save_with_legs(self, *args, **kwargs):
-        """
-        Also creates related Commutersurvey legs
-        """
-
-        legs = kwargs['legs']
-        del kwargs['legs']
-
-        for l in legs:
-            # creates the leg object, SAVES IT, associates it with this commute, returns newly created leg
-            obj = self.leg_set.create(**l)
-
+        self.carbon_savings = self.extreme_carbon()
         super(Commutersurvey, self).save(*args, **kwargs)
 
 class Mode(models.Model):
@@ -247,19 +241,6 @@ class Leg(models.Model):
     different transportation modes.
     """
 
-    # COMMUTER_MODES = (
-    #     ('c', _('Car')),
-    #     ('cp', _('Carpool')),
-    #     ('da', _('Driving alone')),
-    #     ('dalt', _('Driving alone, alternative vehicle')),
-    #     ('w', _('Walk')),
-    #     ('b', _('Bike')),
-    #     ('t', _('Transit (bus, subway, etc.)')),
-    #     ('o', _('Other (skate, canoe, etc.)')),
-    #     ('r', _('Jog/Run')),
-    #     ('tc', _('Telecommuting')),
-    # )
-
     LEG_DIRECTIONS = (
         ('tw', _('to work')),
         ('fw', _('from work')),
@@ -270,11 +251,10 @@ class Leg(models.Model):
         ('n', _('Normal day')),
     )
 
-    # mode = models.CharField(blank=True, null=True, max_length=4, choices=COMMUTER_MODES)
-    transport_mode = models.ForeignKey(Mode, blank=True, null=True)
-    duration = models.IntegerField("Time in minutes", blank=True, null=True, default=0)
-    direction = models.CharField(blank=True, null=True, max_length=2, choices=LEG_DIRECTIONS)
-    day = models.CharField(blank=True, null=True, max_length=1, choices=LEG_DAYS)
+    transport_mode = models.ForeignKey(Mode, blank=True, null=True, verbose_name="how you traveled")
+    duration = models.IntegerField("Time spent in minutes", blank=True, null=True, default=0)
+    direction = models.CharField("From or to work?", blank=True, null=True, max_length=2, choices=LEG_DIRECTIONS)
+    day = models.CharField("When?", blank=True, null=True, max_length=1, choices=LEG_DAYS)
     commutersurvey = models.ForeignKey(Commutersurvey)
     carbon = models.FloatField(blank=True, null=True, default=0.0)
     calories = models.FloatField(blank=True, null=True, default=0.0)
@@ -308,9 +288,11 @@ class Leg(models.Model):
         self.calories = metrics['calories']
         super(Leg, self).save(*args, **kwargs)
 
+        self.commutersurvey.save() # resave the related survey (recalculates carbon and calories)
+
     class Meta:
         verbose_name = _('Leg')
         verbose_name_plural = _('Legs')
 
-    # def __unicode__(self):
-    #     return u'%s' % (self.transport_mode.name | '') 
+    def __unicode__(self):
+        return u'%s' % (self.transport_mode.mode or None) 
