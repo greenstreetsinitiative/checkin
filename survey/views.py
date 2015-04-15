@@ -17,7 +17,8 @@ from django.http import HttpResponseRedirect
 from django.forms.formsets import formset_factory
 from django.forms.models import modelform_factory
 
-from survey.forms import CommuterForm, LegForm, MakeLegs
+
+from survey.forms import MakeLegs_NormalTW, MakeLegs_NormalFW, MakeLegs_WRTW, MakeLegs_WRFW
 
 def add_checkin(request):
 
@@ -29,25 +30,42 @@ def add_checkin(request):
         return redirect('/')
         
     commute_form = CommuterForm()
-    leg_formset = MakeLegs(instance=Commutersurvey())
+
+    leg_formset_NormalTW = MakeLegs_NormalTW(instance=Commutersurvey(), prefix='ntw')
+    leg_formset_NormalFW = MakeLegs_NormalFW(instance=Commutersurvey(), prefix='nfw')
+    leg_formset_WRTW = MakeLegs_WRTW(instance=Commutersurvey(), prefix='wtw')
+    leg_formset_WRFW = MakeLegs_WRFW(instance=Commutersurvey(), prefix='wfw')
 
     if request.POST:
         commute_form = CommuterForm(request.POST)
 
         if commute_form.is_valid():
             commutersurvey = commute_form.save(commit=False)
-            leg_formset = MakeLegs(request.POST, instance=commutersurvey)
+            leg_formset_NormalTW = MakeLegs_NormalTW(request.POST, instance=commutersurvey, prefix='ntw')
+            leg_formset_NormalFW = MakeLegs_NormalFW(request.POST, instance=commutersurvey, prefix='nfw')
+            leg_formset_WRTW = MakeLegs_WRTW(request.POST, instance=commutersurvey, prefix='wtw')
+            leg_formset_WRFW = MakeLegs_WRFW(request.POST, instance=commutersurvey, prefix='wfw')
 
-            if leg_formset.is_valid():
+            if leg_formset_NormalTW.is_valid() and leg_formset_NormalFW.is_valid() and leg_formset_WRTW.is_valid() and leg_formset_WRFW.is_valid():
                 commutersurvey.wr_day_month = wr_day
+                commutersurvey.email = commute_form.cleaned_data['email']
                 commutersurvey.employer = commute_form.cleaned_data['employer']
                 commutersurvey.team = commute_form.cleaned_data['team']
                 commutersurvey.save()
-                leg_formset.save()
+
+                leg_formset_NormalTW.save()
+                leg_formset_NormalFW.save()
+                leg_formset_WRTW.save()
+                leg_formset_WRFW.save()
 
                 return HttpResponseRedirect('complete/')
-        
-    return render(request, "survey/new_checkin.html", { 'wr_day': wr_day, 'form': commute_form, 'leg_formset': leg_formset })
+
+        leg_formset_NormalTW = MakeLegs_NormalTW(request.POST, prefix='ntw')
+        leg_formset_NormalFW = MakeLegs_NormalFW(request.POST, prefix='nfw')
+        leg_formset_WRTW = MakeLegs_WRTW(request.POST, prefix='wtw')
+        leg_formset_WRFW = MakeLegs_WRFW(request.POST, prefix='wfw')
+
+    return render(request, "survey/new_checkin.html", { 'wr_day': wr_day, 'form': commute_form, 'NormalTW_formset': leg_formset_NormalTW, 'NormalFW_formset': leg_formset_NormalFW, 'WRTW_formset': leg_formset_WRTW, 'WRFW_formset': leg_formset_WRFW })
 
 def process_request(request):
     """ 

@@ -30,7 +30,7 @@
 <form name="form" method="post" action="{{request.path}}" class="form-horizontal">
   <fieldset>
   {% csrf_token %}
-
+    {{ form.non_field_errors }}
     {% for field in form %}
       <div class="form-group {% if field.errors %}has-error{% endif %}">
         <div class="col-sm-3">
@@ -56,21 +56,29 @@
       <div class="col-sm-6 normal-day">
         <center><h3>Normal Commute</h3>
         <h4>To Work</h4></center>
-        {% for form in leg_formset %}
+        {% for form in NormalTW_formset %}
             {{ form.as_table }}
+            <!-- {% if NormalTW_formset.can_delete %}
+                {{ form.DELETE }}
+            {% endif %} -->
             <hr class="lite">
         {% endfor %}
+        {% if NormalTW_formset.errors %}
+          <p class="text-danger">Please fill out all information for this part of your commute.</p>
+        {% endif %}
         <center><button class="btn btn-primary" name="add" value="add"> + </button></center>
       <hr>
       </div>
       <div class="col-sm-6 wr-day">
         <center><h3>Walk/Ride Day</h3>
         <h4>To Work</h4></center>
-        {% for form in leg_formset %}
+        {% for form in WRTW_formset %}
             {{ form.as_table }}
             <hr class="lite">
-
         {% endfor %}
+        {% if NormalTW_formset.errors %}
+          <p class="text-danger">Please fill out all information for this part of your commute.</p>
+        {% endif %}
         <center><button class="btn btn-primary" name="add" value="add"> + </button></center>
       <hr>
       </div>
@@ -79,27 +87,35 @@
       <div class="col-sm-6 normal-day">
         <center><h3>Normal Commute</h3>
         <h4>From Work</h4></center>
-        {% for form in leg_formset %}
+        {% for form in NormalFW_formset %}
             {{ form.as_table }}
             <hr class="lite">
         {% endfor %}
+        {% if NormalTW_formset.errors %}
+          <p class="text-danger">Please fill out all information for this part of your commute.</p>
+        {% endif %}
         <center><button class="btn btn-primary" name="add" value="add"> + </button></center>
       <hr>
       </div>
       <div class="col-sm-6 wr-day">
         <center><h3>Walk/Ride Day</h3>
         <h4>From Work</h4></center>
-        {% for form in leg_formset %}
+        {% for form in WRFW_formset %}
             {{ form.as_table }}
             <hr class="lite">
         {% endfor %}
+        {% if NormalTW_formset.errors %}
+          <p class="text-danger">Please fill out all information for this part of your commute.</p>
+        {% endif %}
         <center><button class="btn btn-primary" name="add" value="add"> + </button></center>
       <hr>
       </div>
     </div>
 
-    {{ leg_formset.management_form }}
-
+    {{ NormalTW_formset.management_form }}
+    {{ NormalFW_formset.management_form }}
+    {{ WRTW_formset.management_form }}
+    {{ WRFW_formset.management_form }}
 
     <center><button class="btn btn-success btn-lg" type="submit" name="action" value="action">
       Submit your checkin!
