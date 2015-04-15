@@ -89,11 +89,11 @@ class Employer(models.Model):
     """ Greens Streets Initiative Employer list """
     name = models.CharField("Employer name", max_length=200)
     nr_employees = models.IntegerField("Number of employees", null=True, blank=True)
-    active = models.BooleanField("Show in Commuter-Form", default=False)
+    active = models.BooleanField("2014 Challenge", default=False)
     size_cat = models.ForeignKey(EmplSizeCategory, null=True, blank=True, verbose_name=u'Size Category')
     sector = models.ForeignKey(EmplSector, null=True, blank=True)
     is_parent = models.BooleanField(default=False)
-    active2015 = models.BooleanField("Show in 2015 Commuter-Form", default=False)
+    active2015 = models.BooleanField("2015 Challenge", default=False)
 
     class Meta:
         verbose_name = _('Employer')
