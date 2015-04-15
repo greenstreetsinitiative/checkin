@@ -69,9 +69,9 @@ def new_leaderboard(request, empid=0, filter_by='sector', _filter=0, sort='parti
             #need to collect all the subteams to get right totals
             parentname = Employer.objects.filter(id=empid).values('name')
             childteams = Employer.objects.filter(sector__parent=parentname,active='t')
-            checkins = Commutersurvey.objects.filter(wr_day_month__gte=32, employer__in=childteams)
+            checkins = Commutersurvey.objects.filter(wr_day_month__gte=32, wr_day_month__lte=38, employer__in=childteams)
         else:
-            checkins = Commutersurvey.objects.filter(wr_day_month__gte=32, employer_id=empid)
+            checkins = Commutersurvey.objects.filter(wr_day_month__gte=32, wr_day_month__lte=38, employer_id=empid)
         
         # allmodes = ['w','b','r','t','cp','tc','da','dalt','o']
         greenmodes = ['w','b','r','t','cp']
@@ -155,7 +155,7 @@ def new_leaderboard(request, empid=0, filter_by='sector', _filter=0, sort='parti
             company = Employer.objects.filter(id=empid)[0]
         except:
             return json.dumps({"error" : "Invalid employer id"})
-        mos = [m.id for m in Month.objects.active_months().reverse().exclude(open_checkin__gt=date.today())] # Get valid months
+        mos = [m.id for m in Month.objects.filter(id__gte=32, id__lte=38)] # Get 2014 months
         firstMonth = min(mos)
 
         # Selects the count of distinct emails for a given month and employer (the case statement is to deal with subgroups)
@@ -206,7 +206,7 @@ def new_leaderboard(request, empid=0, filter_by='sector', _filter=0, sort='parti
     context['sort'] = sort
     context['sectors'] = sorted(EmplSector.objects.all(), key=getSectorNum)
     context['subteams'] = get_subteams()
-    months = Month.objects.active_months().reverse().exclude(open_checkin__gt=date.today() )
+    months = Month.objects.filter(id__gte=32, id__lte=38)
     context['months'] = months
     for m in months:
         if m.url_month == selmonth:
@@ -497,9 +497,9 @@ def getBreakDown(emp, month):
         #need to collect all the subteams to get right totals
         parentname = Employer.objects.filter(id=emp.id).values('name')
         childteams = Employer.objects.filter(sector__parent=parentname,active='t')
-        checkins = Commutersurvey.objects.filter(wr_day_month__gte=32, employer__in=childteams)
+        checkins = Commutersurvey.objects.filter(wr_day_month__gte=32, wr_day_month__lte=38, employer__in=childteams)
     else:
-        checkins = Commutersurvey.objects.filter(wr_day_month__gte=32, employer_id=emp.id)
+        checkins = Commutersurvey.objects.filter(wr_day_month__gte=32, wr_day_month__lte=38, employer_id=emp.id)
 
     for m in modes:
         breakdown[mode] = checkins.filter(leg__mode=m,leg__day__exact='w').distinct().count()
