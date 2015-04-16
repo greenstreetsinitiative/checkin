@@ -1,3 +1,17 @@
+.totals {
+  padding: 15px 0;
+}
+
+.totals .lead {
+  text-align: center;
+}
+
+.totals .total {
+  text-align: center;
+  font-size: 28px;
+  margin-top: 0;
+}
+
 .teamjump {
   background: white;
 }
