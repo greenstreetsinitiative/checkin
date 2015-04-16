@@ -23,12 +23,7 @@ urlpatterns = patterns('',
     url(r'^leaderboard/medium/$', 'leaderboard.views.latest_leaderboard_medium', name="medium"),
     url(r'^leaderboard/large/$', 'leaderboard.views.latest_leaderboard_large', name="large"),
     url(r'^leaderboard/largest/$', 'leaderboard.views.latest_leaderboard_largest', name="largest"),
-    # url(r'^leaderboard-bare/$', 'leaderboard.views.leaderboard_bare'),
-    # url(r'^test-chart/$', 'leaderboard.views.testchart'),
-    # url(r'^emplbreakdown/(?P<month>[-\w]+)/$', 'leaderboardlist.views.empBreakDown'),
-    # url(r'^emplbreakdown/$', 'leaderboardlist.views.chooseMonth'),
-    # url(r'^nvobreakdown/$', 'leaderboard.views.nvobreakdown'),
-    # url(r'^nvobreakdown/(?P<selEmpID>[-\w]+)/$', 'leaderboard.views.nvobreakdown'),
+
 
     # data api
     url(r'^api/survey/$', 'survey.views.api', name='survey_api'),
@@ -44,26 +39,26 @@ urlpatterns = patterns('',
 
     url(r'^grappelli/', include('grappelli.urls')),
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^leaderboard/redirect', 'leaderboard.views.lb_redirect'),
+    url(r'^legacy-leaderboard/redirect', 'leaderboard.views.lb_redirect'),
 
-    url(r'^leaderboard/(\d+)/$', 'leaderboard.views.new_leaderboard'),
-    url(r'^leaderboard/(?P<empid>\d+)/(?P<sort>[^/]+)/$', 'leaderboard.views.new_leaderboard'),
-    url(r'^leaderboard/(\d+)/([^/]+)/(\d+)/$', 'leaderboard.views.new_leaderboard'),
-    url(r'^leaderboard/(\d+)/([^/]+)/(\d+)/([^/]+)/$', 'leaderboard.views.new_leaderboard'),
-    url(r'^leaderboard/month_(?P<selmonth>[^/]+)$', 'leaderboard.views.new_leaderboard'),
+    url(r'^legacy-leaderboard/(\d+)/$', 'leaderboard.views.new_leaderboard'),
+    url(r'^legacy-leaderboard/(?P<empid>\d+)/(?P<sort>[^/]+)/$', 'leaderboard.views.new_leaderboard'),
+    url(r'^legacy-leaderboard/(\d+)/([^/]+)/(\d+)/$', 'leaderboard.views.new_leaderboard'),
+    url(r'^legacy-leaderboard/(\d+)/([^/]+)/(\d+)/([^/]+)/$', 'leaderboard.views.new_leaderboard'),
+    url(r'^legacy-leaderboard/month_(?P<selmonth>[^/]+)$', 'leaderboard.views.new_leaderboard'),
 
-    url(r'^leaderboard/(\d+)/month_(?P<selmonth>[^/]+)$', 'leaderboard.views.new_leaderboard'),
-    url(r'^leaderboard/(?P<empid>\d+)/(?P<sort>[^/]+)/month_(?P<selmonth>[^/]+)$', 'leaderboard.views.new_leaderboard'),
-    url(r'^leaderboard/(\d+)/([^/]+)/(\d+)/month_(?P<selmonth>[^/]+)$', 'leaderboard.views.new_leaderboard'),
-    url(r'^leaderboard/(?P<empid>\d+)/(?P<filter_by>[^/]+)/(?P<_filter>\d+)/(?P<sort>[^/]+)/month_(?P<selmonth>[^/]+)$', 'leaderboard.views.new_leaderboard'),
+    url(r'^legacy-leaderboard/(\d+)/month_(?P<selmonth>[^/]+)$', 'leaderboard.views.new_leaderboard'),
+    url(r'^legacy-leaderboard/(?P<empid>\d+)/(?P<sort>[^/]+)/month_(?P<selmonth>[^/]+)$', 'leaderboard.views.new_leaderboard'),
+    url(r'^legacy-leaderboard/(\d+)/([^/]+)/(\d+)/month_(?P<selmonth>[^/]+)$', 'leaderboard.views.new_leaderboard'),
+    url(r'^legacy-leaderboard/(?P<empid>\d+)/(?P<filter_by>[^/]+)/(?P<_filter>\d+)/(?P<sort>[^/]+)/month_(?P<selmonth>[^/]+)$', 'leaderboard.views.new_leaderboard'),
 
-    url(r'^leaderboard/(?P<sort>[^/]+)/$', 'leaderboard.views.new_leaderboard'),
-    url(r'^leaderboard/(?P<filter_by>[^/]+)/(?P<_filter>\d+)/(?P<sort>[^/]+)/$', 'leaderboard.views.new_leaderboard'),
-    url(r'^leaderboard/(?P<filter_by>[^/]+)/(?P<_filter>\d+)/$', 'leaderboard.views.new_leaderboard'),
+    url(r'^legacy-leaderboard/(?P<sort>[^/]+)/$', 'leaderboard.views.new_leaderboard'),
+    url(r'^legacy-leaderboard/(?P<filter_by>[^/]+)/(?P<_filter>\d+)/(?P<sort>[^/]+)/$', 'leaderboard.views.new_leaderboard'),
+    url(r'^legacy-leaderboard/(?P<filter_by>[^/]+)/(?P<_filter>\d+)/$', 'leaderboard.views.new_leaderboard'),
 
-    url(r'^leaderboard/(?P<sort>[^/]+)/month_(?P<selmonth>[^/]+)$', 'leaderboard.views.new_leaderboard'),
-    url(r'^leaderboard/(?P<filter_by>[^/]+)/(?P<_filter>\d+)/(?P<sort>[^/]+)/month_(?P<selmonth>[^/]+)$', 'leaderboard.views.new_leaderboard'),
-    url(r'^leaderboard/(?P<filter_by>[^/]+)/(?P<_filter>\d+)/month_(?P<selmonth>[^/]+)$', 'leaderboard.views.new_leaderboard'),
+    url(r'^legacy-leaderboard/(?P<sort>[^/]+)/month_(?P<selmonth>[^/]+)$', 'leaderboard.views.new_leaderboard'),
+    url(r'^legacy-leaderboard/(?P<filter_by>[^/]+)/(?P<_filter>\d+)/(?P<sort>[^/]+)/month_(?P<selmonth>[^/]+)$', 'leaderboard.views.new_leaderboard'),
+    url(r'^legacy-leaderboard/(?P<filter_by>[^/]+)/(?P<_filter>\d+)/month_(?P<selmonth>[^/]+)$', 'leaderboard.views.new_leaderboard'),
 
 
 ) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
